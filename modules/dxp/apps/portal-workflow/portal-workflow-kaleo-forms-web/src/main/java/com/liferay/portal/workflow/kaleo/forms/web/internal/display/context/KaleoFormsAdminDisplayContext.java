@@ -36,14 +36,22 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
+import com.liferay.portal.workflow.kaleo.designer.web.internal.constants.KaleoDesignerActionKeys;
+import com.liferay.portal.workflow.kaleo.designer.web.internal.permission.KaleoDefinitionVersionPermission;
+import com.liferay.portal.workflow.kaleo.designer.web.internal.permission.KaleoDesignerPermission;
 import com.liferay.portal.workflow.kaleo.forms.constants.KaleoFormsActionKeys;
 import com.liferay.portal.workflow.kaleo.forms.constants.KaleoFormsPortletKeys;
 import com.liferay.portal.workflow.kaleo.forms.model.KaleoProcess;
@@ -81,6 +89,9 @@ public class KaleoFormsAdminDisplayContext {
 		KaleoFormsWebConfiguration kaleoFormsWebConfiguration,
 		StorageEngine storageEngine) {
 
+		_themeDisplay = (ThemeDisplay)renderRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
 		_renderRequest = renderRequest;
 		_renderResponse = renderResponse;
 		_ddlRecordLocalService = ddlRecordLocalService;
@@ -92,6 +103,23 @@ public class KaleoFormsAdminDisplayContext {
 
 		_kaleoFormsAdminRequestHelper = new KaleoFormsAdminRequestHelper(
 			renderRequest);
+	}
+
+	public boolean canAddWorkflowDefinition() {
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if (_companyAdministratorCanPublish &&
+			permissionChecker.isCompanyAdmin()) {
+
+			return true;
+		}
+
+		if (permissionChecker.isOmniadmin()) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public List<DropdownItem> getActionItemsDropdownItems() {
@@ -203,6 +231,18 @@ public class KaleoFormsAdminDisplayContext {
 					LanguageUtil.get(httpServletRequest, "order-by"));
 			}
 		).build();
+	}
+
+	public boolean isAddWorkflowKaleoButtonVisible(
+		PermissionChecker permissionChecker) {
+
+		if (!canAddWorkflowDefinition()) {
+			return false;
+		}
+
+		return KaleoFormsPermission.contains(
+			permissionChecker, _themeDisplay.getCompanyGroupId(),
+			KaleoFormsActionKeys.ADD_PROCESS);
 	}
 
 	public KaleoFormsViewRecordsDisplayContext
@@ -465,6 +505,7 @@ public class KaleoFormsAdminDisplayContext {
 
 	private static final String[] _DISPLAY_VIEWS = {"list"};
 
+	private boolean _companyAdministratorCanPublish;
 	private final DDLRecordLocalService _ddlRecordLocalService;
 	private final DDMDisplayRegistry _ddmDisplayRegistry;
 	private final KaleoDefinitionVersionLocalService
@@ -475,5 +516,6 @@ public class KaleoFormsAdminDisplayContext {
 	private final RenderRequest _renderRequest;
 	private final RenderResponse _renderResponse;
 	private final StorageEngine _storageEngine;
+	private final ThemeDisplay _themeDisplay;
 
 }
