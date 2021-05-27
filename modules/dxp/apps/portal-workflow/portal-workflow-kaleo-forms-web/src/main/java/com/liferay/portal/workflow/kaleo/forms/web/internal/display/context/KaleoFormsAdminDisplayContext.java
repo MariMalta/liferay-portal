@@ -36,7 +36,6 @@ import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.portlet.PortalPreferences;
 import com.liferay.portal.kernel.portlet.PortletPreferencesFactoryUtil;
 import com.liferay.portal.kernel.portlet.PortletURLUtil;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -49,9 +48,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
-import com.liferay.portal.workflow.kaleo.designer.web.internal.constants.KaleoDesignerActionKeys;
-import com.liferay.portal.workflow.kaleo.designer.web.internal.permission.KaleoDefinitionVersionPermission;
-import com.liferay.portal.workflow.kaleo.designer.web.internal.permission.KaleoDesignerPermission;
 import com.liferay.portal.workflow.kaleo.forms.constants.KaleoFormsActionKeys;
 import com.liferay.portal.workflow.kaleo.forms.constants.KaleoFormsPortletKeys;
 import com.liferay.portal.workflow.kaleo.forms.model.KaleoProcess;
@@ -233,18 +229,6 @@ public class KaleoFormsAdminDisplayContext {
 		).build();
 	}
 
-	public boolean isAddWorkflowKaleoButtonVisible(
-		PermissionChecker permissionChecker) {
-
-		if (!canAddWorkflowDefinition()) {
-			return false;
-		}
-
-		return KaleoFormsPermission.contains(
-			permissionChecker, _themeDisplay.getCompanyGroupId(),
-			KaleoFormsActionKeys.ADD_PROCESS);
-	}
-
 	public KaleoFormsViewRecordsDisplayContext
 			getKaleoFormsViewRecordsDisplayContext()
 		throws PortalException {
@@ -422,6 +406,18 @@ public class KaleoFormsAdminDisplayContext {
 		SearchContainer<?> searchContainer = getKaleoProcessSearch();
 
 		return searchContainer.getTotal();
+	}
+
+	public boolean isAddWorkflowKaleoButtonVisible(
+		PermissionChecker permissionChecker) {
+
+		if (!canAddWorkflowDefinition()) {
+			return false;
+		}
+
+		return KaleoFormsPermission.contains(
+			permissionChecker, _themeDisplay.getCompanyGroupId(),
+			KaleoFormsActionKeys.ADD_PROCESS);
 	}
 
 	public boolean isShowAddButton() {
