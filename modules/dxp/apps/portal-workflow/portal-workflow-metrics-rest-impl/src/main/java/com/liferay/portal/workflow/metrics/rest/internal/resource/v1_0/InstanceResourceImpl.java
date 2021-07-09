@@ -908,19 +908,7 @@ public class InstanceResourceImpl
 			else if (Objects.equals(
 						task.get("assigneeType"), Role.class.getName())) {
 
-				long[] groupIds = contextUser.getGroupIds();
 				boolean reviewer = false;
-				List<Role> roles = new ArrayList<>();
-
-				for (long groupId : groupIds) {
-					roles.addAll(
-						roleLocalService.getUserGroupRoles(
-							contextUser.getUserId(), groupId));
-
-					roles.addAll(
-						roleLocalService.getUserGroupGroupRoles(
-							contextUser.getUserId(), groupId));
-				}
 
 				for (Object assigneeId : (List<?>)task.get("assigneeIds")) {
 					if (ArrayUtil.contains(
@@ -929,20 +917,6 @@ public class InstanceResourceImpl
 
 						reviewer = true;
 
-						break;
-					}
-
-					for (Role role : roles) {
-						if (role.getRoleId() == GetterUtil.getLong(
-								assigneeId)) {
-
-							reviewer = true;
-
-							break;
-						}
-					}
-
-					if (reviewer) {
 						break;
 					}
 				}
