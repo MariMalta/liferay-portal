@@ -65,21 +65,13 @@ public class KaleoTaskInstanceTokenModelListener
 							kaleoTaskInstanceToken.
 								getKaleoTaskInstanceTokenId());
 
-				Long[] assigneeIds = Optional.ofNullable(
-					kaleoTaskAssignmentInstances
-				).filter(
-					ListUtil::isNotEmpty
-				).map(
-					List::stream
-				).map(
-					stream -> stream.map(
-						KaleoTaskAssignmentInstance::getAssigneeClassPK
-					).toArray(
-						Long[]::new
-					)
-				).orElseGet(
-					() -> null
-				);
+				Long[] assigneeIds = _getAssigneeInformations(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getAssigneeClassPK);
+
+				Long[] assigneeGroupIds = _getAssigneeInformations(
+					kaleoTaskAssignmentInstances,
+					KaleoTaskAssignmentInstance::getGroupId);
 
 				String assigneeType = Stream.of(
 					kaleoTaskAssignmentInstances
@@ -100,7 +92,7 @@ public class KaleoTaskInstanceTokenModelListener
 					_indexerHelper.createAssetTypeLocalizationMap(
 						kaleoTaskInstanceToken.getClassName(),
 						kaleoTaskInstanceToken.getGroupId()),
-					null, assigneeIds, assigneeType,
+					assigneeGroupIds, assigneeIds, assigneeType,
 					kaleoTaskInstanceToken.getClassName(),
 					kaleoTaskInstanceToken.getClassPK(),
 					kaleoTaskInstanceToken.getCompanyId(), false, null, null,
@@ -211,7 +203,6 @@ public class KaleoTaskInstanceTokenModelListener
 	private Long[] _getAssigneeInformations(
 		List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances,
 		Function<KaleoTaskAssignmentInstance, Long> function) {
-
 		return Optional.ofNullable(
 			kaleoTaskAssignmentInstances
 		).filter(
