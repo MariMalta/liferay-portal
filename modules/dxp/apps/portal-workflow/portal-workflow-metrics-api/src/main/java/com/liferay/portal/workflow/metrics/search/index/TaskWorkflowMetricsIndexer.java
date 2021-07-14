@@ -42,7 +42,7 @@ public interface TaskWorkflowMetricsIndexer {
 
 	public Document updateTask(
 		Map<Locale, String> assetTitleMap, Map<Locale, String> assetTypeMap,
-		Long[] assigneeIds, String assigneeType, long companyId,
-		Date modifiedDate, long taskId, long userId);
+		Long[] assigneeGroupIds, Long[] assigneeIds, String assigneeType,
+		long companyId, Date modifiedDate, long taskId, long userId);
 
 }

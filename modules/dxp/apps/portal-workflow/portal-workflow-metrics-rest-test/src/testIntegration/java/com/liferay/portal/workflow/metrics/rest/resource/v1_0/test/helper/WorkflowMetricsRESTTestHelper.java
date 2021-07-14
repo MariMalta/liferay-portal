@@ -560,7 +560,7 @@ public class WorkflowMetricsRESTTestHelper {
 		if (assigneeIds != null) {
 			_taskWorkflowMetricsIndexer.updateTask(
 				_createLocalizationMap(task.getAssetTitle()),
-				_createLocalizationMap(task.getAssetType()), assigneeIds,
+				_createLocalizationMap(task.getAssetType()), null, assigneeIds,
 				assigneeType, companyId, new Date(), task.getId(), 0);
 
 			_assertCount(

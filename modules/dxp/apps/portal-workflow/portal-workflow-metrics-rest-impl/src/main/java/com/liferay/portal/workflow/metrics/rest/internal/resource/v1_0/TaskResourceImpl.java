@@ -152,7 +152,7 @@ public class TaskResourceImpl extends BaseTaskResourceImpl {
 
 		_taskWorkflowMetricsIndexer.updateTask(
 			LocalizedMapUtil.getLocalizedMap(task.getAssetTitle_i18n()),
-			LocalizedMapUtil.getLocalizedMap(task.getAssetType_i18n()),
+			LocalizedMapUtil.getLocalizedMap(task.getAssetType_i18n()), null,
 			assigneeIds, assigneeType, contextCompany.getCompanyId(),
 			task.getDateModified(), task.getId(), contextUser.getUserId());
 	}

@@ -152,7 +152,7 @@ public class KaleoTaskInstanceTokenModelListener
 						_indexerHelper.createAssetTypeLocalizationMap(
 							kaleoTaskInstanceToken.getClassName(),
 							kaleoTaskInstanceToken.getGroupId()),
-						assigneeIds, assigneeType,
+						null, assigneeIds, assigneeType,
 						kaleoTaskInstanceToken.getCompanyId(),
 						kaleoTaskInstanceToken.getModifiedDate(),
 						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId(),
@@ -203,6 +203,7 @@ public class KaleoTaskInstanceTokenModelListener
 	private Long[] _getAssigneeInformations(
 		List<KaleoTaskAssignmentInstance> kaleoTaskAssignmentInstances,
 		Function<KaleoTaskAssignmentInstance, Long> function) {
+
 		return Optional.ofNullable(
 			kaleoTaskAssignmentInstances
 		).filter(
