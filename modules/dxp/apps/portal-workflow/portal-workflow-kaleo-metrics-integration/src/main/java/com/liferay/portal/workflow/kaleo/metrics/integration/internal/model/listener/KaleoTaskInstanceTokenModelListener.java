@@ -123,15 +123,13 @@ public class KaleoTaskInstanceTokenModelListener
 								getKaleoTaskInstanceTokenId());
 
 				if (!kaleoTaskAssignmentInstances.isEmpty()) {
-					Long[] assigneeIds = Stream.of(
-						kaleoTaskAssignmentInstances
-					).flatMap(
-						List::stream
-					).map(
-						KaleoTaskAssignmentInstance::getAssigneeClassPK
-					).toArray(
-						Long[]::new
-					);
+					Long[] assigneeIds = _getAssigneeInformations(
+						kaleoTaskAssignmentInstances,
+						KaleoTaskAssignmentInstance::getAssigneeClassPK);
+
+					Long[] assigneeGroupIds = _getAssigneeInformations(
+						kaleoTaskAssignmentInstances,
+						KaleoTaskAssignmentInstance::getGroupId);
 
 					String assigneeType = Stream.of(
 						kaleoTaskAssignmentInstances
@@ -152,7 +150,7 @@ public class KaleoTaskInstanceTokenModelListener
 						_indexerHelper.createAssetTypeLocalizationMap(
 							kaleoTaskInstanceToken.getClassName(),
 							kaleoTaskInstanceToken.getGroupId()),
-						null, assigneeIds, assigneeType,
+						assigneeGroupIds, assigneeIds, assigneeType,
 						kaleoTaskInstanceToken.getCompanyId(),
 						kaleoTaskInstanceToken.getModifiedDate(),
 						kaleoTaskInstanceToken.getKaleoTaskInstanceTokenId(),

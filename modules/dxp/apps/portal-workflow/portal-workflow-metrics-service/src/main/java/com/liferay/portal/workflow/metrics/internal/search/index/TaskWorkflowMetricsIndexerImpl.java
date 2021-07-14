@@ -335,6 +335,8 @@ public class TaskWorkflowMetricsIndexerImpl
 				).language(
 					"painless"
 				).putParameter(
+					"assigneeGroupIds", assigneeGroupIds
+				).putParameter(
 					"assigneeIds", assigneeIds
 				);
 
