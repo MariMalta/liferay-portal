@@ -639,7 +639,7 @@ public class WorkflowLog implements Serializable {
 	public static enum Type {
 
 		TASK_ASSIGN("TaskAssign"), TASK_COMPLETION("TaskCompletion"),
-		TASK_UPDATE("TaskUpdate"), TRANSITION("Transition");
+		TASK_ENTRY("TaskEntry"), TASK_UPDATE("TaskUpdate"), TRANSITION("Transition");
 
 		@JsonCreator
 		public static Type create(String value) {
