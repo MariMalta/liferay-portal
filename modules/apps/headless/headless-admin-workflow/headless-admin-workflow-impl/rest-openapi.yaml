@@ -960,7 +960,7 @@ paths:
                   name: types
                   schema:
                       items:
-                          enum: [TaskAssign, TaskCompletion, TaskUpdate, Transition]
+                          enum: [TaskAssign, TaskCompletion, TaskEntry, TaskUpdate, Transition]
                           type: string
                       type: array
                 - in: query
