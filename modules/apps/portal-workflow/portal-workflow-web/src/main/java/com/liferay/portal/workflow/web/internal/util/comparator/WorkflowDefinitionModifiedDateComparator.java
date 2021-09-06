@@ -52,7 +52,7 @@ public class WorkflowDefinitionModifiedDateComparator
 			Date modifiedDate1 = workflowDefinition1.getModifiedDate();
 			Date modifiedDate2 = workflowDefinition2.getModifiedDate();
 
-			value = DateUtil.compareTo(modifiedDate1, modifiedDate2);
+			value = DateUtil.compareTo(modifiedDate2, modifiedDate1);
 
 			if (_ascending) {
 				return value;
