@@ -48,7 +48,7 @@ public class KaleoDefinitionVersionModifiedDateComparator
 		Date modifiedDate1 = kaleoDefinitionVersion1.getModifiedDate();
 		Date modifiedDate2 = kaleoDefinitionVersion2.getModifiedDate();
 
-		int value = DateUtil.compareTo(modifiedDate1, modifiedDate2);
+		int value = DateUtil.compareTo(modifiedDate2, modifiedDate1);
 
 		if (_ascending) {
 			return value;
