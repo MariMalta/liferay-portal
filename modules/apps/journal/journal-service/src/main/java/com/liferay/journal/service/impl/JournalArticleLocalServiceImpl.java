@@ -188,7 +188,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SubscriptionSender;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Time;
-import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
@@ -595,7 +595,14 @@ public class JournalArticleLocalServiceImpl
 		article.setReviewDate(reviewDate);
 		article.setIndexable(indexable);
 		article.setSmallImage(smallImage);
-		article.setSmallImageId(counterLocalService.increment());
+
+		if (smallImage) {
+			article.setSmallImageId(counterLocalService.increment());
+		}
+		else {
+			article.setSmallImageId(0);
+		}
+
 		article.setSmallImageURL(smallImageURL);
 
 		Date date = new Date();
@@ -1392,17 +1399,15 @@ public class JournalArticleLocalServiceImpl
 		// System event
 
 		if (articleResource != null) {
-			JSONObject extraDataJSONObject = JSONUtil.put(
-				"uuid", article.getUuid()
-			).put(
-				"version", article.getVersion()
-			);
-
 			_systemEventLocalService.addSystemEvent(
 				0, article.getGroupId(), article.getModelClassName(),
 				article.getPrimaryKey(), articleResource.getUuid(), null,
 				SystemEventConstants.TYPE_DELETE,
-				extraDataJSONObject.toString());
+				JSONUtil.put(
+					"uuid", article.getUuid()
+				).put(
+					"version", article.getVersion()
+				).toString());
 		}
 
 		return article;
@@ -4104,15 +4109,13 @@ public class JournalArticleLocalServiceImpl
 			_journalArticleResourceLocalService.getArticleResource(
 				article.getResourcePrimKey());
 
-		UnicodeProperties typeSettingsUnicodeProperties =
-			new UnicodeProperties();
-
-		typeSettingsUnicodeProperties.put("title", article.getArticleId());
-
 		TrashEntry trashEntry = _trashEntryLocalService.addTrashEntry(
 			userId, article.getGroupId(), JournalArticle.class.getName(),
 			article.getResourcePrimKey(), articleResource.getUuid(), null,
-			oldStatus, articleVersionStatusOVPs, typeSettingsUnicodeProperties);
+			oldStatus, articleVersionStatusOVPs,
+			UnicodePropertiesBuilder.put(
+				"title", article.getArticleId()
+			).build());
 
 		String trashArticleId = _trashHelper.getTrashTitle(
 			trashEntry.getEntryId());
@@ -6635,7 +6638,8 @@ public class JournalArticleLocalServiceImpl
 							userId, assetEntry.getEntryId(), assetLinkEntryIds,
 							AssetLinkConstants.TYPE_RELATED);
 
-						_assetEntryLocalService.deleteEntry(draftAssetEntry);
+						_assetEntryLocalService.deleteEntry(
+							draftAssetEntry.getEntryId());
 					}
 				}
 
@@ -8933,7 +8937,7 @@ public class JournalArticleLocalServiceImpl
 
 		sb.append(
 			_portal.getGroupFriendlyURL(
-				group.getPublicLayoutSet(), themeDisplay));
+				group.getPublicLayoutSet(), themeDisplay, false, false));
 
 		sb.append(layoutDisplayPageProvider.getURLSeparator());
 

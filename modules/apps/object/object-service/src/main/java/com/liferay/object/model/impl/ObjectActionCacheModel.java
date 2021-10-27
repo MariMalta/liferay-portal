@@ -77,7 +77,7 @@ public class ObjectActionCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -99,12 +99,14 @@ public class ObjectActionCacheModel
 		sb.append(objectDefinitionId);
 		sb.append(", active=");
 		sb.append(active);
+		sb.append(", name=");
+		sb.append(name);
+		sb.append(", objectActionExecutorKey=");
+		sb.append(objectActionExecutorKey);
 		sb.append(", objectActionTriggerKey=");
 		sb.append(objectActionTriggerKey);
 		sb.append(", parameters=");
 		sb.append(parameters);
-		sb.append(", type=");
-		sb.append(type);
 		sb.append("}");
 
 		return sb.toString();
@@ -151,6 +153,21 @@ public class ObjectActionCacheModel
 		objectActionImpl.setObjectDefinitionId(objectDefinitionId);
 		objectActionImpl.setActive(active);
 
+		if (name == null) {
+			objectActionImpl.setName("");
+		}
+		else {
+			objectActionImpl.setName(name);
+		}
+
+		if (objectActionExecutorKey == null) {
+			objectActionImpl.setObjectActionExecutorKey("");
+		}
+		else {
+			objectActionImpl.setObjectActionExecutorKey(
+				objectActionExecutorKey);
+		}
+
 		if (objectActionTriggerKey == null) {
 			objectActionImpl.setObjectActionTriggerKey("");
 		}
@@ -163,13 +180,6 @@ public class ObjectActionCacheModel
 		}
 		else {
 			objectActionImpl.setParameters(parameters);
-		}
-
-		if (type == null) {
-			objectActionImpl.setType("");
-		}
-		else {
-			objectActionImpl.setType(type);
 		}
 
 		objectActionImpl.resetOriginalValues();
@@ -196,9 +206,10 @@ public class ObjectActionCacheModel
 		objectDefinitionId = objectInput.readLong();
 
 		active = objectInput.readBoolean();
+		name = objectInput.readUTF();
+		objectActionExecutorKey = objectInput.readUTF();
 		objectActionTriggerKey = objectInput.readUTF();
 		parameters = (String)objectInput.readObject();
-		type = objectInput.readUTF();
 	}
 
 	@Override
@@ -232,6 +243,20 @@ public class ObjectActionCacheModel
 
 		objectOutput.writeBoolean(active);
 
+		if (name == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(name);
+		}
+
+		if (objectActionExecutorKey == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(objectActionExecutorKey);
+		}
+
 		if (objectActionTriggerKey == null) {
 			objectOutput.writeUTF("");
 		}
@@ -245,13 +270,6 @@ public class ObjectActionCacheModel
 		else {
 			objectOutput.writeObject(parameters);
 		}
-
-		if (type == null) {
-			objectOutput.writeUTF("");
-		}
-		else {
-			objectOutput.writeUTF(type);
-		}
 	}
 
 	public long mvccVersion;
@@ -264,8 +282,9 @@ public class ObjectActionCacheModel
 	public long modifiedDate;
 	public long objectDefinitionId;
 	public boolean active;
+	public String name;
+	public String objectActionExecutorKey;
 	public String objectActionTriggerKey;
 	public String parameters;
-	public String type;
 
 }

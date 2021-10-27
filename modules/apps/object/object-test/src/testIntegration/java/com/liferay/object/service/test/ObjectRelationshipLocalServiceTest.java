@@ -62,8 +62,9 @@ public class ObjectRelationshipLocalServiceTest {
 		_objectDefinition1 =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(),
-				LocalizedMapUtil.getLocalizedMap("Able"), "Able", null, null,
-				LocalizedMapUtil.getLocalizedMap("Ables"),
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"A" + RandomTestUtil.randomString(), null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionConstants.SCOPE_COMPANY,
 				Collections.<ObjectField>emptyList());
 
@@ -75,8 +76,9 @@ public class ObjectRelationshipLocalServiceTest {
 		_objectDefinition2 =
 			_objectDefinitionLocalService.addCustomObjectDefinition(
 				TestPropsValues.getUserId(),
-				LocalizedMapUtil.getLocalizedMap("Baker"), "Baker", null, null,
-				LocalizedMapUtil.getLocalizedMap("Bakers"),
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"A" + RandomTestUtil.randomString(), null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionConstants.SCOPE_COMPANY,
 				Collections.<ObjectField>emptyList());
 
@@ -88,7 +90,8 @@ public class ObjectRelationshipLocalServiceTest {
 
 	@Test
 	public void testAddObjectRelationship() throws Exception {
-		_testAddObjectRelationship(ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+		//_testAddObjectRelationship(
+		//	ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
 		_testAddObjectRelationship(
 			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
@@ -131,7 +134,7 @@ public class ObjectRelationshipLocalServiceTest {
 				_objectDefinition1.getObjectDefinitionId(),
 				_objectDefinition2.getObjectDefinitionId(),
 				LocalizedMapUtil.getLocalizedMap("Able"), StringUtil.randomId(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		Assert.assertEquals(
 			LocalizedMapUtil.getLocalizedMap("Able"),
@@ -140,6 +143,7 @@ public class ObjectRelationshipLocalServiceTest {
 		objectRelationship =
 			_objectRelationshipLocalService.updateObjectRelationship(
 				objectRelationship.getObjectRelationshipId(),
+				objectRelationship.getDeletionType(),
 				LocalizedMapUtil.getLocalizedMap("Baker"));
 
 		Assert.assertEquals(

@@ -15,28 +15,60 @@
 import {ClayButtonWithIcon} from '@clayui/button';
 import ClayForm, {ClayInput} from '@clayui/form';
 import PropTypes from 'prop-types';
-import React, {useState} from 'react';
+import React from 'react';
 
 import ColorPicker from '../../../common/components/ColorPicker';
+import useControlledState from '../../../core/hooks/useControlledState';
 import {useStyleBook} from '../../../plugins/page-design-options/hooks/useStyleBook';
 import {ConfigurationFieldPropTypes} from '../../../prop-types/index';
+import {config} from '../../config/index';
 import {ColorPaletteField} from './ColorPaletteField';
 
 const COLOR_PICKER_TYPE = 'ColorPicker';
 
 export const ColorPickerField = ({field, onValueSelect, value}) => {
 	const {tokenValues} = useStyleBook();
-	const [color, setColor] = useState(tokenValues[value]?.value);
+	const [color, setColor] = useControlledState(tokenValues[value]?.value);
+	let colors = {};
 
-	const colors = Object.values(tokenValues)
-		.filter((token) => token.editorType === COLOR_PICKER_TYPE)
-		.map((token) => ({
-			label: token.label,
-			name: token.name,
-			value: token.value,
-		}));
+	if (config.tokenOptimizationEnabled) {
+		Object.values(tokenValues)
+			.filter((token) => token.editorType === COLOR_PICKER_TYPE)
+			.forEach(
+				({
+					label,
+					name,
+					tokenCategoryLabel: category,
+					tokenSetLabel: tokenSet,
+					value,
+				}) => {
+					const color = {label, name, value};
 
-	if (!colors.length) {
+					if (Object.keys(colors).includes(category)) {
+						if (Object.keys(colors[category]).includes(tokenSet)) {
+							colors[category][tokenSet].push(color);
+						}
+						else {
+							colors[category][tokenSet] = [color];
+						}
+					}
+					else {
+						colors[category] = {[tokenSet]: [color]};
+					}
+				}
+			);
+	}
+	else {
+		colors = Object.values(tokenValues)
+			.filter((token) => token.editorType === COLOR_PICKER_TYPE)
+			.map((token) => ({
+				label: token.label,
+				name: token.name,
+				value: token.value,
+			}));
+	}
+
+	if (!Object.keys(colors).length) {
 		return (
 			<ColorPaletteField
 				field={field}
@@ -76,7 +108,7 @@ export const ColorPickerField = ({field, onValueSelect, value}) => {
 				</ClayInput.GroupItem>
 				{color && (
 					<ClayButtonWithIcon
-						className="ml-2 page-editor__item-selector__content-button"
+						className="ml-2"
 						displayType="secondary"
 						onClick={() => {
 							setColor('');

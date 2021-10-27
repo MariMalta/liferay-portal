@@ -81,10 +81,12 @@ public class ObjectDefinitionsFieldsDisplayContext {
 				"delete", "delete", "async"));
 	}
 
-	public CreationMenu getCreationMenu() throws PortalException {
+	public CreationMenu getCreationMenu(ObjectDefinition objectDefinition)
+		throws PortalException {
+
 		CreationMenu creationMenu = new CreationMenu();
 
-		if (!_hasAddObjectFieldPermission()) {
+		if (objectDefinition.isSystem() || !_hasAddObjectFieldPermission()) {
 			return creationMenu;
 		}
 

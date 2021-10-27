@@ -25,6 +25,16 @@ import java.util.List;
  */
 public interface ObjectRelatedModelsProvider<T extends BaseModel<T>> {
 
+	public void deleteRelatedModel(
+			long userId, long groupId, long objectRelationshipId,
+			long primaryKey)
+		throws PortalException;
+
+	public void disassociateRelatedModels(
+			long userId, long objectRelationshipId, long primaryKey1,
+			long primaryKey2)
+		throws PortalException;
+
 	public String getClassName();
 
 	public String getObjectRelationshipType();

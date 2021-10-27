@@ -8,6 +8,8 @@ definition {
 
 	setUp {
 		ACUtils.launchAC();
+
+		TestCase.setUpPortalInstance();
 	}
 
 	tearDown {
@@ -189,10 +191,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8789 | Test Summary: Delete a keyword block"
 	@priority = "3"
 	test DeleteKeywordBlock {
-		task ("Open AC") {
-			ACUtils.launchAC();
-		}
-
 		task ("Go to settings, definitions and definitions type") {
 			ACNavigation.goToSettings();
 
@@ -227,10 +225,6 @@ definition {
 	test DeleteKeywordUsingTheCheckBox {
 		var words = "ac keyword 1,ac keyword 2";
 
-		task ("Launch AC") {
-			ACUtils.launchAC();
-		}
-
 		task ("Go to settings, definitions and definitions type") {
 			ACNavigation.goToSettings();
 
@@ -262,10 +256,6 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8791 | Test Summary: Delete multiple keywords"
 	@priority = "3"
 	test DeleteMultipleKeywords {
-		task ("Open AC") {
-			ACUtils.launchAC();
-		}
-
 		task ("Go to settings, definitions and definitions type") {
 			ACNavigation.goToSettings();
 
@@ -374,13 +364,13 @@ definition {
 			ACDefinitions.goToDefinitionType(definitionType = "Interests");
 		}
 
-		task ("Add three keywords and assert them") {
+		task ("Add two keywords and assert them") {
 			ACSettings.addMultiplesOptions(optionsList = "${keywords}");
 
 			ACSettings.assertKeywords(keyword = "${keywords}");
 		}
 
-		task ("Search the test interest keyword and assert how shoud and shoudn't be there") {
+		task ("Search the 'test interest' keyword and assert that the 'ac keyword' keyword is not present") {
 			ACUtils.searchBar(searchItem = "test interest");
 
 			ACSettings.assertKeywords(keyword = "test interest");
@@ -388,7 +378,7 @@ definition {
 			ACSettings.assertKeywordNotPresent(keyword = "ac keyword}");
 		}
 
-		task ("Search the ac keyword keyword and assert how shoud and shoudn't be there") {
+		task ("Search the 'ac keyword' keyword and assert that the 'test interest' keyword is not present") {
 			ACUtils.searchBar(searchItem = "ac keyword");
 
 			ACSettings.assertKeywords(keyword = "ac keyword");
@@ -396,10 +386,12 @@ definition {
 			ACSettings.assertKeywordNotPresent(keyword = "test interest");
 		}
 
-		task ("Search a keyword not added and assert that ones shoudn't be there") {
-			ACUtils.searchBar(searchItem = "Shoud not be here");
+		task ("Search a keyword not added and assert that ones shouldn't be there") {
+			ACUtils.searchBar(searchItem = "Should not be here");
 
 			ACUtils.viewNoResultsMessage(noResultMessage = "There are no Keywords found.");
+
+			ACUtils.clearSearchBar();
 		}
 
 		task ("Select all keywords and delete them") {

@@ -98,7 +98,9 @@ export const initialDragDrop = {
 	targetRefs: new Map(),
 };
 
-export const DragAndDropContext = React.createContext(initialDragDrop);
+const DragAndDropContext = React.createContext(initialDragDrop);
+
+export const useSetCanDrag = () => useContext(DragAndDropContext).setCanDrag;
 
 export const NotDraggableArea = ({children}) => (
 	<div

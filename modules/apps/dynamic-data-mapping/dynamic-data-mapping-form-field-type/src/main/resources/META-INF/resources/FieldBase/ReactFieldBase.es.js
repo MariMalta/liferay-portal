@@ -201,8 +201,12 @@ function FieldBase({
 		tip,
 	});
 
-	const fieldDetailsId = id || name;
+	let fieldDetailsId = id ?? name;
 
+	fieldDetailsId = fieldDetailsId + '_fieldDetails';
+
+	const accessibleProps =
+		accessible && fieldDetails ? {'aria-labelledby': fieldDetailsId} : null;
 	const hiddenTranslations = useMemo(() => {
 		const array = [];
 
@@ -251,6 +255,10 @@ function FieldBase({
 				<div className="lfr-ddm-form-field-repeatable-toolbar">
 					{repeatable && repeatedIndex > 0 && (
 						<ClayButton
+							aria-label={Liferay.Util.sub(
+								Liferay.Language.get('remove-duplicate-field'),
+								label ? label : type
+							)}
 							className="ddm-form-field-repeatable-delete-button p-0"
 							disabled={readOnly}
 							onClick={() =>
@@ -268,6 +276,10 @@ function FieldBase({
 					)}
 
 					<ClayButton
+						aria-label={Liferay.Util.sub(
+							Liferay.Language.get('add-duplicate-field'),
+							label ? label : type
+						)}
 						className={classNames(
 							'ddm-form-field-repeatable-add-button p-0',
 							{
@@ -295,7 +307,7 @@ function FieldBase({
 					{showLegend ? (
 						<fieldset>
 							<legend
-								aria-labelledby={fieldDetailsId}
+								{...accessibleProps}
 								className="lfr-ddm-legend"
 								tabIndex="0"
 							>
@@ -315,11 +327,12 @@ function FieldBase({
 					) : (
 						<>
 							<label
+								{...accessibleProps}
 								className={classNames({
 									'ddm-empty': !showLabel && !required,
 									'ddm-label': showLabel || required,
 								})}
-								htmlFor={fieldDetailsId}
+								htmlFor={id ?? name}
 								tabIndex="0"
 							>
 								{showLabel && label && (

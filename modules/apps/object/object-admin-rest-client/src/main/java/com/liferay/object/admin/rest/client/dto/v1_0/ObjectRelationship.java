@@ -57,6 +57,35 @@ public class ObjectRelationship implements Cloneable, Serializable {
 
 	protected Map<String, Map<String, String>> actions;
 
+	public DeletionType getDeletionType() {
+		return deletionType;
+	}
+
+	public String getDeletionTypeAsString() {
+		if (deletionType == null) {
+			return null;
+		}
+
+		return deletionType.toString();
+	}
+
+	public void setDeletionType(DeletionType deletionType) {
+		this.deletionType = deletionType;
+	}
+
+	public void setDeletionType(
+		UnsafeSupplier<DeletionType, Exception> deletionTypeUnsafeSupplier) {
+
+		try {
+			deletionType = deletionTypeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected DeletionType deletionType;
+
 	public Long getId() {
 		return id;
 	}
@@ -158,6 +187,27 @@ public class ObjectRelationship implements Cloneable, Serializable {
 
 	protected Long objectDefinitionId2;
 
+	public String getObjectDefinitionName2() {
+		return objectDefinitionName2;
+	}
+
+	public void setObjectDefinitionName2(String objectDefinitionName2) {
+		this.objectDefinitionName2 = objectDefinitionName2;
+	}
+
+	public void setObjectDefinitionName2(
+		UnsafeSupplier<String, Exception> objectDefinitionName2UnsafeSupplier) {
+
+		try {
+			objectDefinitionName2 = objectDefinitionName2UnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String objectDefinitionName2;
+
 	public Type getType() {
 		return type;
 	}
@@ -216,10 +266,42 @@ public class ObjectRelationship implements Cloneable, Serializable {
 		return ObjectRelationshipSerDes.toJSON(this);
 	}
 
+	public static enum DeletionType {
+
+		CASCADE("cascade"), DISASSOCIATE("disassociate"), PREVENT("prevent");
+
+		public static DeletionType create(String value) {
+			for (DeletionType deletionType : values()) {
+				if (Objects.equals(deletionType.getValue(), value) ||
+					Objects.equals(deletionType.name(), value)) {
+
+					return deletionType;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private DeletionType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
 	public static enum Type {
 
-		ONE_TO_MANY("one_to_many"), ONE_TO_ONE("one_to_one"),
-		MANY_TO_MANY("many_to_many");
+		ONE_TO_MANY("oneToMany"), MANY_TO_MANY("manyToMany");
 
 		public static Type create(String value) {
 			for (Type type : values()) {

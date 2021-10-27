@@ -28,6 +28,8 @@ definition {
 		}
 		else {
 			JSONGroup.deleteGroupByName(groupName = "Site Name");
+
+			JSONUser.tearDownNonAdminUsers();
 		}
 
 		ACUtils.tearDownAC();
@@ -37,8 +39,6 @@ definition {
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentCommentingBlog {
 		ACUtils.createBlogsAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -54,13 +54,12 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "Comment Blog",
+			commentText = "Blogs Entry Comment",
+			documentTitleList = "Blogs AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
-
-		Comments.addPG(entryComment = "Blogs Entry Comment");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -85,19 +84,18 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
+		ACUtils.navigateToSitePage(
+			actionType = "Comment Blog",
+			commentText = "Blogs Entry Comment 1",
+			documentTitleList = "Blogs AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
-			BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
-
+		for (var n : list "2,3") {
 			Comments.addPG(entryComment = "Blogs Entry Comment ${n}");
 		}
 
@@ -111,17 +109,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9221 | Test Summary: Create a Web Behavior criteria at least/at most times"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentCriteriaLeastMostTimes {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -137,7 +131,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -165,17 +159,14 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -187,11 +178,11 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 
-		ACSegments.editSegment();
+		ACNavigation.goToSegments();
+
+		ACSegments.editSegment(searchTerm = "Dynamic Segment Test");
 
 		ACSegments.editWebBehaviorCriterion(
 			atLeastMost = "at most",
@@ -203,17 +194,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 	}
 
 	@description = "Create a segment with behavior of downloading a document"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentDownloadingDocument {
 		ACUtils.createDMAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -229,11 +216,11 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "Download DM",
+			documentTitleList = "DM AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		DMDocument.downloadPG(dmDocumentTitle = "DM AC Title");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -259,25 +246,15 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "Download DM",
+			documentTitleList = "DM AC Title,DM AC Title,DM AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			DMDocument.downloadPG(dmDocumentTitle = "DM AC Title");
-		}
-
-		Pause(locator1 = "10000");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -289,17 +266,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9222 | Test Summary: Create a Web Behavior since X days"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentSinceXdays {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -315,7 +288,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -338,23 +311,20 @@ definition {
 			occurenceNumber = "4",
 			searchTerm = "Web Content AC Title",
 			timeOption = "since",
-			timePeriod = "last 7 days");
+			timePeriod = "Last 7 days");
 
 		ACSegments.saveSegment();
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -366,9 +336,7 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Create a Web Behavior Segment Submitting a Form"
@@ -392,23 +360,11 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "Submit Form",
 			pageName = "AC Page",
-			siteName = "Site Name");
-
-		FormPortlet.waitFormRenderer(text = "Submit");
-
-		FormFields.viewTextLabel(
-			fieldLabel = "Text",
-			fieldName = "Text");
-
-		FormFields.editText(
-			fieldName = "Text",
-			fieldValue = "Test Segments");
-
-		FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
-
-		Pause(locator1 = "10000");
+			siteName = "Site Name",
+			submitText = "Test Segments");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -428,35 +384,22 @@ definition {
 			documentTitle = "Created Form Name",
 			indexField = "1");
 
-		ACSegments.setOccurence(occurenceNumber = "2");
+		ACSegments.setOccurence(occurenceNumber = "4");
 
 		ACSegments.saveSegment();
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "Submit Form",
+			documentTitleList = "1,2,3",
 			pageName = "AC Page",
-			siteName = "Site Name");
-
-		FormPortlet.waitFormRenderer(text = "Submit");
-
-		FormFields.viewTextLabel(
-			fieldLabel = "Text",
-			fieldName = "Text");
-
-		FormFields.editText(
-			fieldName = "Text",
-			fieldValue = "Test Segments");
-
-		FormPortlet.submitLocalizedSuccessfully(buttonName = "Submit");
-
-		Pause(locator1 = "10000");
+			siteName = "Site Name",
+			submitText = "Test Segments");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -468,17 +411,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9216 | Test Summary: Add segment using a web behavior 'after' some time"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentUsingAfter {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -494,7 +433,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -527,17 +466,14 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -549,17 +485,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9217 | Test Summary: Add segment using a web behavior 'before' some time"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentUsingBefore {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -575,7 +507,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -608,17 +540,14 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -630,17 +559,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9218 | Test Summary: Add segment using a web behavior 'between' some time"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentUsingBetween {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -656,7 +581,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -694,17 +619,14 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -716,17 +638,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Add segment using a web behavior 'ever' done"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentUsingEver {
-		ACUtils.createFormAndAddToPage();
-
-		Navigator.openURL();
+		ACUtils.createWCAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -742,7 +660,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -758,31 +676,26 @@ definition {
 
 		ACSegments.nameSegment(segmentName = "Dynamic Segment Test");
 
-		ACSegments.addSegmentField(segmentField = "Viewed Form");
+		ACSegments.addSegmentField(segmentField = "Viewed Web Content");
 
 		ACSegments.editWebBehaviorCriterion(
 			indexField = "1",
 			occurenceNumber = "4",
-			searchTerm = "Created Form Name",
+			searchTerm = "Web Content AC Title",
 			timeOption = "ever");
 
 		ACSegments.saveSegment();
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			Pause(locator1 = "5000");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -794,19 +707,12 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Create a Web Behavior using 'has not' segment"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentUsingHasNot {
-		property portal.upstream = "quarantine";
-
-		// AC Refactor: data doesn't appear on time
-		// AC Refactor ticket: LRAC-9362
-
 		ACUtils.createBlogsAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
@@ -823,11 +729,11 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -857,21 +763,15 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
-
-			Pause(locator1 = "5000");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title,Blogs AC Title,Blogs AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -883,17 +783,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9219 | Test Summary: Add segment using a web behavior 'on' some time"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentUsingOn {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -909,7 +805,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -942,17 +838,14 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -964,17 +857,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Add segment using a web behavior 'since' some time"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentUsingSince {
 		ACUtils.createBlogsAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -990,11 +879,11 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1021,21 +910,15 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
-
-			Pause(locator1 = "5000");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title,Blogs AC Title,Blogs AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1053,17 +936,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9223 | Test Summary: Create a Web Behavior Segment of Viewing a Blog"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingBlog {
 		ACUtils.createBlogsAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -1079,11 +958,11 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1108,19 +987,15 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			BlogsNavigator.gotoPG(entryTitle = "Blogs AC Title");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View Blog",
+			documentTitleList = "Blogs AC Title,Blogs AC Title,Blogs AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1132,37 +1007,35 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9224 | Test Summary: Create a Web Behavior Segment of Viewing Document & Media in a Topic"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingDM {
-		ACUtils.createDMAndAddToPage();
+		var username = "ac";
 
-		Navigator.openURL();
+		ACUtils.createDMAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		JSONUser.addUser(
-			userEmailAddress = "ac@liferay.com",
-			userFirstName = "ac",
-			userLastName = "ac",
-			userScreenName = "ac");
+			userEmailAddress = "${username}@liferay.com",
+			userFirstName = "${username}",
+			userLastName = "${username}",
+			userScreenName = "${username}");
 
 		ACDXPSettings.syncNewContactData();
 
 		User.logoutAndLoginPG(
-			userLoginEmailAddress = "ac@liferay.com",
-			userLoginFullName = "ac ac");
+			userLoginEmailAddress = "${username}@liferay.com",
+			userLoginFullName = "${username} ${username}");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "View DM",
+			documentTitleList = "DM AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		DMNavigator.gotoDocumentPG(dmDocumentTitle = "DM AC Title");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1179,7 +1052,7 @@ definition {
 		ACSegments.addSegmentField(segmentField = "Viewed Document & Media");
 
 		ACSegments.selectDocument(
-			documentTitle = "Document_1.jpg",
+			documentTitle = "DM AC Title",
 			indexField = "1");
 
 		ACSegments.setOccurence(occurenceNumber = "4");
@@ -1188,25 +1061,15 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
-		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
+		ACUtils.launchDXP(userEmailAddress = "${username}@liferay.com");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "View DM",
+			documentTitleList = "DM AC Title,DM AC Title,DM AC Title",
 			pageName = "AC Page",
 			siteName = "Site Name");
-
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentPG(dmDocumentTitle = "DM AC Title");
-		}
-
-		Pause(locator1 = "10000");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -1218,14 +1081,14 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "${username} ${username}");
 	}
 
 	@description = "Create a segment with behavior of viewing a form"
 	@priority = "5"
 	test CanCreateWebBehaviorSegmentViewingForm {
+		var username = "ac";
+
 		ACUtils.createFormAndAddToPage();
 
 		Navigator.openURL();
@@ -1233,18 +1096,19 @@ definition {
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		JSONUser.addUser(
-			userEmailAddress = "ac@liferay.com",
-			userFirstName = "ac",
-			userLastName = "ac",
-			userScreenName = "ac");
+			userEmailAddress = "${username}@liferay.com",
+			userFirstName = "${username}",
+			userLastName = "${username}",
+			userScreenName = "${username}");
 
 		ACDXPSettings.syncNewContactData();
 
 		User.logoutAndLoginPG(
-			userLoginEmailAddress = "ac@liferay.com",
-			userLoginFullName = "ac ac");
+			userLoginEmailAddress = "${username}@liferay.com",
+			userLoginFullName = "${username} ${username}");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
+			actionType = "View Form",
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -1272,18 +1136,15 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
-		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
+		ACUtils.launchDXP(userEmailAddress = "${username}@liferay.com");
 
 		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
+				actionType = "View Form",
 				pageName = "AC Page",
 				siteName = "Site Name");
-
-			Pause(locator1 = "100");
 		}
 
 		ACUtils.closeAllSessionsAndWait();
@@ -1296,31 +1157,31 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "${username} ${username}");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9225 | Test Summary: Create a Web Behavior Segment of Viewing a Page"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingPage {
-		Navigator.openURL();
+		var username = "ac";
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
+		var dataSource = StringUtil.extractFirst("${propertyName}"," ");
+
 		JSONUser.addUser(
-			userEmailAddress = "ac@liferay.com",
-			userFirstName = "ac",
-			userLastName = "ac",
-			userScreenName = "ac");
+			userEmailAddress = "${username}@liferay.com",
+			userFirstName = "${username}",
+			userLastName = "${username}",
+			userScreenName = "${username}");
 
 		ACDXPSettings.syncNewContactData();
 
 		User.logoutAndLoginPG(
-			userLoginEmailAddress = "ac@liferay.com",
-			userLoginFullName = "ac ac");
+			userLoginEmailAddress = "${username}@liferay.com",
+			userLoginFullName = "${username} ${username}");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -1341,20 +1202,18 @@ definition {
 		ACSegments.editWebBehaviorCriterion(
 			indexField = "1",
 			occurenceNumber = "4",
-			searchTerm = "AC Page - Site Name - Liferay DXP");
+			searchTerm = "AC Page - Site Name - ${dataSource}");
 
 		ACSegments.saveSegment();
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
-		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
+		ACUtils.launchDXP(userEmailAddress = "${username}@liferay.com");
 
 		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -1369,17 +1228,13 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "${username} ${username}");
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-9226 | Test Summary: Create a Web Behavior Segment of Viewing a Web Content"
 	@priority = "4"
 	test CanCreateWebBehaviorSegmentViewingWC {
 		ACUtils.createWCAndAddToPage();
-
-		Navigator.openURL();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
@@ -1395,7 +1250,7 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		Navigator.gotoSitePage(
+		ACUtils.navigateToSitePage(
 			pageName = "AC Page",
 			siteName = "Site Name");
 
@@ -1422,14 +1277,12 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertTextEquals(
-			locator1 = "ACSegments#NO_MEMBER_TITLE",
-			value1 = "There are no items found.");
+		ACUtils.viewNoResultsMessage(noResultMessage = "There are no items found.");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
 		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -1444,9 +1297,7 @@ definition {
 
 		ACNavigation.switchTab(tabName = "Membership");
 
-		AssertElementPresent(
-			key_userName = "ac ac",
-			locator1 = "ACSegments#SEGMENT_MEMBERS");
+		ACUtils.viewNameList(nameList = "ac ac");
 	}
 
 }

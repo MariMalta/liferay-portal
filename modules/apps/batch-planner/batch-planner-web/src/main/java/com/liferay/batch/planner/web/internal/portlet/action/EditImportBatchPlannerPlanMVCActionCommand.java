@@ -14,6 +14,7 @@
 
 package com.liferay.batch.planner.web.internal.portlet.action;
 
+import com.liferay.batch.planner.batch.engine.broker.BatchEngineBroker;
 import com.liferay.batch.planner.constants.BatchPlannerPortletKeys;
 import com.liferay.batch.planner.model.BatchPlannerMapping;
 import com.liferay.batch.planner.model.BatchPlannerPlan;
@@ -24,14 +25,26 @@ import com.liferay.batch.planner.service.persistence.BatchPlannerMappingUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseTransactionalMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.upload.UploadPortletRequest;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+
+import java.net.URI;
+
+import java.nio.file.Files;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.UUID;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
@@ -74,39 +87,50 @@ public class EditImportBatchPlannerPlanMVCActionCommand
 	private void _addBatchPlannerPlan(ActionRequest actionRequest)
 		throws Exception {
 
-		String name = ParamUtil.getString(actionRequest, "name");
 		boolean export = ParamUtil.getBoolean(actionRequest, "export");
 		String externalType = ParamUtil.getString(
 			actionRequest, "externalType");
-		String externalURL = ParamUtil.getString(actionRequest, "externalURL");
 		String internalClassName = ParamUtil.getString(
 			actionRequest, "internalClassName");
+		String name = ParamUtil.getString(actionRequest, "name");
+		String taskItemDelegateName = ParamUtil.getString(
+			actionRequest, "taskItemDelegateName");
 
-		BatchPlannerPlan batchPlannerPlan =
-			_batchPlannerPlanService.addBatchPlannerPlan(
-				export, externalType, externalURL, internalClassName, name,
-				false);
+		UploadPortletRequest uploadPortletRequest =
+			_portal.getUploadPortletRequest(actionRequest);
 
-		if (Validator.isNotNull(
-				ParamUtil.getString(actionRequest, "policyName")) &&
-			Validator.isNotNull(
-				ParamUtil.getString(actionRequest, "policyValue"))) {
+		File importFile = _toBatchPlannerFile(
+			externalType, uploadPortletRequest.getFileAsStream("importFile"));
+
+		try {
+			URI importFileURI = importFile.toURI();
+
+			BatchPlannerPlan batchPlannerPlan =
+				_batchPlannerPlanService.addBatchPlannerPlan(
+					export, externalType, importFileURI.toString(),
+					internalClassName, name, taskItemDelegateName, false);
 
 			_batchPlannerPolicyService.addBatchPlannerPolicy(
-				batchPlannerPlan.getBatchPlannerPlanId(),
-				ParamUtil.getString(actionRequest, "policyName"),
-				ParamUtil.getString(actionRequest, "policyValue"));
+				batchPlannerPlan.getBatchPlannerPlanId(), "containsHeaders",
+				_getCheckboxValue(actionRequest, "containsHeaders"));
+
+			List<BatchPlannerMapping> batchPlannerMappings =
+				_getBatchPlannerMappings(actionRequest);
+
+			for (BatchPlannerMapping batchPlannerMapping :
+					batchPlannerMappings) {
+
+				_batchPlannerMappingService.addBatchPlannerMapping(
+					batchPlannerPlan.getBatchPlannerPlanId(),
+					batchPlannerMapping.getExternalFieldName(), "String",
+					batchPlannerMapping.getInternalFieldName(), "String",
+					StringPool.BLANK);
+			}
+
+			_batchEngineBroker.submit(batchPlannerPlan.getBatchPlannerPlanId());
 		}
-
-		List<BatchPlannerMapping> batchPlannerMappings =
-			_getBatchPlannerMappings(actionRequest);
-
-		for (BatchPlannerMapping batchPlannerMapping : batchPlannerMappings) {
-			_batchPlannerMappingService.addBatchPlannerMapping(
-				batchPlannerPlan.getBatchPlannerPlanId(),
-				batchPlannerMapping.getExternalFieldName(), "String",
-				batchPlannerMapping.getInternalFieldName(), "String",
-				StringPool.BLANK);
+		finally {
+			FileUtil.delete(importFile);
 		}
 	}
 
@@ -161,6 +185,38 @@ public class EditImportBatchPlannerPlanMVCActionCommand
 		return batchPlannerMappings;
 	}
 
+	private String _getCheckboxValue(ActionRequest actionRequest, String name) {
+		String value = actionRequest.getParameter(name);
+
+		if (value == null) {
+			return Boolean.FALSE.toString();
+		}
+
+		return Boolean.TRUE.toString();
+	}
+
+	private File _toBatchPlannerFile(
+			String externalType, InputStream inputStream)
+		throws Exception {
+
+		UUID uuid = UUID.randomUUID();
+
+		File file = FileUtil.createTempFile(uuid.toString(), externalType);
+
+		try {
+			Files.copy(inputStream, file.toPath());
+
+			return file;
+		}
+		catch (IOException ioException) {
+			if (file.exists()) {
+				file.delete();
+			}
+
+			throw ioException;
+		}
+	}
+
 	private void _updateBatchPlannerPlan(ActionRequest actionRequest)
 		throws Exception {
 
@@ -194,6 +250,9 @@ public class EditImportBatchPlannerPlanMVCActionCommand
 	}
 
 	@Reference
+	private BatchEngineBroker _batchEngineBroker;
+
+	@Reference
 	private BatchPlannerMappingService _batchPlannerMappingService;
 
 	@Reference
@@ -201,5 +260,8 @@ public class EditImportBatchPlannerPlanMVCActionCommand
 
 	@Reference
 	private BatchPlannerPolicyService _batchPlannerPolicyService;
+
+	@Reference
+	private Portal _portal;
 
 }

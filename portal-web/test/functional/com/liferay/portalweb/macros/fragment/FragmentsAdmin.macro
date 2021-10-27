@@ -77,9 +77,9 @@ definition {
 	macro importCollectionFromDependenciesFolder {
 		FragmentsAdminNavigator.gotoImportCollection();
 
-		UploadCommonFile(
-			locator1 = "TextInput#FILE",
-			value1 = "${collectionZipFile}");
+		UploadFileWithCustomPath.uploadArchiveFile(
+			fileName = "${collectionZipFile}",
+			filePath = "enduser/wem/fragment");
 
 		SelectFrameTop();
 
@@ -164,6 +164,13 @@ definition {
 		LexiconCard.viewCardLabel(
 			card = "${entry}",
 			cardLabel = "${workflowStatus}");
+	}
+
+	macro viewSiteUsages {
+		LexiconTable.viewTableEntryInfo(
+			columnName = "usages",
+			tableEntry = "${siteName}",
+			tableEntryInfo = "${usages}");
 	}
 
 }

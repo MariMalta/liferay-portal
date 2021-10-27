@@ -289,6 +289,17 @@ public abstract class BaseBuild implements Build {
 				"JENKINS_GITHUB_UPSTREAM_BRANCH_SHA");
 		}
 
+		if ((topLevelBuild instanceof WorkspaceBuild) && !fromArchive) {
+			WorkspaceBuild workspaceBuild = (WorkspaceBuild)topLevelBuild;
+
+			Workspace workspace = workspaceBuild.getWorkspace();
+
+			WorkspaceGitRepository workspaceGitRepository =
+				workspace.getPrimaryWorkspaceGitRepository();
+
+			return workspaceGitRepository.getBaseBranchSHA();
+		}
+
 		Map<String, String> gitRepositoryGitDetailsTempMap =
 			topLevelBuild.getBaseGitRepositoryDetailsTempMap();
 
@@ -321,6 +332,37 @@ public abstract class BaseBuild implements Build {
 		}
 
 		return _buildDescription;
+	}
+
+	@Override
+	public String getBuildDirPath() {
+		StringBuilder sb = new StringBuilder();
+
+		if (JenkinsResultsParserUtil.isWindows()) {
+			sb.append("C:");
+		}
+
+		sb.append("/tmp/jenkins/");
+
+		JenkinsMaster jenkinsMaster = getJenkinsMaster();
+
+		sb.append(jenkinsMaster.getName());
+
+		sb.append("/");
+		sb.append(getJobName());
+
+		if (this instanceof AxisBuild) {
+			sb.append("/");
+
+			AxisBuild axisBuild = (AxisBuild)this;
+
+			sb.append(axisBuild.getAxisNumber());
+		}
+
+		sb.append("/");
+		sb.append(getBuildNumber());
+
+		return sb.toString();
 	}
 
 	@Override

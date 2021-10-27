@@ -81,11 +81,19 @@ public abstract class BaseObjectDefinitionResourceImpl
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "page"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "pageSize"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "sort"
 			)
 		}
 	)
@@ -102,7 +110,11 @@ public abstract class BaseObjectDefinitionResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@javax.ws.rs.QueryParam("search")
 			String search,
-			@javax.ws.rs.core.Context Pagination pagination)
+			@javax.ws.rs.core.Context
+				com.liferay.portal.vulcan.aggregation.Aggregation aggregation,
+			@javax.ws.rs.core.Context Filter filter,
+			@javax.ws.rs.core.Context Pagination pagination,
+			@javax.ws.rs.core.Context Sort[] sorts)
 		throws Exception {
 
 		return Page.of(Collections.emptyList());
@@ -111,7 +123,7 @@ public abstract class BaseObjectDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions' -d $'{"active": ___, "label": ___, "name": ___, "objectFields": ___, "objectRelationships": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions' -d $'{"active": ___, "label": ___, "name": ___, "objectActions": ___, "objectFields": ___, "objectRelationships": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.tags.Tags(
 		value = {
@@ -287,7 +299,7 @@ public abstract class BaseObjectDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}' -d $'{"active": ___, "label": ___, "name": ___, "objectFields": ___, "objectRelationships": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}' -d $'{"active": ___, "label": ___, "name": ___, "objectActions": ___, "objectFields": ___, "objectRelationships": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
@@ -376,7 +388,7 @@ public abstract class BaseObjectDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}' -d $'{"active": ___, "label": ___, "name": ___, "objectFields": ___, "objectRelationships": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}' -d $'{"active": ___, "label": ___, "name": ___, "objectActions": ___, "objectFields": ___, "objectRelationships": ___, "panelAppOrder": ___, "panelCategoryKey": ___, "pluralLabel": ___, "scope": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
@@ -531,7 +543,8 @@ public abstract class BaseObjectDefinitionResourceImpl
 			Map<String, Serializable> parameters, String search)
 		throws Exception {
 
-		return getObjectDefinitionsPage(search, pagination);
+		return getObjectDefinitionsPage(
+			search, null, filter, pagination, sorts);
 	}
 
 	@Override

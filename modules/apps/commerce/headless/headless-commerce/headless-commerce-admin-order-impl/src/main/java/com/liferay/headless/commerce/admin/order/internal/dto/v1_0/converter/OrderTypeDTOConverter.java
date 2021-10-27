@@ -34,7 +34,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	enabled = false,
-	property = "model.class.name=com.liferay.commerce.model.CommerceOrderType",
+	property = "dto.class.name=com.liferay.commerce.model.CommerceOrderType",
 	service = {DTOConverter.class, OrderTypeDTOConverter.class}
 )
 public class OrderTypeDTOConverter
@@ -70,7 +70,7 @@ public class OrderTypeDTOConverter
 				id = commerceOrderType.getCommerceOrderTypeId();
 				name = LanguageUtils.getLanguageIdMap(
 					commerceOrderType.getNameMap());
-				workflowStatusInfo = _getWorkflowStatusInfo(
+				workflowStatusInfo = _toStatus(
 					WorkflowConstants.getStatusLabel(
 						commerceOrderType.getStatus()),
 					LanguageUtil.get(
@@ -83,7 +83,7 @@ public class OrderTypeDTOConverter
 		};
 	}
 
-	private Status _getWorkflowStatusInfo(
+	private Status _toStatus(
 		String orderTypeStatusLabel, String orderTypeStatusLabelI18n,
 		int statusCode) {
 

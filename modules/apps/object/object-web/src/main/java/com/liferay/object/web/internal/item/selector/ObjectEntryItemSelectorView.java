@@ -173,13 +173,9 @@ public class ObjectEntryItemSelectorView
 				"className", ObjectEntry.class.getName()
 			).put(
 				"classNameId",
-				_portal.getClassNameId(ObjectEntry.class.getName())
+				_portal.getClassNameId(_objectDefinition.getClassName())
 			).put(
 				"classPK", _objectEntry.getObjectEntryId()
-			).put(
-				"classTypeId", _objectEntry.getObjectDefinitionId()
-			).put(
-				"subtype", _objectDefinition.getLabel(themeDisplay.getLocale())
 			).put(
 				"title",
 				StringBundler.concat(
@@ -190,12 +186,17 @@ public class ObjectEntryItemSelectorView
 
 		@Override
 		public String getSubtitle(Locale locale) {
-			return _objectDefinition.getLabel(locale);
+			return String.valueOf(_objectEntry.getObjectEntryId());
 		}
 
 		@Override
 		public String getTitle(Locale locale) {
-			return String.valueOf(_objectEntry.getObjectEntryId());
+			try {
+				return _objectEntry.getTitleValue();
+			}
+			catch (PortalException portalException) {
+				throw new RuntimeException(portalException);
+			}
 		}
 
 		@Override

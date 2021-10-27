@@ -16,6 +16,7 @@ import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import ClayLabel from '@clayui/label';
 import ClayModal from '@clayui/modal';
+import {ClayTooltipProvider} from '@clayui/tooltip';
 import classNames from 'classnames';
 import React, {useContext, useMemo, useState} from 'react';
 
@@ -33,11 +34,6 @@ type TTabTypes = {
 		label: string;
 	};
 };
-
-interface ITabTypesProps extends React.HTMLAttributes<HTMLElement> {
-	selectedType: string;
-	onChangeType: (type: string) => void;
-}
 
 const TYPES = {
 	FIELDS: 'fields',
@@ -59,33 +55,6 @@ const types: TTabTypes = {
 	},
 };
 
-const TabTypes: React.FC<ITabTypesProps> = ({onChangeType, selectedType}) => {
-	return (
-		<>
-			{Object.keys(types).map((key) => {
-				const {description, label} = types[key];
-
-				return (
-					<div
-						className={classNames('layout-tab__tab-types', {
-							active: selectedType === key,
-						})}
-						key={key}
-						onClick={() => onChangeType(key)}
-					>
-						<h4 className="layout-tab__tab-types__title">
-							{label}
-						</h4>
-						<span className="tab__tab-types__description">
-							{description}
-						</span>
-					</div>
-				);
-			})}
-		</>
-	);
-};
-
 const defaultLanguageId = normalizeLanguageId(
 	Liferay.ThemeDisplay.getDefaultLanguageId()
 );
@@ -96,11 +65,63 @@ interface IModalAddObjectLayoutTabProps
 	onClose: () => void;
 }
 
+interface ITabTypeProps extends React.HTMLAttributes<HTMLElement> {
+	description: string;
+	disabled?: boolean;
+	disabledMessage?: string;
+	type: string;
+	label: string;
+	onChangeType: (type: string) => void;
+	selected: string;
+}
+
+const TabType: React.FC<ITabTypeProps> = ({
+	description,
+	disabled = false,
+	label,
+	onChangeType,
+	selected,
+	type,
+}) => {
+	const tabProps = {
+		'data-tooltip-align': 'top',
+		onClick: () => {},
+		title: Liferay.Language.get(
+			'the-first-tab-in-the-layout-cannot-be-a-relationship-tab'
+		),
+	};
+
+	return (
+		<ClayTooltipProvider>
+			<div
+				className={classNames('layout-tab__tab-types', {
+					active: selected === type,
+					disabled,
+				})}
+				key={type}
+				onClick={() => onChangeType(type)}
+				{...(disabled && tabProps)}
+			>
+				<h4 className="layout-tab__tab-types__title">{label}</h4>
+				<span className="tab__tab-types__description">
+					{description}
+				</span>
+			</div>
+		</ClayTooltipProvider>
+	);
+};
+
 const ModalAddObjectLayoutTab: React.FC<IModalAddObjectLayoutTabProps> = ({
 	observer,
 	onClose,
 }) => {
-	const [{objectRelationships}, dispatch] = useContext(LayoutContext);
+	const [
+		{
+			objectLayout: {objectLayoutTabs},
+			objectRelationships,
+		},
+		dispatch,
+	] = useContext(LayoutContext);
 	const [selectedType, setSelectedType] = useState(TYPES.FIELDS);
 	const [query, setQuery] = useState<string>('');
 	const [selectedRelationship, setSelectedRelationship] = useState<
@@ -173,69 +194,79 @@ const ModalAddObjectLayoutTab: React.FC<IModalAddObjectLayoutTabProps> = ({
 						required
 						value={values.name}
 					/>
-
 					<ClayForm.Group>
 						<label className="mb-2">
 							{Liferay.Language.get('type')}
 						</label>
 
-						<TabTypes
-							onChangeType={setSelectedType}
-							selectedType={selectedType}
-						/>
+						{Object.keys(types).map((key) => {
+							const {description, label} = types[key];
+
+							return (
+								<TabType
+									description={description}
+									disabled={
+										objectLayoutTabs.length === 0 &&
+										key === TYPES.RELATIONSHIPS
+									}
+									key={key}
+									label={label}
+									onChangeType={setSelectedType}
+									selected={selectedType}
+									type={key}
+								/>
+							);
+						})}
 					</ClayForm.Group>
-
 					{selectedType === TYPES.RELATIONSHIPS && (
-						<ClayForm.Group>
-							<AutoComplete
-								contentRight={
-									<ClayLabel
-										className="label-inside-custom-select"
-										displayType="secondary"
-									>
-										{selectedRelationship?.type}
-									</ClayLabel>
-								}
-								emptyStateMessage={Liferay.Language.get(
-									'there-are-no-relationship-for-this-object'
-								)}
-								error={errors.objectRelationshipId}
-								items={filteredRelationships}
-								label={Liferay.Language.get('relationship')}
-								onChangeQuery={setQuery}
-								onSelectItem={(item) => {
-									const syntheticEvent: any = {
-										target: {
-											name: 'objectRelationshipId',
-											value: item.id,
-										},
-									};
+						<AutoComplete
+							contentRight={
+								<ClayLabel
+									className="label-inside-custom-select"
+									displayType="secondary"
+								>
+									{selectedRelationship?.type}
+								</ClayLabel>
+							}
+							emptyStateMessage={Liferay.Language.get(
+								'there-are-no-relationship-for-this-object'
+							)}
+							error={errors.objectRelationshipId}
+							items={filteredRelationships}
+							label={Liferay.Language.get('relationship')}
+							onChangeQuery={setQuery}
+							onSelectItem={(item) => {
+								const syntheticEvent: any = {
+									target: {
+										name: 'objectRelationshipId',
+										value: item.id,
+									},
+								};
 
-									setSelectedRelationship(item);
-									handleChange(syntheticEvent);
-								}}
-								query={query}
-								required
-								value={
-									selectedRelationship?.label[
-										defaultLanguageId
-									] ?? selectedRelationship?.name
-								}
-							>
-								{({label, name, type}) => (
-									<div className="d-flex justify-content-between">
-										<div>
-											{label[defaultLanguageId] ?? name}
-										</div>
-										<div>
-											<ClayLabel displayType="secondary">
-												{type}
-											</ClayLabel>
-										</div>
+								setSelectedRelationship(item);
+								handleChange(syntheticEvent);
+							}}
+							query={query}
+							required
+							value={
+								selectedRelationship?.label[
+									defaultLanguageId
+								] ?? selectedRelationship?.name
+							}
+						>
+							{({label, name, type}) => (
+								<div className="d-flex justify-content-between">
+									<div>
+										{label[defaultLanguageId] ?? name}
 									</div>
-								)}
-							</AutoComplete>
-						</ClayForm.Group>
+									<div>
+										<ClayLabel displayType="secondary">
+											{type}
+										</ClayLabel>
+									</div>
+								</div>
+							)}
+						</AutoComplete>
 					)}
 				</ClayModal.Body>
 				<ClayModal.Footer

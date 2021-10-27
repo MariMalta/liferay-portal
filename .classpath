@@ -21,8 +21,6 @@
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/petra/petra-sql-dsl-spi/src/main/java"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/petra/petra-string/src/main/java"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/petra/petra-url-pattern-mapper/src/main/java"/>
-	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/registry-api/src/main/java"/>
-	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="modules/core/registry-impl/src/main/java"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-impl/src"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-impl/test/unit"/>
 	<classpathentry excluding="**/.svn/**|.svn/" kind="src" path="portal-kernel/src"/>
@@ -214,7 +212,6 @@
 	<classpathentry kind="lib" path="lib/portal/jcifs.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jcommon.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jcl-over-slf4j.jar"/>
-	<classpathentry kind="lib" path="lib/portal/jdom.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jdom2.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jempbox.jar"/>
 	<classpathentry kind="lib" path="lib/portal/jena.jar"/>
@@ -265,7 +262,6 @@
 	<classpathentry kind="lib" path="lib/portal/rhino.jar"/>
 	<classpathentry kind="lib" path="lib/portal/ridl.jar"/>
 	<classpathentry kind="lib" path="lib/portal/rmi-api.jar"/>
-	<classpathentry kind="lib" path="lib/portal/rome.jar"/>
 	<classpathentry kind="lib" path="lib/portal/rometools-utils.jar"/>
 	<classpathentry kind="lib" path="lib/portal/rometools.jar"/>
 	<classpathentry kind="lib" path="lib/portal/saaj-api.jar"/>

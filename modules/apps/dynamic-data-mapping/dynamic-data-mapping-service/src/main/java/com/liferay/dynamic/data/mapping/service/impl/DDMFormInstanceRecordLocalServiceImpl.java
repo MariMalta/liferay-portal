@@ -182,7 +182,7 @@ public class DDMFormInstanceRecordLocalServiceImpl
 
 			if (isEmailNotificationEnabled(ddmFormInstance)) {
 				_ddmFormEmailNotificationSender.sendEmailNotification(
-					serviceContext, ddmFormInstanceRecord);
+					ddmFormInstanceRecord, serviceContext);
 			}
 		}
 
@@ -215,7 +215,9 @@ public class DDMFormInstanceRecordLocalServiceImpl
 
 			long storageId = ddmFormInstanceRecordVersion.getStorageId();
 
-			deleteStorage(storageId, storageType);
+			if (!StringUtil.equals(storageType, "object")) {
+				deleteStorage(storageId, storageType);
+			}
 
 			_ddmStorageLinkLocalService.deleteClassStorageLink(storageId);
 
@@ -503,7 +505,7 @@ public class DDMFormInstanceRecordLocalServiceImpl
 
 			if (isEmailNotificationEnabled(ddmFormInstance)) {
 				_ddmFormEmailNotificationSender.sendEmailNotification(
-					serviceContext, ddmFormInstanceRecord);
+					ddmFormInstanceRecord, serviceContext);
 			}
 		}
 

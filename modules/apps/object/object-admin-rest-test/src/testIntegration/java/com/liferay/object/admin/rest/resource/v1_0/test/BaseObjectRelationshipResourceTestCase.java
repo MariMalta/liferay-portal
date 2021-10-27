@@ -50,7 +50,6 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 import java.text.DateFormat;
@@ -183,6 +182,7 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		ObjectRelationship objectRelationship = randomObjectRelationship();
 
 		objectRelationship.setName(regex);
+		objectRelationship.setObjectDefinitionName2(regex);
 
 		String json = ObjectRelationshipSerDes.toJSON(objectRelationship);
 
@@ -191,6 +191,8 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		objectRelationship = ObjectRelationshipSerDes.toDTO(json);
 
 		Assert.assertEquals(regex, objectRelationship.getName());
+		Assert.assertEquals(
+			regex, objectRelationship.getObjectDefinitionName2());
 	}
 
 	@Test
@@ -629,6 +631,14 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("deletionType", additionalAssertFieldName)) {
+				if (objectRelationship.getDeletionType() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("label", additionalAssertFieldName)) {
 				if (objectRelationship.getLabel() == null) {
 					valid = false;
@@ -659,6 +669,16 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 					"objectDefinitionId2", additionalAssertFieldName)) {
 
 				if (objectRelationship.getObjectDefinitionId2() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"objectDefinitionName2", additionalAssertFieldName)) {
+
+				if (objectRelationship.getObjectDefinitionName2() == null) {
 					valid = false;
 				}
 
@@ -706,7 +726,7 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field :
+		for (java.lang.reflect.Field field :
 				getDeclaredFields(
 					com.liferay.object.admin.rest.dto.v1_0.ObjectRelationship.
 						class)) {
@@ -723,12 +743,13 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		return graphQLFields;
 	}
 
-	protected List<GraphQLField> getGraphQLFields(Field... fields)
+	protected List<GraphQLField> getGraphQLFields(
+			java.lang.reflect.Field... fields)
 		throws Exception {
 
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field : fields) {
+		for (java.lang.reflect.Field field : fields) {
 			com.liferay.portal.vulcan.graphql.annotation.GraphQLField
 				vulcanGraphQLField = field.getAnnotation(
 					com.liferay.portal.vulcan.graphql.annotation.GraphQLField.
@@ -771,6 +792,17 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				if (!equals(
 						(Map)objectRelationship1.getActions(),
 						(Map)objectRelationship2.getActions())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("deletionType", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						objectRelationship1.getDeletionType(),
+						objectRelationship2.getDeletionType())) {
 
 					return false;
 				}
@@ -837,6 +869,19 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals(
+					"objectDefinitionName2", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						objectRelationship1.getObjectDefinitionName2(),
+						objectRelationship2.getObjectDefinitionName2())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("type", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						objectRelationship1.getType(),
@@ -882,14 +927,16 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		return false;
 	}
 
-	protected Field[] getDeclaredFields(Class clazz) throws Exception {
-		Stream<Field> stream = Stream.of(
+	protected java.lang.reflect.Field[] getDeclaredFields(Class clazz)
+		throws Exception {
+
+		Stream<java.lang.reflect.Field> stream = Stream.of(
 			ReflectionUtil.getDeclaredFields(clazz));
 
 		return stream.filter(
 			field -> !field.isSynthetic()
 		).toArray(
-			Field[]::new
+			java.lang.reflect.Field[]::new
 		);
 	}
 
@@ -949,6 +996,11 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("deletionType")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("id")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -975,6 +1027,15 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 		if (entityFieldName.equals("objectDefinitionId2")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("objectDefinitionName2")) {
+			sb.append("'");
+			sb.append(
+				String.valueOf(objectRelationship.getObjectDefinitionName2()));
+			sb.append("'");
+
+			return sb.toString();
 		}
 
 		if (entityFieldName.equals("type")) {
@@ -1030,6 +1091,8 @@ public abstract class BaseObjectRelationshipResourceTestCase {
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				objectDefinitionId1 = RandomTestUtil.randomLong();
 				objectDefinitionId2 = RandomTestUtil.randomLong();
+				objectDefinitionName2 = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 			}
 		};
 	}

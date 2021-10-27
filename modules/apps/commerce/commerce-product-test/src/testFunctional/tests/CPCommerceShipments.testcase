@@ -12,24 +12,22 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6238. Add shipment items to a shipment"
 	@priority = "3"
 	test AddItemsToShipment {
-		property test.name.skip.portal.instance = "CPCommerceShipments#AddItemsToShipment";
 
 		// TODO Review
 
@@ -46,17 +44,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -66,7 +62,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -169,9 +165,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -260,7 +254,6 @@ definition {
 	@priority = "3"
 	test AssertShipmentItemTakenFromActiveWarehouses {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#AssertShipmentItemTakenFromActiveWarehouses";
 
 		// TODO Review
 
@@ -270,9 +263,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -376,7 +367,6 @@ definition {
 	@priority = "3"
 	test AssertShippedShipmentNotDeletable {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#AssertShippedShipmentNotDeletable";
 
 		// TODO Review
 
@@ -393,17 +383,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -413,7 +401,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -489,9 +477,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -593,7 +579,6 @@ definition {
 	@priority = "3"
 	test CreateOrderShipment {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#CreateOrderShipment";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
@@ -611,9 +596,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -696,7 +679,6 @@ definition {
 	@priority = "3"
 	test DeleteShipment {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#DeleteShipment";
 
 		// TODO Review
 
@@ -706,9 +688,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -778,7 +758,6 @@ definition {
 	@description = "This is a test for COMMERCE-6241. Execute the shipment workflow"
 	@priority = "3"
 	test ExecuteShipmentWorkflow {
-		property test.name.skip.portal.instance = "CPCommerceShipments#ExecuteShipmentWorkflow";
 
 		// TODO Review
 
@@ -795,17 +774,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -815,7 +792,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -944,7 +921,6 @@ definition {
 	@description = "This is a test for COMMERCE-6240. Remove shipment items from a shipment"
 	@priority = "3"
 	test RemoveItemFromShipment {
-		property test.name.skip.portal.instance = "CPCommerceShipments#RemoveItemFromShipment";
 
 		// TODO Review
 
@@ -964,9 +940,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -1089,7 +1063,6 @@ definition {
 	@priority = "3"
 	test SearchShipment {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#SearchShipment";
 
 		// TODO Review
 
@@ -1100,9 +1073,7 @@ definition {
 		for (var i : list "1,2") {
 			CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-			CommerceAcceleratorsInitializer.createNewAccountViaFront(
-				accountName = "account${i}",
-				adminEmailAddress = "test@liferay.com");
+			CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "account${i}");
 		}
 
 		var ship1Id = "";
@@ -1227,7 +1198,6 @@ definition {
 	@priority = "3"
 	test UpdateShipmentAddress {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#UpdateShipmentAddress";
 
 		// TODO Review
 
@@ -1244,17 +1214,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -1264,7 +1232,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -1382,7 +1350,6 @@ definition {
 	@description = "This is a test for COMMERCE-6239. Update shipment items to a shipment"
 	@priority = "3"
 	test UpdateShipmentItems {
-		property test.name.skip.portal.instance = "CPCommerceShipments#UpdateShipmentItems";
 
 		// TODO Review
 
@@ -1399,17 +1366,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Commerce Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -1419,7 +1384,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -1433,7 +1398,7 @@ definition {
 			productName = "U-Joint",
 			productQuantity = "1");
 
-		Refresh();
+		WaitForElementPresent(locator1 = "CommerceEntry#ACTIVE_ORDER_ID");
 
 		var orderId = selenium.getText("CommerceEntry#ACTIVE_ORDER_ID");
 
@@ -1532,6 +1497,8 @@ definition {
 
 		Button.clickSubmitButton();
 
+		Refresh();
+
 		for (var column : list "3;United States - Southwest,5;1") {
 			key_columnNumber = StringUtil.extractFirst("${column}",";");
 			var currentValue = StringUtil.extractLast("${column}",";");
@@ -1547,7 +1514,6 @@ definition {
 	@priority = "3"
 	test ValidateShipmentAddress {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#ValidateShipmentAddress";
 
 		// TODO Review
 
@@ -1564,17 +1530,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -1584,7 +1548,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -1673,7 +1637,6 @@ definition {
 	@priority = "3"
 	test ViewOrderShipmentAmountIsCorrect {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#ViewOrderShipmentAmountIsCorrect";
 
 		// TODO Review
 
@@ -1690,17 +1653,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -1714,7 +1675,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -1771,7 +1732,6 @@ definition {
 	@priority = "3"
 	test ViewOrderShipmentDiscountAmountIsCorrect {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceShipments#ViewOrderShipmentDiscountAmountIsCorrect";
 
 		// TODO Review
 
@@ -1801,17 +1761,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -1821,7 +1779,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 

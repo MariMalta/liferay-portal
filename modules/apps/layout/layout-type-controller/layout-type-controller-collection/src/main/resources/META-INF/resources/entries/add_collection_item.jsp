@@ -49,13 +49,7 @@ Map<String, Object> data = HashMapBuilder.<String, Object>put(
 					linkCssClass="icon-monospaced lfr-portal-tooltip"
 					markupView="lexicon"
 					message="<%= label %>"
-					url="<%=
-						PortletURLBuilder.create(
-							assetPublisherAddItemHolder.getPortletURL()
-						).setRedirect(
-							currentURL
-						).buildString()
-					%>"
+					url="<%= String.valueOf(assetPublisherAddItemHolder.getPortletURL()) %>"
 				/>
 			</c:when>
 			<c:otherwise>
@@ -70,16 +64,11 @@ Map<String, Object> data = HashMapBuilder.<String, Object>put(
 
 					<%
 					for (AssetPublisherAddItemHolder assetPublisherAddItemHolder : assetPublisherAddItemHolders) {
-						PortletURL portletURL = PortletURLBuilder.create(
-							assetPublisherAddItemHolder.getPortletURL()
-						).setRedirect(
-							currentURL
-						).buildPortletURL();
 					%>
 
 						<liferay-ui:icon
 							message="<%= assetPublisherAddItemHolder.getModelResource() %>"
-							url="<%= portletURL.toString() %>"
+							url="<%= String.valueOf(assetPublisherAddItemHolder.getPortletURL()) %>"
 						/>
 
 					<%

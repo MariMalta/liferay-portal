@@ -127,7 +127,6 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
@@ -335,9 +334,6 @@ public class ContentPageEditorDisplayContext {
 				getFragmentEntryActionURL(
 					"/layout_content_page_editor/edit_fragment_entry_link")
 			).put(
-				"fragmentsHidingEnabled",
-				_ffLayoutContentPageEditorConfiguration.fragmentsHidingEnabled()
-			).put(
 				"frontendTokens",
 				() -> {
 					LayoutSet layoutSet =
@@ -539,7 +535,9 @@ public class ContentPageEditorDisplayContext {
 				() -> {
 					Layout layout = themeDisplay.getLayout();
 
-					LayoutSet layoutSet = layout.getLayoutSet();
+					LayoutSet layoutSet =
+						LayoutSetLocalServiceUtil.fetchLayoutSet(
+							themeDisplay.getSiteGroupId(), false);
 
 					if (Validator.isNull(layout.getThemeId()) ||
 						Objects.equals(
@@ -561,6 +559,10 @@ public class ContentPageEditorDisplayContext {
 				"styleBooks", _getStyleBooks()
 			).put(
 				"themeColorsCssClasses", _getThemeColorsCssClasses()
+			).put(
+				"tokenOptimizationEnabled",
+				_ffLayoutContentPageEditorConfiguration.
+					tokenOptimizationEnabled()
 			).put(
 				"unmarkItemForDeletionURL",
 				getFragmentEntryActionURL(
@@ -1148,17 +1150,9 @@ public class ContentPageEditorDisplayContext {
 					"fragmentEntries", entry.getValue()
 				).put(
 					"name",
-					() -> {
-						FragmentRenderer fragmentRenderer =
-							fragmentCollectionFragmentRenderers.get(
-								entry.getKey());
-
-						return LanguageUtil.get(
-							ResourceBundleUtil.getBundle(
-								themeDisplay.getLocale(),
-								fragmentRenderer.getClass()),
-							"fragment.collection.label." + entry.getKey());
-					}
+					() -> LanguageUtil.get(
+						themeDisplay.getLocale(),
+						"fragment.collection.label." + entry.getKey())
 				).build());
 		}
 
@@ -1889,8 +1883,6 @@ public class ContentPageEditorDisplayContext {
 	}
 
 	private JSONObject _getMasterLayoutJSONObject() {
-		Layout layout = themeDisplay.getLayout();
-
 		return JSONUtil.put(
 			"masterLayoutData",
 			Optional.ofNullable(
@@ -1901,7 +1893,12 @@ public class ContentPageEditorDisplayContext {
 				null
 			)
 		).put(
-			"masterLayoutPlid", layout.getMasterLayoutPlid()
+			"masterLayoutPlid",
+			() -> {
+				Layout layout = themeDisplay.getLayout();
+
+				return String.valueOf(layout.getMasterLayoutPlid());
+			}
 		);
 	}
 

@@ -16,10 +16,9 @@ package com.liferay.object.internal.deployer;
 
 import com.liferay.info.collection.provider.InfoCollectionProvider;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
-import com.liferay.object.action.trigger.ObjectActionTrigger;
-import com.liferay.object.constants.ObjectActionTriggerConstants;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.internal.info.collection.provider.ObjectEntrySingleFormVariationInfoCollectionProvider;
+import com.liferay.object.internal.language.ObjectResourceBundle;
 import com.liferay.object.internal.related.models.ObjectEntry1to1ObjectRelatedModelsProviderImpl;
 import com.liferay.object.internal.related.models.ObjectEntry1toMObjectRelatedModelsProviderImpl;
 import com.liferay.object.internal.related.models.ObjectEntryMtoMObjectRelatedModelsProviderImpl;
@@ -39,13 +38,18 @@ import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermissionFactory;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowHandler;
 import com.liferay.portal.kernel.xml.SAXReaderUtil;
@@ -56,8 +60,9 @@ import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContrib
 import com.liferay.portal.search.spi.model.query.contributor.ModelPreFilterContributor;
 import com.liferay.portal.search.spi.model.registrar.ModelSearchRegistrarHelper;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
@@ -77,6 +82,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectFieldLocalService objectFieldLocalService,
+		ObjectRelationshipLocalService objectRelationshipLocalService,
 		ObjectScopeProviderRegistry objectScopeProviderRegistry,
 		PersistedModelLocalServiceRegistry persistedModelLocalServiceRegistry,
 		ResourceActions resourceActions,
@@ -90,6 +96,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectFieldLocalService = objectFieldLocalService;
+		_objectRelationshipLocalService = objectRelationshipLocalService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
 		_persistedModelLocalServiceRegistry =
 			persistedModelLocalServiceRegistry;
@@ -124,14 +131,16 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				objectDefinition.getResourceName(),
 				new ObjectEntryPortletResourcePermissionLogic());
 
-		return Arrays.asList(
+		List<ServiceRegistration<?>> serviceRegistrations = ListUtil.fromArray(
 			_bundleContext.registerService(
 				InfoCollectionProvider.class,
 				new ObjectEntrySingleFormVariationInfoCollectionProvider(
 					_listTypeEntryLocalService, objectDefinition,
 					_objectEntryLocalService, _objectFieldLocalService,
 					_objectScopeProviderRegistry),
-				null),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"item.class.name", objectDefinition.getClassName()
+				).build()),
 			_bundleContext.registerService(
 				KeywordQueryContributor.class,
 				new ObjectEntryKeywordQueryContributor(
@@ -172,58 +181,22 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					"model.class.name", objectDefinition.getClassName()
 				).build()),
 			_bundleContext.registerService(
-				ObjectActionTrigger.class,
-				new ObjectActionTrigger(
-					objectDefinition.getClassName(),
-					ObjectActionTriggerConstants.KEY_ON_AFTER_CREATE,
-					ObjectActionTriggerConstants.TYPE_TRANSACTION),
-				HashMapDictionaryBuilder.<String, Object>put(
-					"object.action.trigger.class.name",
-					objectDefinition.getClassName()
-				).put(
-					"object.action.trigger.key",
-					ObjectActionTriggerConstants.KEY_ON_AFTER_CREATE
-				).build()),
-			_bundleContext.registerService(
-				ObjectActionTrigger.class,
-				new ObjectActionTrigger(
-					objectDefinition.getClassName(),
-					ObjectActionTriggerConstants.KEY_ON_AFTER_REMOVE,
-					ObjectActionTriggerConstants.TYPE_TRANSACTION),
-				HashMapDictionaryBuilder.<String, Object>put(
-					"object.action.trigger.class.name",
-					objectDefinition.getClassName()
-				).put(
-					"object.action.trigger.key",
-					ObjectActionTriggerConstants.KEY_ON_AFTER_REMOVE
-				).build()),
-			_bundleContext.registerService(
-				ObjectActionTrigger.class,
-				new ObjectActionTrigger(
-					objectDefinition.getClassName(),
-					ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE,
-					ObjectActionTriggerConstants.TYPE_TRANSACTION),
-				HashMapDictionaryBuilder.<String, Object>put(
-					"object.action.trigger.class.name",
-					objectDefinition.getClassName()
-				).put(
-					"object.action.trigger.key",
-					ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE
-				).build()),
-			_bundleContext.registerService(
 				ObjectRelatedModelsProvider.class,
 				new ObjectEntry1to1ObjectRelatedModelsProviderImpl(
-					objectDefinition, _objectEntryLocalService),
+					objectDefinition, _objectEntryLocalService,
+					_objectFieldLocalService, _objectRelationshipLocalService),
 				null),
 			_bundleContext.registerService(
 				ObjectRelatedModelsProvider.class,
 				new ObjectEntry1toMObjectRelatedModelsProviderImpl(
-					objectDefinition, _objectEntryLocalService),
+					objectDefinition, _objectEntryLocalService,
+					_objectFieldLocalService, _objectRelationshipLocalService),
 				null),
 			_bundleContext.registerService(
 				ObjectRelatedModelsProvider.class,
 				new ObjectEntryMtoMObjectRelatedModelsProviderImpl(
-					objectDefinition, _objectEntryLocalService),
+					objectDefinition, _objectEntryLocalService,
+					_objectRelationshipLocalService),
 				null),
 			_bundleContext.registerService(
 				PortletResourcePermission.class, portletResourcePermission,
@@ -257,6 +230,17 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					modelSearchDefinition.setModelSummaryContributor(
 						objectEntryModelSummaryContributor);
 				}));
+
+		for (Locale locale : LanguageUtil.getAvailableLocales()) {
+			serviceRegistrations.add(
+				_bundleContext.registerService(
+					ResourceBundle.class,
+					new ObjectResourceBundle(locale, objectDefinition),
+					MapUtil.singletonDictionary(
+						"language.id", LocaleUtil.toLanguageId(locale))));
+		}
+
+		return serviceRegistrations;
 	}
 
 	@Override
@@ -293,6 +277,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectFieldLocalService _objectFieldLocalService;
+	private final ObjectRelationshipLocalService
+		_objectRelationshipLocalService;
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
 	private final PersistedModelLocalServiceRegistry
 		_persistedModelLocalServiceRegistry;

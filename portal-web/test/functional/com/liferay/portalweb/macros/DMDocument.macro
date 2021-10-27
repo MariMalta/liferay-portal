@@ -35,9 +35,16 @@ definition {
 		}
 		else {
 			if (isSet(dmDocumentFile)) {
-				UploadCommonFile.uploadCommonFileHiddenNoMouseOver(
-					locator1 = "TextInput#FILE",
-					value1 = "${dmDocumentFile}");
+				if (isSet(dmDocumentFilePath)) {
+					UploadFileWithCustomPath.uploadFile(
+						fileName = "${dmDocumentFile}",
+						filePath = "${dmDocumentFilePath}");
+				}
+				else {
+					UploadCommonFile.uploadCommonFileHiddenNoMouseOver(
+						locator1 = "TextInput#FILE",
+						value1 = "${dmDocumentFile}");
+				}
 			}
 		}
 
@@ -470,9 +477,16 @@ definition {
 						value1 = "${dmDocumentFile}");
 				}
 				else {
-					UploadCommonFile.uploadCommonFileHiddenNoMouseOver(
-						locator1 = "TextInput#FILE",
-						value1 = "${dmDocumentFile}");
+					if (isSet(dmDocumentFilePath)) {
+						UploadFileWithCustomPath.uploadFile(
+							fileName = "${dmDocumentFile}",
+							filePath = "${dmDocumentFilePath}");
+					}
+					else {
+						UploadCommonFile.uploadCommonFileHiddenNoMouseOver(
+							locator1 = "TextInput#FILE",
+							value1 = "${dmDocumentFile}");
+					}
 				}
 
 				AssertChecked(locator1 = "DynamicUploader#SELECT_ALL_CHECKBOX");
@@ -778,6 +792,8 @@ definition {
 			dmDocumentDescription = "${dmDocumentDescription}",
 			dmDocumentFile = "${dmDocumentFile}",
 			dmDocumentTitle = "${dmDocumentTitle}");
+
+		ScrollWebElementIntoView(locator1 = "Button#SUBMIT_FOR_PUBLICATION");
 
 		Button.clickSubmitForPublication();
 
@@ -1197,7 +1213,7 @@ definition {
 		else {
 			AssertTextEquals.assertPartialText(
 				locator1 = "Modal#BODY",
-				value1 = "You're editing the categories for the selected item.");
+				value1 = "You are editing the categories for the selected item.");
 		}
 
 		for (var categoryName : list "${categoryNameList}") {
@@ -1598,7 +1614,7 @@ definition {
 		else {
 			AssertTextEquals.assertPartialText(
 				locator1 = "Modal#BODY",
-				value1 = "You're editing the tags for the selected item.");
+				value1 = "You are editing the tags for the selected item.");
 		}
 
 		Type(
@@ -1983,6 +1999,12 @@ definition {
 		}
 	}
 
+	macro selectDocuments {
+		for (var key_dmDocumentTitle : list "${dmDocumentTitle}") {
+			Check(locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_CHECKBOX");
+		}
+	}
+
 	macro setExpirationDate {
 		Panel.expandPanel(panel = "Expiration Date");
 
@@ -2078,9 +2100,9 @@ definition {
 			locator1 = "Button#SELECT",
 			value1 = "Select");
 
-		SelectFrame(locator1 = "relative=top");
-
-		SelectFrame(locator1 = "IFrame#SELECT_FOLDER");
+		SelectFrame.selectSecondFrame(
+			key_title = "Select Folder",
+			locator1 = "IFrame#MODAL_ANY");
 
 		AssertClick(
 			key_dmFolderName = "${dmRootFolderName}",
@@ -2154,6 +2176,30 @@ definition {
 			value1 = "${userEmailAddress}");
 
 		AssertElementNotPresent(locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_DROPDOWN");
+
+		KeyPress(
+			locator1 = "Sharing#MODAL_INVITE_TO_COLLABORATE_INPUT",
+			value1 = "\RETURN");
+
+		if ("${sharingPermissions}" == "Update") {
+			FormFields.selectRadioOption(
+				fieldName = "sharingEntryPermission",
+				radioOption = "Update");
+		}
+		else if ("${sharingPermissions}" == "Comment") {
+			FormFields.selectRadioOption(
+				fieldName = "sharingEntryPermission",
+				radioOption = "Comment");
+		}
+		else {
+			FormFields.viewRadioValue(
+				fieldName = "sharingEntryPermission",
+				fieldValue = "View");
+		}
+
+		Button.clickShare();
+
+		SelectFrame(value1 = "relative=top");
 	}
 
 	macro tearDownCP {
@@ -2180,6 +2226,12 @@ definition {
 		var key_dmDocumentTitle = "${dmDocumentTitle}";
 
 		Uncheck(locator1 = "DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX");
+	}
+
+	macro unselectDocuments {
+		for (var key_dmDocumentTitle : list "${dmDocumentTitle}") {
+			Uncheck(locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_CHECKBOX");
+		}
 	}
 
 	macro updateCheckInterval {
@@ -2990,8 +3042,8 @@ definition {
 				value1 = "${dmDocumentType}");
 		}
 
-		if (isSet(titleWithForbiddenCharacters)) {
-			var key_dmDocumentTitle = "${escapedDocumentTitle}";
+		if (isSet(specialCharacters)) {
+			var key_dmDocumentTitle = "${escapedTitle}";
 		}
 
 		AssertClick(

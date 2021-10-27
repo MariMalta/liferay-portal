@@ -149,6 +149,10 @@ public interface ObjectEntryLocalService
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
 
+	public void deleteRelatedObjectEntries(
+			long groupId, long objectDefinitionId, long primaryKey)
+		throws PortalException;
+
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public <T> T dslQuery(DSLQuery dslQuery);
 
@@ -247,13 +251,14 @@ public interface ObjectEntryLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<ObjectEntry> getManyToManyRelatedObjectEntries(
-			long groupId, long objectRelationshipId, long primaryKey, int start,
-			int end)
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean reverse, int start, int end)
 		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getManyToManyRelatedObjectEntriesCount(
-			long groupId, long objectRelationshipId, long primaryKey)
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean reverse)
 		throws PortalException;
 
 	/**

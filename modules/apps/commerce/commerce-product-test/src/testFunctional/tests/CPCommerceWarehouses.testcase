@@ -12,25 +12,23 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6207. UI inventory items lifecycle"
 	@priority = "3"
 	test AddEditAndRemoveItemToWarehouse {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#AddEditAndRemoveItemToWarehouse";
 
 		// TODO Review
 
@@ -157,7 +155,6 @@ definition {
 	@priority = "3"
 	test AddIncomeItems {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#AddIncomeItems";
 
 		// TODO Review
 
@@ -253,7 +250,6 @@ definition {
 	@priority = "3"
 	test ConsumeBookedQuantitiesFromMultipleWarehouses {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#ConsumeBookedQuantitiesFromMultipleWarehouses";
 
 		// TODO Review
 
@@ -302,17 +298,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Commerce Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -322,7 +316,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -447,7 +441,6 @@ definition {
 	@priority = "3"
 	test ConsumeQuantitiesFromMultipleWarehouses {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#ConsumeQuantitiesFromMultipleWarehouses";
 
 		// TODO Review
 
@@ -464,17 +457,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Commerce Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -484,7 +475,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 
@@ -768,7 +759,6 @@ definition {
 	@priority = "3"
 	test GetAvailableQuantityFromMultipleWarehouses {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#GetAvailableQuantityFromMultipleWarehouses";
 
 		// TODO Review
 
@@ -819,7 +809,6 @@ definition {
 	@priority = "3"
 	test GetChannelSKUStockQuantity {
 		property portal.acceptance = "Intern Test";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#GetChannelSKUStockQuantity";
 
 		// TODO Review
 
@@ -1045,7 +1034,6 @@ definition {
 	@priority = "3"
 	test LimitWarehouseStockQuantityByChannel {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#LimitWarehouseStockQuantityByChannel";
 
 		// TODO Review
 
@@ -1080,7 +1068,6 @@ definition {
 	@priority = "3"
 	test ManageInventoryEntityConcurrency {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommerceWarehouses#ManageInventoryEntityConcurrency";
 
 		// TODO Review
 

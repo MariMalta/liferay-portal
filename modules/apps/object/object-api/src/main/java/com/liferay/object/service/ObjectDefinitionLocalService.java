@@ -19,7 +19,6 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
-import com.liferay.portal.kernel.cluster.Clusterable;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.DynamicQuery;
 import com.liferay.portal.kernel.dao.orm.ExportActionableDynamicQuery;
@@ -28,10 +27,12 @@ import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -150,6 +151,7 @@ public interface ObjectDefinitionLocalService
 	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ObjectDefinition deleteObjectDefinition(
 			ObjectDefinition objectDefinition)
 		throws PortalException;
@@ -161,7 +163,6 @@ public interface ObjectDefinitionLocalService
 	public PersistedModel deletePersistedModel(PersistedModel persistedModel)
 		throws PortalException;
 
-	@Clusterable
 	public void deployObjectDefinition(ObjectDefinition objectDefinition);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -242,6 +243,11 @@ public interface ObjectDefinitionLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ObjectDefinition fetchObjectDefinition(long companyId, String name);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ObjectDefinition fetchObjectDefinitionByClassName(
+			long companyId, String className)
+		throws PortalException;
+
 	/**
 	 * Returns the object definition with the matching UUID and company.
 	 *
@@ -275,11 +281,6 @@ public interface ObjectDefinitionLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ObjectDefinition getObjectDefinition(long objectDefinitionId)
-		throws PortalException;
-
-	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public ObjectDefinition getObjectDefinitionByClassName(
-			long companyId, String className)
 		throws PortalException;
 
 	/**
@@ -346,12 +347,12 @@ public interface ObjectDefinitionLocalService
 			long userId, long objectDefinitionId)
 		throws PortalException;
 
-	@Clusterable
 	public void undeployObjectDefinition(ObjectDefinition objectDefinition);
 
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectDefinition updateCustomObjectDefinition(
-			Long objectDefinitionId, boolean active,
+			Long objectDefinitionId, long descriptionObjectFieldId,
+			long titleObjectFieldId, boolean active,
 			Map<Locale, String> labelMap, String name, String panelAppOrder,
 			String panelCategoryKey, Map<Locale, String> pluralLabelMap,
 			String scope)

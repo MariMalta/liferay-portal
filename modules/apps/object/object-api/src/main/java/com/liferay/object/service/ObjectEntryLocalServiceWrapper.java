@@ -157,6 +157,15 @@ public class ObjectEntryLocalServiceWrapper
 	}
 
 	@Override
+	public void deleteRelatedObjectEntries(
+			long groupId, long objectDefinitionId, long primaryKey)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_objectEntryLocalService.deleteRelatedObjectEntries(
+			groupId, objectDefinitionId, primaryKey);
+	}
+
+	@Override
 	public <T> T dslQuery(com.liferay.petra.sql.dsl.query.DSLQuery dslQuery) {
 		return _objectEntryLocalService.dslQuery(dslQuery);
 	}
@@ -308,20 +317,21 @@ public class ObjectEntryLocalServiceWrapper
 	public java.util.List<com.liferay.object.model.ObjectEntry>
 			getManyToManyRelatedObjectEntries(
 				long groupId, long objectRelationshipId, long primaryKey,
-				int start, int end)
+				boolean reverse, int start, int end)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectEntryLocalService.getManyToManyRelatedObjectEntries(
-			groupId, objectRelationshipId, primaryKey, start, end);
+			groupId, objectRelationshipId, primaryKey, reverse, start, end);
 	}
 
 	@Override
 	public int getManyToManyRelatedObjectEntriesCount(
-			long groupId, long objectRelationshipId, long primaryKey)
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean reverse)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectEntryLocalService.getManyToManyRelatedObjectEntriesCount(
-			groupId, objectRelationshipId, primaryKey);
+			groupId, objectRelationshipId, primaryKey, reverse);
 	}
 
 	/**

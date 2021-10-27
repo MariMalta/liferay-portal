@@ -24,6 +24,7 @@ import com.liferay.object.model.ObjectLayoutBox;
 import com.liferay.object.model.ObjectLayoutColumn;
 import com.liferay.object.model.ObjectLayoutRow;
 import com.liferay.object.model.ObjectLayoutTab;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.base.ObjectLayoutLocalServiceBaseImpl;
 import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
 import com.liferay.object.service.persistence.ObjectFieldPersistence;
@@ -33,16 +34,21 @@ import com.liferay.object.service.persistence.ObjectLayoutRowPersistence;
 import com.liferay.object.service.persistence.ObjectLayoutTabPersistence;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -76,7 +82,10 @@ public class ObjectLayoutLocalServiceImpl
 				"Object layouts require a custom object definition");
 		}
 
-		_validate(0, objectDefinitionId, defaultObjectLayout);
+		if (defaultObjectLayout) {
+			_validate(
+				0, objectDefinitionId, defaultObjectLayout, objectLayoutTabs);
+		}
 
 		ObjectLayout objectLayout = objectLayoutPersistence.create(
 			counterLocalService.increment());
@@ -115,6 +124,7 @@ public class ObjectLayoutLocalServiceImpl
 
 	@Indexable(type = IndexableType.DELETE)
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ObjectLayout deleteObjectLayout(ObjectLayout objectLayout)
 		throws PortalException {
 
@@ -173,9 +183,11 @@ public class ObjectLayoutLocalServiceImpl
 		ObjectLayout objectLayout = objectLayoutPersistence.findByPrimaryKey(
 			objectLayoutId);
 
-		_validate(
-			objectLayoutId, objectLayout.getObjectDefinitionId(),
-			defaultObjectLayout);
+		if (defaultObjectLayout) {
+			_validate(
+				objectLayoutId, objectLayout.getObjectDefinitionId(),
+				defaultObjectLayout, objectLayoutTabs);
+		}
 
 		_deleteObjectLayoutTabs(objectLayoutId);
 
@@ -458,13 +470,57 @@ public class ObjectLayoutLocalServiceImpl
 
 	private void _validate(
 			long objectLayoutId, long objectDefinitionId,
-			boolean defaultObjectLayout)
+			boolean defaultObjectLayout, List<ObjectLayoutTab> objectLayoutTabs)
 		throws PortalException {
 
-		// TODO Add test
+		Set<Long> objectFieldIds = new HashSet<>();
 
-		if (!defaultObjectLayout) {
-			return;
+		ObjectLayoutTab objectLayoutTab = objectLayoutTabs.get(0);
+
+		List<ObjectLayoutBox> objectLayoutBoxes =
+			objectLayoutTab.getObjectLayoutBoxes();
+
+		if (objectLayoutBoxes == null) {
+			objectLayoutBoxes = Collections.<ObjectLayoutBox>emptyList();
+		}
+
+		for (ObjectLayoutBox objectLayoutBox : objectLayoutBoxes) {
+			List<ObjectLayoutRow> objectLayoutRows =
+				objectLayoutBox.getObjectLayoutRows();
+
+			if (objectLayoutRows == null) {
+				continue;
+			}
+
+			for (ObjectLayoutRow objectLayoutRow : objectLayoutRows) {
+				List<ObjectLayoutColumn> objectLayoutColumns =
+					objectLayoutRow.getObjectLayoutColumns();
+
+				if (objectLayoutColumns == null) {
+					continue;
+				}
+
+				for (ObjectLayoutColumn objectLayoutColumn :
+						objectLayoutColumns) {
+
+					objectFieldIds.add(objectLayoutColumn.getObjectFieldId());
+				}
+			}
+		}
+
+		List<ObjectField> objectFields =
+			_objectFieldLocalService.getObjectFields(objectDefinitionId);
+
+		for (ObjectField objectField : objectFields) {
+			if (!objectField.isRequired()) {
+				continue;
+			}
+
+			if (!objectFieldIds.contains(objectField.getObjectFieldId())) {
+				throw new DefaultObjectLayoutException(
+					"All required object fields must be associated to the " +
+						"first tab of a default object layout");
+			}
 		}
 
 		ObjectLayout objectLayout =
@@ -481,6 +537,9 @@ public class ObjectLayoutLocalServiceImpl
 
 	@Reference
 	private ObjectDefinitionPersistence _objectDefinitionPersistence;
+
+	@Reference
+	private ObjectFieldLocalService _objectFieldLocalService;
 
 	@Reference
 	private ObjectFieldPersistence _objectFieldPersistence;

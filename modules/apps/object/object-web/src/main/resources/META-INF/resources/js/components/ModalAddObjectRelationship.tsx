@@ -34,6 +34,7 @@ interface IProps extends React.HTMLAttributes<HTMLElement> {
 type TObjectDefinition = {
 	id: string;
 	name: string;
+	system: boolean;
 };
 
 type TFormState = {
@@ -50,26 +51,27 @@ type TFormState = {
 };
 
 const objectRelationshipTypes = [
-	{
+
+	/* {
 		description: Liferay.Language.get(
-			'one-object-interacts-only-with-one-other-object'
+			"one-object's-entry-interacts-only-with-one-other-object's-entry"
 		),
 		label: Liferay.Language.get('one-to-one'),
-		value: 'one_to_one',
-	},
+		value: 'oneToOne',
+	},*/
 	{
 		description: Liferay.Language.get(
-			'one-object-interacts-with-many-other-objects'
+			"one-object's-entry-interacts-with-many-others-object's-entries"
 		),
 		label: Liferay.Language.get('one-to-many'),
-		value: 'one_to_many',
+		value: 'oneToMany',
 	},
 	{
 		description: Liferay.Language.get(
-			'multiple-objects-can-interact-with-many-other-objects'
+			"multiple-object's-entries-can-interact-with-many-others-object's-entries"
 		),
 		label: Liferay.Language.get('many-to-many'),
-		value: 'many_to_many',
+		value: 'manyToMany',
 	},
 ];
 
@@ -294,12 +296,13 @@ const ModalWithProvider: React.FC<IProps> = ({apiURL}) => {
 
 			const {items = []} = await result.json();
 
-			const objectDefinitions = items.map(
-				({id, name}: TObjectDefinition) => ({
+			const objectDefinitions = items
+				.map(({id, name, system}: TObjectDefinition) => ({
 					id,
 					name,
-				})
-			);
+					system,
+				}))
+				.filter(({system}: TObjectDefinition) => !system);
 
 			setObjectDefinitions(objectDefinitions);
 		};

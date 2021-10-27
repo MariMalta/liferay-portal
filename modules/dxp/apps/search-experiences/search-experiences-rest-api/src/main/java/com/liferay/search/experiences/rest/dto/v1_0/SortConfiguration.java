@@ -35,6 +35,8 @@ import java.util.Set;
 
 import javax.annotation.Generated;
 
+import javax.validation.Valid;
+
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -51,21 +53,26 @@ public class SortConfiguration implements Serializable {
 		return ObjectMapperUtil.readValue(SortConfiguration.class, json);
 	}
 
-	@Schema
-	public String getSortsJSONArrayString() {
-		return sortsJSONArrayString;
+	public static SortConfiguration unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(SortConfiguration.class, json);
 	}
 
-	public void setSortsJSONArrayString(String sortsJSONArrayString) {
-		this.sortsJSONArrayString = sortsJSONArrayString;
+	@Schema
+	@Valid
+	public Object getSorts() {
+		return sorts;
+	}
+
+	public void setSorts(Object sorts) {
+		this.sorts = sorts;
 	}
 
 	@JsonIgnore
-	public void setSortsJSONArrayString(
-		UnsafeSupplier<String, Exception> sortsJSONArrayStringUnsafeSupplier) {
+	public void setSorts(
+		UnsafeSupplier<Object, Exception> sortsUnsafeSupplier) {
 
 		try {
-			sortsJSONArrayString = sortsJSONArrayStringUnsafeSupplier.get();
+			sorts = sortsUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -77,7 +84,7 @@ public class SortConfiguration implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String sortsJSONArrayString;
+	protected Object sorts;
 
 	@Override
 	public boolean equals(Object object) {
@@ -106,18 +113,14 @@ public class SortConfiguration implements Serializable {
 
 		sb.append("{");
 
-		if (sortsJSONArrayString != null) {
+		if (sorts != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
 			}
 
-			sb.append("\"sortsJSONArrayString\": ");
+			sb.append("\"sorts\": ");
 
-			sb.append("\"");
-
-			sb.append(_escape(sortsJSONArrayString));
-
-			sb.append("\"");
+			sb.append(String.valueOf(sorts));
 		}
 
 		sb.append("}");

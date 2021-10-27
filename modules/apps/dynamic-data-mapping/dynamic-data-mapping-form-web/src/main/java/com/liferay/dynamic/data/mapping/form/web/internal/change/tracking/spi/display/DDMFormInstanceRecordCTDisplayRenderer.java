@@ -16,6 +16,7 @@ package com.liferay.dynamic.data.mapping.form.web.internal.change.tracking.spi.d
 
 import com.liferay.change.tracking.spi.display.BaseCTDisplayRenderer;
 import com.liferay.change.tracking.spi.display.CTDisplayRenderer;
+import com.liferay.change.tracking.spi.display.context.DisplayContext;
 import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceRecord;
@@ -34,18 +35,15 @@ import com.liferay.portal.kernel.servlet.PipingServletResponse;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -56,45 +54,6 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = CTDisplayRenderer.class)
 public class DDMFormInstanceRecordCTDisplayRenderer
 	extends BaseCTDisplayRenderer<DDMFormInstanceRecord> {
-
-	@Override
-	public String getContent(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, Locale locale,
-			DDMFormInstanceRecord ddmFormInstanceRecord)
-		throws PortalException {
-
-		HTMLTag htmlTag = new HTMLTag();
-
-		htmlTag.setClassNameId(
-			_classNameLocalService.getClassNameId(DDMStructure.class));
-
-		DDMFormInstance ddmFormInstance =
-			ddmFormInstanceRecord.getFormInstance();
-
-		htmlTag.setClassPK(ddmFormInstance.getStructureId());
-
-		htmlTag.setDdmFormValues(ddmFormInstanceRecord.getDDMFormValues());
-		htmlTag.setGroupId(ddmFormInstanceRecord.getGroupId());
-		htmlTag.setReadOnly(true);
-		htmlTag.setRequestedLocale(locale);
-
-		try (UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter()) {
-			htmlTag.doTag(
-				httpServletRequest,
-				new PipingServletResponse(
-					httpServletResponse, unsyncStringWriter));
-
-			return unsyncStringWriter.toString();
-		}
-		catch (Exception exception) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(exception, exception);
-			}
-		}
-
-		return null;
-	}
 
 	@Override
 	public String getEditURL(
@@ -145,6 +104,51 @@ public class DDMFormInstanceRecordCTDisplayRenderer
 	}
 
 	@Override
+	public String renderPreview(
+			DisplayContext<DDMFormInstanceRecord> displayContext)
+		throws Exception {
+
+		HTMLTag htmlTag = new HTMLTag();
+
+		htmlTag.setClassNameId(
+			_classNameLocalService.getClassNameId(DDMStructure.class));
+
+		DDMFormInstanceRecord ddmFormInstanceRecord = displayContext.getModel();
+
+		DDMFormInstance ddmFormInstance =
+			ddmFormInstanceRecord.getFormInstance();
+
+		htmlTag.setClassPK(ddmFormInstance.getStructureId());
+
+		htmlTag.setDdmFormValues(ddmFormInstanceRecord.getDDMFormValues());
+		htmlTag.setGroupId(ddmFormInstanceRecord.getGroupId());
+		htmlTag.setReadOnly(true);
+		htmlTag.setRequestedLocale(displayContext.getLocale());
+
+		try (UnsyncStringWriter unsyncStringWriter = new UnsyncStringWriter()) {
+			htmlTag.doTag(
+				displayContext.getHttpServletRequest(),
+				new PipingServletResponse(
+					displayContext.getHttpServletResponse(),
+					unsyncStringWriter));
+
+			return unsyncStringWriter.toString();
+		}
+		catch (Exception exception) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(exception, exception);
+			}
+		}
+
+		return null;
+	}
+
+	@Override
+	public boolean showPreviewDiff() {
+		return true;
+	}
+
+	@Override
 	protected void buildDisplay(
 		DisplayBuilder<DDMFormInstanceRecord> displayBuilder) {
 
@@ -163,15 +167,10 @@ public class DDMFormInstanceRecordCTDisplayRenderer
 			}
 		).display(
 			"status",
-			() -> {
-				ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-					displayBuilder.getLocale(), getClass());
-
-				return _language.get(
-					resourceBundle,
-					WorkflowConstants.getStatusLabel(
-						ddmFormInstanceRecord.getStatus()));
-			}
+			() -> _language.get(
+				displayBuilder.getLocale(),
+				WorkflowConstants.getStatusLabel(
+					ddmFormInstanceRecord.getStatus()))
 		).display(
 			"version", ddmFormInstanceRecord.getVersion()
 		);

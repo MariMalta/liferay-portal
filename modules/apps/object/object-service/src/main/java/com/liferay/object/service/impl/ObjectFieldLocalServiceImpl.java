@@ -29,10 +29,12 @@ import com.liferay.object.service.persistence.ObjectDefinitionPersistence;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -129,6 +131,7 @@ public class ObjectFieldLocalServiceImpl
 
 	@Indexable(type = IndexableType.DELETE)
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ObjectField deleteObjectField(ObjectField objectField)
 		throws PortalException {
 
@@ -155,6 +158,9 @@ public class ObjectFieldLocalServiceImpl
 					objectField.getDBTableName(),
 					objectField.getDBColumnName()));
 		}
+
+		// TODO What happens if you delete an object field that is associated to
+		// an object layout?
 
 		return objectField;
 	}
@@ -219,7 +225,7 @@ public class ObjectFieldLocalServiceImpl
 			throw new ObjectDefinitionStatusException();
 		}
 
-		_validateLabel(labelMap, LocaleUtil.getSiteDefault());
+		_validateLabel(labelMap);
 
 		objectField.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
 
@@ -261,7 +267,7 @@ public class ObjectFieldLocalServiceImpl
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
 		_validateIndexed(indexed, indexedAsKeyword, indexedLanguageId, type);
-		_validateLabel(labelMap, LocaleUtil.getSiteDefault());
+		_validateLabel(labelMap);
 		_validateName(0, objectDefinition, name);
 		validateType(type);
 
@@ -308,15 +314,14 @@ public class ObjectFieldLocalServiceImpl
 		}
 	}
 
-	private void _validateLabel(
-			Map<Locale, String> labelMap, Locale defaultLocale)
+	private void _validateLabel(Map<Locale, String> labelMap)
 		throws PortalException {
 
-		if ((labelMap == null) ||
-			Validator.isNull(labelMap.get(defaultLocale))) {
+		Locale locale = LocaleUtil.getSiteDefault();
 
+		if ((labelMap == null) || Validator.isNull(labelMap.get(locale))) {
 			throw new ObjectFieldLabelException(
-				"Label is null for locale " + defaultLocale.getDisplayName());
+				"Label is null for locale " + locale.getDisplayName());
 		}
 	}
 

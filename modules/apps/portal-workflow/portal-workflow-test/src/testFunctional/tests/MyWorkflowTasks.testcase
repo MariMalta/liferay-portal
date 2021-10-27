@@ -52,14 +52,12 @@ definition {
 	@description = "LPS-135888 - Verify that the user with Account role type can Approve the task"
 	@priority = "5"
 	test AccountUserCanApproveTask {
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "MyWorkflowTasks#AccountUserCanApproveTask";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		JSONAccountEntry.addAccountEntry(
 			accountEntryName = "Test",
@@ -128,11 +126,9 @@ definition {
 
 		CommerceNavigator.gotoMiniCart();
 
-		Button.click(button = "Review Order");
+		Button.click(button = "View Details");
 
-		AssertVisible(locator1 = "CommerceAccelerators#ORDERS_SUBMIT_BUTTON");
-
-		Click(locator1 = "CommerceAccelerators#ORDERS_SUBMIT_BUTTON");
+		Button.click(button = "Submit");
 
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
@@ -446,14 +442,12 @@ definition {
 	@description = "LPS-135888 - Verify that the task is assigned to the user with Account role type"
 	@priority = "4"
 	test CanAssignTaskToUserWithAccountRole {
+		property portal.upstream = "quarantine";
 		property test.name.skip.portal.instance = "MyWorkflowTasks#CanAssignTaskToUserWithAccountRole";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		JSONAccountEntry.addAccountEntry(
 			accountEntryName = "Test",
@@ -522,15 +516,9 @@ definition {
 
 		CommerceNavigator.gotoMiniCart();
 
-		Button.click(button = "Review Order");
+		Button.click(button = "View Details");
 
-		AssertElementPresent(
-			key_status = "Draft",
-			locator1 = "CommerceEntry#WORKFLOW_STATUS");
-
-		AssertVisible(locator1 = "CommerceAccelerators#ORDERS_SUBMIT_BUTTON");
-
-		Click(locator1 = "CommerceAccelerators#ORDERS_SUBMIT_BUTTON");
+		Button.click(button = "Submit");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 

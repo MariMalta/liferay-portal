@@ -12,18 +12,17 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "COMMERCE-5866. As a buyer, I want to be able to add a product to my wish list, by clicking on an Add To Wish List button"
@@ -91,7 +90,6 @@ definition {
 	@priority = "3"
 	test AssertDynamicPriceBundledProductCannotBeAddedToCartDirectly {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceProductCard#AssertDynamicPriceBundledProductCannotBeAddedToCartDirectly";
 
 		// TODO Review
 
@@ -222,9 +220,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "First Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "First Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -310,9 +306,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -332,7 +326,6 @@ definition {
 	@priority = "3"
 	test AssertOnlyMultipleValuesAreSelectableQuantities {
 		property portal.acceptance = "Intern Test";
-		property test.name.skip.portal.instance = "CommerceProductCard#AssertOnlyMultipleValuesAreSelectableQuantities";
 
 		// TODO Review
 
@@ -361,9 +354,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -427,9 +418,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -471,17 +460,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Commerce Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -509,9 +496,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -524,7 +509,6 @@ definition {
 	@priority = "3"
 	test AssertProductCardCurrencyAfterChannelCurrencyChanged {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceProductCard#AssertProductCardCurrencyAfterChannelCurrencyChanged";
 
 		// TODO Review
 
@@ -625,12 +609,14 @@ definition {
 			imageTitles = "Blue",
 			validationImage = "true");
 
-		var productImageId = CommerceProductImages.getProductMediaId();
+		CommerceNavigator.gotoEntry(entryName = "Commerce_Blue.jpg");
+
+		var fileEntryId = CommerceEntry.getFileEntryIDFromProductMedia();
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
 		AssertElementPresent(
-			key_itemImage = "${productImageId}",
+			key_fileEntryId = "${fileEntryId}",
 			key_itemName = "Blue T-Shirt",
 			locator1 = "CommerceEntry#PRODUCT_CARD_CUSTOM_IMAGE");
 	}
@@ -650,12 +636,6 @@ definition {
 			key_productName = "abs-sensor",
 			locator1 = "CommerceAccelerators#PRODUCT_CARD_AVAILABILITY_LABEL",
 			value1 = "Available");
-
-		ClickNoError(
-			key_productName = "ABS Sensor",
-			locator1 = "CommerceAccelerators#PRODUCT_CARD_NAME");
-
-		AssertElementPresent(locator1 = "CommerceEntry#DEFAULT_PRODUCT_IMAGE");
 	}
 
 	@description = "COMMERCE-5871. As a buyer, I want to view the availability of the product, if set and configured admin-side(product unavailable)"
@@ -727,8 +707,6 @@ definition {
 	test AssertQuantityCanBeSelectedUpToAMaximumQuantitySet {
 		property portal.acceptance = "false";
 
-		// TODO Review
-
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
 		CommerceNavigator.gotoPortlet(
@@ -752,9 +730,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -763,18 +739,26 @@ definition {
 			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_INPUT_FIELD",
 			value1 = "10");
 
-		Pause(locator1 = "1000");
-
-		AssertTextEquals(
+		KeyPress(
 			key_productName = "U-Joint",
-			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_SELECT_FIELD_OPTION_VALUE");
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_INPUT_FIELD",
+			value1 = "\TAB");
+
+		WaitForElementNotPresent(
+			key_optionValue = "10",
+			key_productName = "U-Joint",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_INPUT_FIELD_OPTION_VALUE");
+
+		AssertElementPresent(
+			key_optionValue = "4",
+			key_productName = "U-Joint",
+			locator1 = "CommerceAccelerators#PRODUCT_CARD_QUANTITY_SELECTOR_INPUT_FIELD_OPTION_VALUE");
 	}
 
 	@description = "COMMERCE-6161. As a buyer, I want to be able to select the quantity of a product starting from a minimum quantity, if set"
 	@priority = "3"
 	test AssertSelectableQuantitiesStartFromMinimumQuantitySet {
 		property portal.acceptance = "Intern Test";
-		property test.name.skip.portal.instance = "CommerceProductCard#AssertSelectableQuantitiesStartFromMinimumQuantitySet";
 
 		// TODO Review
 
@@ -803,9 +787,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -826,7 +808,6 @@ definition {
 	@priority = "3"
 	test AssertStaticPriceBundledProductCannotBeAddedToCartDirectly {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceProductCard#AssertStaticPriceBundledProductCannotBeAddedToCartDirectly";
 
 		// TODO Review
 
@@ -962,9 +943,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "First Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "First Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -1125,9 +1104,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -1172,9 +1149,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Test");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 

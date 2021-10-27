@@ -45,26 +45,20 @@ definition {
 			var entrySubtitle = "";
 		}
 
-		if (isSet(groupName)) {
-			var serviceContext = JSONBlogSetter.setServiceContext(
-				assetCategoryIds = "${assetCategoryIds}",
-				assetTagNames = "${assetTagNames}",
-				groupName = "${groupName}",
-				serviceContext = "${serviceContext}",
-				site = "${site}",
-				workflowAction = "${workflowAction}");
+		if (!(isSet(entryAbstractDescription))) {
+			var entryAbstractDescription = "";
 		}
-		else {
-			var serviceContext = JSONBlogSetter.setServiceContext(
-				assetCategoryIds = "${assetCategoryIds}",
-				assetTagNames = "${assetTagNames}",
-				groupName = "Guest",
-				serviceContext = "${serviceContext}",
-				workflowAction = "${workflowAction}");
+
+		if (!(isSet(guestPermissions))) {
+			var guestPermissions = "true";
 		}
 
 		if (!(isSet(friendlyURL))) {
 			var friendlyURL = "";
+		}
+
+		if (!(isSet(groupName))) {
+			var groupName = "Guest";
 		}
 
 		if (!(isSet(userEmailAddress))) {
@@ -74,6 +68,15 @@ definition {
 		if (!(isSet(userPassword))) {
 			var userPassword = "test";
 		}
+
+		var serviceContext = JSONBlogSetter.setServiceContext(
+			addGuestPermissions = "${guestPermissions}",
+			assetCategoryIds = "${assetCategoryIds}",
+			assetTagNames = "${assetTagNames}",
+			groupName = "${groupName}",
+			serviceContext = "${serviceContext}",
+			site = "${site}",
+			workflowAction = "${workflowAction}");
 
 		if (isSet(displayDate)) {
 			var displayDateMinute = DateUtil.getFormattedCurrentDate("m");
@@ -103,7 +106,7 @@ definition {
 			-d title=${entryTitle} \
 			-d subtitle=${entrySubtitle} \
 			-d urlTitle=${friendlyURL} \
-			-d description= \
+			-d description=${entryAbstractDescription} \
 			-d content=${contentXML} \
 			-d displayDateMonth=${displayDateMonth} \
 			-d displayDateDay=${displayDateDay} \
@@ -240,6 +243,28 @@ definition {
 		echo("## * Blogs ID: ${entryId}");
 	}
 
+	macro getBlogImageId {
+		Variables.assertDefined(parameterList = "${groupName},${imageTitle}");
+
+		if (!(isSet(site))) {
+			var site = "true";
+		}
+
+		var portalURL = JSONCompany.getPortalURL();
+
+		var groupId = JSONGroupAPI._getGroupIdByName(groupName = "${groupName}", site = "${site}");
+
+		var curl = '''
+			${portalURL}/o/headless-delivery/v1.0/sites/${groupId}/blog-posting-images \
+			-H 'Content-Type: application/json' \
+			-u 'test@liferay.com:test'
+		''';
+
+		var imageId = JSONCurlUtil.get("${curl}", "$..[?(@['title'] == '${imageTitle}')]['id']");
+
+		return "${imageId}";
+	}
+
 	macro moveEntryToTrash {
 		Variables.assertDefined(parameterList = "${entryTitle},${groupName}");
 
@@ -265,6 +290,25 @@ definition {
 		''';
 
 		var messageId = JSONCurlUtil.post("${curl}");
+	}
+
+	macro removeBlogImage {
+		Variables.assertDefined(parameterList = "${groupName},${imageTitle}");
+
+		var portalURL = JSONCompany.getPortalURL();
+
+		var imageId = JSONBlog.getBlogImageId(
+			groupName = "${groupName}",
+			imageTitle = "${imageTitle}",
+			site = "${site}");
+
+		var curl = '''
+			${portalURL}/o/headless-delivery/v1.0/blog-posting-images/${imageId} \
+			-H 'Content-Type: application/json' \
+			-u 'test@liferay.com:test'
+		''';
+
+		JSONCurlUtil.delete("${curl}");
 	}
 
 	@summary = "This calls the JSON WS API to update a blog entry"

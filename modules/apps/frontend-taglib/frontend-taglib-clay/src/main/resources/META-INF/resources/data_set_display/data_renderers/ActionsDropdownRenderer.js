@@ -35,6 +35,7 @@ export function isLink(target, onClick) {
 
 export function handleAction(
 	{
+		confirmationMessage,
 		event,
 		itemId,
 		method,
@@ -54,6 +55,10 @@ export function handleAction(
 		toggleItemInlineEdit,
 	}
 ) {
+	if (confirmationMessage && !confirm(confirmationMessage)) {
+		return;
+	}
+
 	if (target?.includes('modal')) {
 		event.preventDefault();
 
@@ -137,6 +142,7 @@ function ActionItem({
 
 		handleAction(
 			{
+				confirmationMessage: data?.confirmationMessage,
 				event,
 				itemId,
 				method,
@@ -358,12 +364,16 @@ function ActionsDropdownRenderer({actions, itemData, itemId}) {
 				active={menuActive}
 				onActiveChange={setMenuActive}
 				trigger={
-					<ClayButtonWithIcon
+					<ClayButton
 						className="component-action dropdown-toggle ml-1"
 						disabled={loading}
 						displayType="unstyled"
-						symbol="ellipsis-v"
-					/>
+					>
+						<ClayIcon symbol="ellipsis-v" />
+						<span className="sr-only">
+							{Liferay.Language.get('actions')}
+						</span>
+					</ClayButton>
 				}
 			>
 				<ClayDropDown.ItemList>
@@ -378,6 +388,7 @@ ActionsDropdownRenderer.propTypes = {
 	actions: PropTypes.arrayOf(
 		PropTypes.shape({
 			data: PropTypes.shape({
+				confirmationMessage: PropTypes.string,
 				method: PropTypes.oneOf(['get', 'delete']),
 				permissionKey: PropTypes.string,
 				successMessage: PropTypes.string,

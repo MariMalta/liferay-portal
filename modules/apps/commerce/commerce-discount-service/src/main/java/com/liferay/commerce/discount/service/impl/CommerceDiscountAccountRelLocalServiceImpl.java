@@ -17,12 +17,16 @@ package com.liferay.commerce.discount.service.impl;
 import com.liferay.commerce.discount.model.CommerceDiscount;
 import com.liferay.commerce.discount.model.CommerceDiscountAccountRel;
 import com.liferay.commerce.discount.service.base.CommerceDiscountAccountRelLocalServiceBaseImpl;
+import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.spring.extender.service.ServiceReference;
 
 import java.util.List;
 
@@ -63,6 +67,7 @@ public class CommerceDiscountAccountRelLocalServiceImpl
 	}
 
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public CommerceDiscountAccountRel deleteCommerceDiscountAccountRel(
 			CommerceDiscountAccountRel commerceDiscountAccountRel)
 		throws PortalException {
@@ -70,7 +75,7 @@ public class CommerceDiscountAccountRelLocalServiceImpl
 		commerceDiscountAccountRelPersistence.remove(
 			commerceDiscountAccountRel);
 
-		expandoRowLocalService.deleteRows(
+		_expandoRowLocalService.deleteRows(
 			commerceDiscountAccountRel.getCommerceDiscountAccountRelId());
 
 		reindexCommerceDiscount(
@@ -168,5 +173,8 @@ public class CommerceDiscountAccountRelLocalServiceImpl
 
 		indexer.reindex(CommerceDiscount.class.getName(), commerceDiscountId);
 	}
+
+	@ServiceReference(type = ExpandoRowLocalService.class)
+	private ExpandoRowLocalService _expandoRowLocalService;
 
 }

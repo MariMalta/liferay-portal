@@ -125,19 +125,33 @@ public class ObjectEntryDisplayContext {
 
 		NavigationItemList navigationItemList = new NavigationItemList();
 
+		ObjectEntry objectEntry = getObjectEntry();
+
+		if (objectEntry == null) {
+			return navigationItemList;
+		}
+
 		ObjectLayoutTab currentObjectLayoutTab = getObjectLayoutTab();
 		LiferayPortletResponse liferayPortletResponse =
 			_objectRequestHelper.getLiferayPortletResponse();
-		ObjectEntry objectEntry = getObjectEntry();
-
-		long objectEntryId = 0;
-
-		if (objectEntry != null) {
-			objectEntryId = objectEntry.getObjectEntryId();
-		}
+		long objectEntryId = objectEntry.getObjectEntryId();
 
 		for (ObjectLayoutTab objectLayoutTab :
 				objectLayout.getObjectLayoutTabs()) {
+
+			if (objectLayoutTab.getObjectRelationshipId() > 0) {
+				ObjectRelationship objectRelationship =
+					_objectRelationshipLocalService.getObjectRelationship(
+						objectLayoutTab.getObjectRelationshipId());
+
+				ObjectDefinition objectDefinition =
+					_objectDefinitionLocalService.getObjectDefinition(
+						objectRelationship.getObjectDefinitionId2());
+
+				if (!objectDefinition.isActive()) {
+					continue;
+				}
+			}
 
 			navigationItemList.add(
 				NavigationItemBuilder.setActive(
@@ -339,19 +353,24 @@ public class ObjectEntryDisplayContext {
 		}
 
 		return _ddmFormRenderer.render(
-			ddmForm, _getDDMFormLayout(objectLayoutTab),
+			ddmForm, _getDDMFormLayout(ddmForm, objectLayoutTab),
 			ddmFormRenderingContext);
 	}
 
 	private void _addDDMFormFields(
-		DDMForm ddmForm, List<ObjectField> objectFields,
-		ObjectLayoutTab objectLayoutTab) {
+			DDMForm ddmForm, List<ObjectField> objectFields,
+			ObjectLayoutTab objectLayoutTab)
+		throws PortalException {
 
 		for (ObjectLayoutBox objectLayoutBox :
 				objectLayoutTab.getObjectLayoutBoxes()) {
 
 			List<DDMFormField> nestedDDMFormFields = _getNestedDDMFormFields(
 				objectFields, objectLayoutBox);
+
+			if (nestedDDMFormFields.isEmpty()) {
+				continue;
+			}
 
 			ddmForm.addDDMFormField(
 				new DDMFormField(
@@ -372,7 +391,7 @@ public class ObjectEntryDisplayContext {
 						setNestedDDMFormFields(nestedDDMFormFields);
 						setProperty(
 							"collapsible", objectLayoutBox.isCollapsable());
-						setProperty("rows", _getRows(nestedDDMFormFields));
+						setProperty("rows", _getRows(objectLayoutBox));
 						setReadOnly(false);
 						setRepeatable(false);
 						setRequired(false);
@@ -400,7 +419,9 @@ public class ObjectEntryDisplayContext {
 		return ddmFormFieldOptions;
 	}
 
-	private DDMForm _getDDMForm(ObjectLayoutTab objectLayoutTab) {
+	private DDMForm _getDDMForm(ObjectLayoutTab objectLayoutTab)
+		throws PortalException {
+
 		ObjectDefinition objectDefinition = getObjectDefinition();
 
 		DDMForm ddmForm = new DDMForm();
@@ -413,6 +434,10 @@ public class ObjectEntryDisplayContext {
 
 		if (objectLayoutTab == null) {
 			for (ObjectField objectField : objectFields) {
+				if (!_isActive(objectField)) {
+					continue;
+				}
+
 				ddmForm.addDDMFormField(_getDDMFormField(objectField));
 			}
 		}
@@ -462,13 +487,24 @@ public class ObjectEntryDisplayContext {
 		return ddmFormField;
 	}
 
-	private DDMFormLayout _getDDMFormLayout(ObjectLayoutTab objectLayoutTab) {
+	private DDMFormLayout _getDDMFormLayout(
+		DDMForm ddmForm, ObjectLayoutTab objectLayoutTab) {
+
 		DDMFormLayout ddmFormLayout = new DDMFormLayout();
 
 		DDMFormLayoutPage ddmFormLayoutPage = new DDMFormLayoutPage();
 
+		Map<String, DDMFormField> ddmFormFieldsMap =
+			ddmForm.getDDMFormFieldsMap(false);
+
 		for (ObjectLayoutBox objectLayoutBox :
 				objectLayoutTab.getObjectLayoutBoxes()) {
+
+			if (!ddmFormFieldsMap.containsKey(
+					String.valueOf(objectLayoutBox.getPrimaryKey()))) {
+
+				continue;
+			}
 
 			DDMFormLayoutRow ddmFormLayoutRow = new DDMFormLayoutRow();
 
@@ -535,7 +571,8 @@ public class ObjectEntryDisplayContext {
 	}
 
 	private List<DDMFormField> _getNestedDDMFormFields(
-		List<ObjectField> objectFields, ObjectLayoutBox objectLayoutBox) {
+			List<ObjectField> objectFields, ObjectLayoutBox objectLayoutBox)
+		throws PortalException {
 
 		List<DDMFormField> nestedDDMFormFields = new ArrayList<>();
 
@@ -553,14 +590,18 @@ public class ObjectEntryDisplayContext {
 							objectLayoutColumn.getObjectFieldId()
 				).findFirst();
 
-				objectFieldOptional.ifPresent(
-					objectField -> {
-						_objectLayoutColumnSizes.put(
-							objectField.getName(),
-							objectLayoutColumn.getSize());
+				if (objectFieldOptional.isPresent()) {
+					ObjectField objectField = objectFieldOptional.get();
 
-						nestedDDMFormFields.add(_getDDMFormField(objectField));
-					});
+					if (!_isActive(objectField)) {
+						continue;
+					}
+
+					_objectFieldNames.put(
+						objectLayoutColumn.getObjectFieldId(),
+						objectField.getName());
+					nestedDDMFormFields.add(_getDDMFormField(objectField));
+				}
 			}
 		}
 
@@ -584,23 +625,49 @@ public class ObjectEntryDisplayContext {
 			});
 	}
 
-	private String _getRows(List<DDMFormField> ddmFormFields) {
+	private String _getRows(ObjectLayoutBox objectLayoutBox) {
 		JSONArray rowsJSONArray = JSONFactoryUtil.createJSONArray();
 
-		for (DDMFormField ddmFormField : ddmFormFields) {
-			rowsJSONArray.put(
-				JSONUtil.put(
-					"columns",
+		for (ObjectLayoutRow objectLayoutRow :
+				objectLayoutBox.getObjectLayoutRows()) {
+
+			JSONArray columnsJSONArray = JSONFactoryUtil.createJSONArray();
+
+			for (ObjectLayoutColumn objectLayoutColumn :
+					objectLayoutRow.getObjectLayoutColumns()) {
+
+				columnsJSONArray.put(
 					JSONUtil.put(
+						"fields",
 						JSONUtil.put(
-							"fields", JSONUtil.put(ddmFormField.getName())
-						).put(
-							"size",
-							_objectLayoutColumnSizes.get(ddmFormField.getName())
-						))));
+							_objectFieldNames.get(
+								objectLayoutColumn.getObjectFieldId()))
+					).put(
+						"size", objectLayoutColumn.getSize()
+					));
+			}
+
+			rowsJSONArray.put(JSONUtil.put("columns", columnsJSONArray));
 		}
 
 		return rowsJSONArray.toString();
+	}
+
+	private boolean _isActive(ObjectField objectField) throws PortalException {
+		if (Validator.isNotNull(objectField.getRelationshipType())) {
+			ObjectRelationship objectRelationship =
+				_objectRelationshipLocalService.
+					fetchObjectRelationshipByObjectFieldId2(
+						objectField.getObjectFieldId());
+
+			ObjectDefinition relatedObjectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectRelationship.getObjectDefinitionId1());
+
+			return relatedObjectDefinition.isActive();
+		}
+
+		return true;
 	}
 
 	private void _setDDMFormFieldProperties(
@@ -665,8 +732,7 @@ public class ObjectEntryDisplayContext {
 	private ObjectEntry _objectEntry;
 	private final ObjectEntryService _objectEntryService;
 	private final ObjectFieldLocalService _objectFieldLocalService;
-	private final Map<String, Integer> _objectLayoutColumnSizes =
-		new HashMap<>();
+	private final Map<Long, String> _objectFieldNames = new HashMap<>();
 	private final ObjectLayoutLocalService _objectLayoutLocalService;
 	private final ObjectRelationshipLocalService
 		_objectRelationshipLocalService;

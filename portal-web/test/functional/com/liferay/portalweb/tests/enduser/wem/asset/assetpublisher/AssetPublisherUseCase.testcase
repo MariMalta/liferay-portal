@@ -1633,14 +1633,14 @@ definition {
 			ServerAdministration.openServerAdmin();
 
 			var script = '''
-import com.liferay.registry.RegistryUtil;
+import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 
 try {
-	def registry = RegistryUtil.getRegistry();
+	def bundleContext = SystemBundleUtil.getBundleContext();
 
-	def serviceReference = registry.getServiceReference("com.liferay.asset.publisher.web.internal.messaging.AssetEntriesCheckerHelper");
+	def serviceReference = bundleContext.getServiceReference("com.liferay.asset.publisher.web.internal.messaging.AssetEntriesCheckerHelper");
 
-	def assetEntriesCheckerHelper = registry.getService(serviceReference);
+	def assetEntriesCheckerHelper = bundleContext.getService(serviceReference);
 
 	def checkEntriesMethod = assetEntriesCheckerHelper.getClass().getMethod("checkAssetEntries");
 
@@ -1804,6 +1804,24 @@ catch (Exception e) {
 				assetContent = "Web Content Content",
 				assetTitle = "Web Content Title",
 				tagName = "tag name");
+		}
+	}
+
+	@description = "This is a test for LPS-128196. View the URL when there is an Asset Publisher in a page."
+	@priority = "3"
+	test ViewURLWhenPageHasAssetPublisher {
+		task ("Navigate to the page with Asset Publisher") {
+			Navigator.openSiteURL(siteName = "Test Site Name");
+
+			Click(
+				key_pageName = "Asset Publisher Page",
+				locator1 = "Home#PAGE");
+		}
+
+		task ("View the URL") {
+			var baseURL = PropsUtil.get("portal.url");
+
+			AssertLocation(value1 = "${baseURL}/web/test-site-name/asset-publisher-page");
 		}
 	}
 

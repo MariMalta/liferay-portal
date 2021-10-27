@@ -53,6 +53,10 @@ public class CartItem implements Serializable {
 		return ObjectMapperUtil.readValue(CartItem.class, json);
 	}
 
+	public static CartItem unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(CartItem.class, json);
+	}
+
 	@Schema
 	public String getAdaptiveMediaImageHTMLTag() {
 		return adaptiveMediaImageHTMLTag;
@@ -331,6 +335,36 @@ public class CartItem implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long productId;
+
+	@Schema
+	@Valid
+	public Map<String, String> getProductURLs() {
+		return productURLs;
+	}
+
+	public void setProductURLs(Map<String, String> productURLs) {
+		this.productURLs = productURLs;
+	}
+
+	@JsonIgnore
+	public void setProductURLs(
+		UnsafeSupplier<Map<String, String>, Exception>
+			productURLsUnsafeSupplier) {
+
+		try {
+			productURLs = productURLsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Map<String, String> productURLs;
 
 	@Schema
 	public Integer getQuantity() {
@@ -686,6 +720,16 @@ public class CartItem implements Serializable {
 			sb.append("\"productId\": ");
 
 			sb.append(productId);
+		}
+
+		if (productURLs != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"productURLs\": ");
+
+			sb.append(_toJSON(productURLs));
 		}
 
 		if (quantity != null) {

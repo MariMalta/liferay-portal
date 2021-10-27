@@ -9,6 +9,7 @@ exports[`ReactFieldBase does not render the add button when repeatable is true a
       class="lfr-ddm-form-field-repeatable-toolbar"
     >
       <button
+        aria-label="add-duplicate-field"
         class="ddm-form-field-repeatable-add-button p-0 hide btn btn-sm btn-primary"
         title="duplicate"
         type="button"
@@ -40,6 +41,7 @@ exports[`ReactFieldBase does not render the add button when repeatable is true a
 exports[`ReactFieldBase does not render the label if showLabel is false 1`] = `
 <div>
   <div
+    aria-labelledby="undefined_fieldDetails"
     class="form-group hide"
     tabindex="0"
   >
@@ -56,6 +58,7 @@ exports[`ReactFieldBase does not render the label if showLabel is false 1`] = `
 exports[`ReactFieldBase renders the FieldBase with contentRenderer 1`] = `
 <div>
   <div
+    aria-labelledby="undefined_fieldDetails"
     class="form-group hide"
     tabindex="0"
   >
@@ -77,6 +80,7 @@ exports[`ReactFieldBase renders the FieldBase with contentRenderer 1`] = `
 exports[`ReactFieldBase renders the FieldBase with help text 1`] = `
 <div>
   <div
+    aria-labelledby="undefined_fieldDetails"
     class="form-group hide"
     tabindex="0"
   >
@@ -93,6 +97,7 @@ exports[`ReactFieldBase renders the FieldBase with help text 1`] = `
     </span>
     <span
       class="sr-only"
+      id="undefined_fieldDetails"
     >
       Type something!
       <br />
@@ -104,7 +109,7 @@ exports[`ReactFieldBase renders the FieldBase with help text 1`] = `
 exports[`ReactFieldBase renders the FieldBase with id 1`] = `
 <div>
   <div
-    aria-labelledby="Id"
+    aria-labelledby="Id_fieldDetails"
     class="form-group hide"
     tabindex="0"
   >
@@ -145,6 +150,7 @@ exports[`ReactFieldBase renders the FieldBase with required 1`] = `
     class="form-group hide"
   >
     <label
+      aria-labelledby="undefined_fieldDetails"
       class="ddm-label"
       tabindex="0"
     >
@@ -168,6 +174,7 @@ exports[`ReactFieldBase renders the FieldBase with required 1`] = `
     />
     <span
       class="sr-only"
+      id="undefined_fieldDetails"
     >
       required
     </span>
@@ -184,6 +191,7 @@ exports[`ReactFieldBase renders the add button when repeatable is true 1`] = `
       class="lfr-ddm-form-field-repeatable-toolbar"
     >
       <button
+        aria-label="add-duplicate-field"
         class="ddm-form-field-repeatable-add-button p-0 btn btn-sm btn-primary"
         title="duplicate"
         type="button"
@@ -215,6 +223,7 @@ exports[`ReactFieldBase renders the add button when repeatable is true 1`] = `
 exports[`ReactFieldBase renders the default markup 1`] = `
 <div>
   <div
+    aria-labelledby="undefined_fieldDetails"
     class="form-group hide"
     tabindex="0"
   >

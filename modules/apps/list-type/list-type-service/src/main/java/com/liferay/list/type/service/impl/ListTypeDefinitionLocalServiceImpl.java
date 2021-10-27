@@ -14,6 +14,7 @@
 
 package com.liferay.list.type.service.impl;
 
+import com.liferay.list.type.exception.ListTypeDefinitionNameException;
 import com.liferay.list.type.exception.RequiredListTypeDefinitionException;
 import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.list.type.service.base.ListTypeDefinitionLocalServiceBaseImpl;
@@ -22,11 +23,15 @@ import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +54,8 @@ public class ListTypeDefinitionLocalServiceImpl
 	public ListTypeDefinition addListTypeDefinition(
 			long userId, Map<Locale, String> nameMap)
 		throws PortalException {
+
+		_validateName(nameMap, LocaleUtil.getSiteDefault());
 
 		ListTypeDefinition listTypeDefinition =
 			listTypeDefinitionPersistence.create(
@@ -75,6 +82,7 @@ public class ListTypeDefinitionLocalServiceImpl
 
 	@Indexable(type = IndexableType.DELETE)
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ListTypeDefinition deleteListTypeDefinition(
 			ListTypeDefinition listTypeDefinition)
 		throws PortalException {
@@ -120,6 +128,8 @@ public class ListTypeDefinitionLocalServiceImpl
 			long listTypeDefinitionId, Map<Locale, String> nameMap)
 		throws PortalException {
 
+		_validateName(nameMap, LocaleUtil.getSiteDefault());
+
 		ListTypeDefinition listTypeDefinition =
 			listTypeDefinitionPersistence.findByPrimaryKey(
 				listTypeDefinitionId);
@@ -127,6 +137,16 @@ public class ListTypeDefinitionLocalServiceImpl
 		listTypeDefinition.setNameMap(nameMap);
 
 		return listTypeDefinitionPersistence.update(listTypeDefinition);
+	}
+
+	private void _validateName(
+			Map<Locale, String> nameMap, Locale defaultLocale)
+		throws PortalException {
+
+		if ((nameMap == null) || Validator.isNull(nameMap.get(defaultLocale))) {
+			throw new ListTypeDefinitionNameException(
+				"Name is null for locale " + defaultLocale.getDisplayName());
+		}
 	}
 
 	@Reference

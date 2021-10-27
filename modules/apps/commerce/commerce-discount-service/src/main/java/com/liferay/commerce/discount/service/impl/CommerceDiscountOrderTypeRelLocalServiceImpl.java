@@ -19,6 +19,7 @@ import com.liferay.commerce.discount.model.CommerceDiscountOrderTypeRel;
 import com.liferay.commerce.discount.model.CommerceDiscountOrderTypeRelTable;
 import com.liferay.commerce.discount.service.base.CommerceDiscountOrderTypeRelLocalServiceBaseImpl;
 import com.liferay.commerce.model.CommerceOrderTypeTable;
+import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
 import com.liferay.petra.sql.dsl.expression.Predicate;
@@ -27,10 +28,12 @@ import com.liferay.petra.sql.dsl.query.GroupByStep;
 import com.liferay.petra.sql.dsl.query.JoinStep;
 import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.spring.extender.service.ServiceReference;
@@ -74,6 +77,7 @@ public class CommerceDiscountOrderTypeRelLocalServiceImpl
 	}
 
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public CommerceDiscountOrderTypeRel deleteCommerceDiscountOrderTypeRel(
 			CommerceDiscountOrderTypeRel commerceDiscountOrderTypeRel)
 		throws PortalException {
@@ -81,7 +85,7 @@ public class CommerceDiscountOrderTypeRelLocalServiceImpl
 		commerceDiscountOrderTypeRelPersistence.remove(
 			commerceDiscountOrderTypeRel);
 
-		expandoRowLocalService.deleteRows(
+		_expandoRowLocalService.deleteRows(
 			commerceDiscountOrderTypeRel.getCommerceDiscountOrderTypeRelId());
 
 		reindexCommerceDiscount(
@@ -207,5 +211,8 @@ public class CommerceDiscountOrderTypeRelLocalServiceImpl
 
 	@ServiceReference(type = CustomSQL.class)
 	private CustomSQL _customSQL;
+
+	@ServiceReference(type = ExpandoRowLocalService.class)
+	private ExpandoRowLocalService _expandoRowLocalService;
 
 }

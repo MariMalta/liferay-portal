@@ -141,6 +141,26 @@ public class ObjectRelationshipLocalServiceWrapper
 			objectRelationship);
 	}
 
+	@Override
+	public void deleteObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_objectRelationshipLocalService.
+			deleteObjectRelationshipMappingTableValues(
+				objectRelationshipId, primaryKey1);
+	}
+
+	@Override
+	public void deleteObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1, long primaryKey2)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_objectRelationshipLocalService.
+			deleteObjectRelationshipMappingTableValues(
+				objectRelationshipId, primaryKey1, primaryKey2);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
@@ -288,6 +308,16 @@ public class ObjectRelationshipLocalServiceWrapper
 	}
 
 	@Override
+	public com.liferay.object.model.ObjectRelationship
+		fetchReverseObjectRelationship(
+			com.liferay.object.model.ObjectRelationship objectRelationship,
+			boolean reverse) {
+
+		return _objectRelationshipLocalService.fetchReverseObjectRelationship(
+			objectRelationship, reverse);
+	}
+
+	@Override
 	public com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery
 		getActionableDynamicQuery() {
 
@@ -405,12 +435,12 @@ public class ObjectRelationshipLocalServiceWrapper
 
 	@Override
 	public com.liferay.object.model.ObjectRelationship updateObjectRelationship(
-			long objectRelationshipId,
+			long objectRelationshipId, String deletionType,
 			java.util.Map<java.util.Locale, String> labelMap)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectRelationshipLocalService.updateObjectRelationship(
-			objectRelationshipId, labelMap);
+			objectRelationshipId, deletionType, labelMap);
 	}
 
 	/**

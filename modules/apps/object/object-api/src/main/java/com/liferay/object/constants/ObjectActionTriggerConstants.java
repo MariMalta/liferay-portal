@@ -19,14 +19,10 @@ package com.liferay.object.constants;
  */
 public class ObjectActionTriggerConstants {
 
-	public static final String KEY_ON_AFTER_CREATE = "onAfterAdd";
+	public static final String KEY_ON_AFTER_ADD = "onAfterAdd";
 
-	public static final String KEY_ON_AFTER_REMOVE = "onAfterDelete";
+	public static final String KEY_ON_AFTER_DELETE = "onAfterDelete";
 
 	public static final String KEY_ON_AFTER_UPDATE = "onAfterUpdate";
-
-	public static final String TYPE_MESSAGE_BUS = "messageBus";
-
-	public static final String TYPE_TRANSACTION = "transaction";
 
 }

@@ -1856,7 +1856,6 @@ public class ObjectActionPersistenceImpl
 
 		dbColumnNames.put("uuid", "uuid_");
 		dbColumnNames.put("active", "active_");
-		dbColumnNames.put("type", "type_");
 
 		setDBColumnNames(dbColumnNames);
 
@@ -2546,7 +2545,7 @@ public class ObjectActionPersistenceImpl
 		ObjectActionPersistenceImpl.class);
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
-		new String[] {"uuid", "active", "type"});
+		new String[] {"uuid", "active"});
 
 	@Override
 	protected FinderCache getFinderCache() {

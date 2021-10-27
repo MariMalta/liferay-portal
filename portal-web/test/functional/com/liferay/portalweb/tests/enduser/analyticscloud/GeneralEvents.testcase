@@ -47,16 +47,14 @@ definition {
 
 		task ("Add widget pages") {
 			for (var layoutName : list "WebContent,Blog,Document,Form") {
-				JSONLayout.addPublicLayout(
-					groupName = "Site Name",
-					layoutName = "${layoutName}");
+				ACUtils.addPage(layoutName = "${layoutName}");
 			}
 		}
 
 		task ("Add a Web Content Display to page and display a web content") {
 			ACUtils.createWCAndAddToPage(
 				layoutName = "WebContent",
-				webContentContent = '''<div data-analytics-asset-type='custom' data-analytics-asset-id='analytics-portal' data-analytics-asset-category='AC' data-analytics-asset-title='Custom Asset Analytics Cloud'>%0A<h1> What's your favorite portal? </h1>%0A</div>''',
+				webContentContent = '''<div data-analytics-asset-type="custom" data-analytics-asset-id="analytics-portal" data-analytics-asset-category="AC" data-analytics-asset-title="Custom Asset Analytics Cloud">%0A<h1> What'\''s your favorite portal? </h1>%0A</div>''',
 				webContentTitle = "Custom Asset AC Title");
 		}
 
@@ -97,7 +95,7 @@ definition {
 		}
 
 		task ("Enable the Show Actions in Documents and Media") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
 				pageName = "Document",
 				siteName = "Site Name");
 
@@ -156,7 +154,7 @@ definition {
 		}
 
 		task ("View the WebContent page as guest") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
 				pageName = "WebContent",
 				siteName = "Site Name");
 		}
@@ -500,7 +498,7 @@ definition {
 		}
 
 		task ("View the Blog page as guest") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
 				pageName = "Blog",
 				siteName = "Site Name");
 		}

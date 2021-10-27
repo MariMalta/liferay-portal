@@ -24,6 +24,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+
 /**
  * @author Leonardo Barros
  */
@@ -34,9 +37,25 @@ public class ObjectMapperUtil {
 			return (T)_objectMapper.readValue(json, clazz);
 		}
 		catch (JsonProcessingException jsonProcessingException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(jsonProcessingException, jsonProcessingException);
+			}
+
 			return null;
 		}
 	}
+
+	public static <T> T unsafeReadValue(Class<?> clazz, String json) {
+		try {
+			return (T)_objectMapper.readValue(json, clazz);
+		}
+		catch (JsonProcessingException jsonProcessingException) {
+			throw new RuntimeException(jsonProcessingException);
+		}
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		ObjectMapperUtil.class);
 
 	private static final ObjectMapper _objectMapper;
 

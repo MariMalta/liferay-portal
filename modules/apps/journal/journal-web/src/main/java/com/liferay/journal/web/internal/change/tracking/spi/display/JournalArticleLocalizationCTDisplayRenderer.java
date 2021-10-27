@@ -16,6 +16,7 @@ package com.liferay.journal.web.internal.change.tracking.spi.display;
 
 import com.liferay.change.tracking.spi.display.BaseCTDisplayRenderer;
 import com.liferay.change.tracking.spi.display.CTDisplayRenderer;
+import com.liferay.change.tracking.spi.display.context.DisplayContext;
 import com.liferay.journal.model.JournalArticle;
 import com.liferay.journal.model.JournalArticleLocalization;
 import com.liferay.journal.service.JournalArticleLocalService;
@@ -24,19 +25,17 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.translation.constants.TranslationPortletKeys;
 import com.liferay.translation.model.TranslationEntry;
 import com.liferay.translation.service.TranslationEntryLocalService;
 
 import java.util.Locale;
-import java.util.ResourceBundle;
 
 import javax.portlet.PortletRequest;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -47,21 +46,6 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = CTDisplayRenderer.class)
 public class JournalArticleLocalizationCTDisplayRenderer
 	extends BaseCTDisplayRenderer<JournalArticleLocalization> {
-
-	@Override
-	public String getContent(
-			HttpServletRequest httpServletRequest,
-			HttpServletResponse httpServletResponse, Locale locale,
-			JournalArticleLocalization journalArticleLocalization)
-		throws PortalException {
-
-		return JournalArticleCTDisplayRenderer.getJournalArticleContent(
-			_journalArticleLocalService.getJournalArticle(
-				journalArticleLocalization.getArticlePK()),
-			_journalArticleLocalService,
-			journalArticleLocalization.getLanguageId(), httpServletRequest,
-			httpServletResponse);
-	}
 
 	@Override
 	public String getEditURL(
@@ -108,10 +92,27 @@ public class JournalArticleLocalizationCTDisplayRenderer
 
 	@Override
 	public String getTypeName(Locale locale) {
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			locale, JournalArticleLocalizationCTDisplayRenderer.class);
+		return _language.get(locale, "web-content-translation");
+	}
 
-		return _language.get(resourceBundle, "web-content-translation");
+	@Override
+	public String renderPreview(
+			DisplayContext<JournalArticleLocalization> displayContext)
+		throws Exception {
+
+		JournalArticleLocalization journalArticleLocalization =
+			displayContext.getModel();
+
+		return displayContext.renderPreview(
+			_journalArticleLocalService.getJournalArticle(
+				journalArticleLocalization.getArticlePK()),
+			LocaleUtil.fromLanguageId(
+				journalArticleLocalization.getLanguageId()));
+	}
+
+	@Override
+	public boolean showPreviewDiff() {
+		return true;
 	}
 
 	@Override

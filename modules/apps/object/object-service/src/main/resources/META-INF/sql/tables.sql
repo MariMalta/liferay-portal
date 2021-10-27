@@ -9,9 +9,10 @@ create table ObjectAction (
 	modifiedDate DATE null,
 	objectDefinitionId LONG,
 	active_ BOOLEAN,
+	name VARCHAR(75) null,
+	objectActionExecutorKey VARCHAR(75) null,
 	objectActionTriggerKey VARCHAR(75) null,
-	parameters TEXT null,
-	type_ VARCHAR(75) null
+	parameters TEXT null
 );
 
 create table ObjectDefinition (
@@ -23,6 +24,8 @@ create table ObjectDefinition (
 	userName VARCHAR(75) null,
 	createDate DATE null,
 	modifiedDate DATE null,
+	descriptionObjectFieldId LONG,
+	titleObjectFieldId LONG,
 	active_ BOOLEAN,
 	dbTableName VARCHAR(75) null,
 	label STRING null,
@@ -165,8 +168,10 @@ create table ObjectRelationship (
 	objectDefinitionId1 LONG,
 	objectDefinitionId2 LONG,
 	objectFieldId2 LONG,
+	deletionType VARCHAR(75) null,
 	dbTableName VARCHAR(75) null,
 	label STRING null,
 	name VARCHAR(75) null,
+	reverse BOOLEAN,
 	type_ VARCHAR(75) null
 );

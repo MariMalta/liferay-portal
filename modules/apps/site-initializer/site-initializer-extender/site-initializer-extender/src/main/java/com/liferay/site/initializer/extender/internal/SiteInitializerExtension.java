@@ -15,10 +15,6 @@
 package com.liferay.site.initializer.extender.internal;
 
 import com.liferay.asset.list.service.AssetListEntryLocalService;
-import com.liferay.commerce.account.util.CommerceAccountRoleHelper;
-import com.liferay.commerce.currency.service.CommerceCurrencyLocalService;
-import com.liferay.commerce.product.importer.CPFileImporter;
-import com.liferay.commerce.product.service.CPMeasurementUnitLocalService;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
@@ -26,8 +22,6 @@ import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
 import com.liferay.fragment.importer.FragmentsImporter;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
-import com.liferay.headless.commerce.admin.catalog.resource.v1_0.CatalogResource;
-import com.liferay.headless.commerce.admin.channel.resource.v1_0.ChannelResource;
 import com.liferay.headless.delivery.resource.v1_0.DocumentFolderResource;
 import com.liferay.headless.delivery.resource.v1_0.DocumentResource;
 import com.liferay.headless.delivery.resource.v1_0.StructuredContentFolderResource;
@@ -37,6 +31,7 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServ
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
+import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -47,6 +42,7 @@ import com.liferay.portal.kernel.service.ThemeLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.security.service.access.policy.service.SAPEntryLocalService;
 import com.liferay.remote.app.service.RemoteAppEntryLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
@@ -70,12 +66,7 @@ public class SiteInitializerExtension {
 	public SiteInitializerExtension(
 		AssetListEntryLocalService assetListEntryLocalService, Bundle bundle,
 		BundleContext bundleContext,
-		CatalogResource.Factory catalogResourceFactory,
-		ChannelResource.Factory channelResourceFactory,
-		CommerceAccountRoleHelper commerceAccountRoleHelper,
-		CommerceCurrencyLocalService commerceCurrencyLocalService,
-		CPFileImporter cpFileImporter,
-		CPMeasurementUnitLocalService cpMeasurementUnitLocalService,
+		CommerceReferencesHolder commerceReferencesHolder,
 		DDMStructureLocalService ddmStructureLocalService,
 		DDMTemplateLocalService ddmTemplateLocalService,
 		DefaultDDMStructureHelper defaultDDMStructureHelper,
@@ -93,9 +84,12 @@ public class SiteInitializerExtension {
 			layoutPageTemplateStructureLocalService,
 		LayoutSetLocalService layoutSetLocalService,
 		ObjectDefinitionResource.Factory objectDefinitionResourceFactory,
-		Portal portal, RemoteAppEntryLocalService remoteAppEntryLocalService,
+		ObjectEntryLocalService objectEntryLocalService, Portal portal,
+		RemoteAppEntryLocalService remoteAppEntryLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
-		RoleLocalService roleLocalService, SettingsFactory settingsFactory,
+		RoleLocalService roleLocalService,
+		SAPEntryLocalService sapEntryLocalService,
+		SettingsFactory settingsFactory,
 		SiteNavigationMenuItemLocalService siteNavigationMenuItemLocalService,
 		SiteNavigationMenuItemTypeRegistry siteNavigationMenuItemTypeRegistry,
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService,
@@ -114,20 +108,18 @@ public class SiteInitializerExtension {
 		_component.setImplementation(
 			new SiteInitializerRegistrar(
 				assetListEntryLocalService, bundle, bundleContext,
-				catalogResourceFactory, channelResourceFactory,
-				commerceAccountRoleHelper, commerceCurrencyLocalService,
-				cpFileImporter, cpMeasurementUnitLocalService,
-				ddmStructureLocalService, ddmTemplateLocalService,
-				defaultDDMStructureHelper, dlURLHelper,
+				commerceReferencesHolder, ddmStructureLocalService,
+				ddmTemplateLocalService, defaultDDMStructureHelper, dlURLHelper,
 				documentFolderResourceFactory, documentResourceFactory,
 				fragmentsImporter, groupLocalService,
 				journalArticleLocalService, jsonFactory, layoutCopyHelper,
 				layoutLocalService, layoutPageTemplateEntryLocalService,
 				layoutPageTemplatesImporter,
 				layoutPageTemplateStructureLocalService, layoutSetLocalService,
-				objectDefinitionResourceFactory, portal,
-				remoteAppEntryLocalService, resourcePermissionLocalService,
-				roleLocalService, settingsFactory,
+				objectDefinitionResourceFactory, objectEntryLocalService,
+				portal, remoteAppEntryLocalService,
+				resourcePermissionLocalService, roleLocalService,
+				sapEntryLocalService, settingsFactory,
 				siteNavigationMenuItemLocalService,
 				siteNavigationMenuItemTypeRegistry,
 				siteNavigationMenuLocalService,

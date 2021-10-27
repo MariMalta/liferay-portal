@@ -152,6 +152,14 @@ public class ObjectEntryLocalServiceUtil {
 		return getService().deletePersistedModel(persistedModel);
 	}
 
+	public static void deleteRelatedObjectEntries(
+			long groupId, long objectDefinitionId, long primaryKey)
+		throws PortalException {
+
+		getService().deleteRelatedObjectEntries(
+			groupId, objectDefinitionId, primaryKey);
+	}
+
 	public static <T> T dslQuery(DSLQuery dslQuery) {
 		return getService().dslQuery(dslQuery);
 	}
@@ -276,20 +284,21 @@ public class ObjectEntryLocalServiceUtil {
 	}
 
 	public static List<ObjectEntry> getManyToManyRelatedObjectEntries(
-			long groupId, long objectRelationshipId, long primaryKey, int start,
-			int end)
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean reverse, int start, int end)
 		throws PortalException {
 
 		return getService().getManyToManyRelatedObjectEntries(
-			groupId, objectRelationshipId, primaryKey, start, end);
+			groupId, objectRelationshipId, primaryKey, reverse, start, end);
 	}
 
 	public static int getManyToManyRelatedObjectEntriesCount(
-			long groupId, long objectRelationshipId, long primaryKey)
+			long groupId, long objectRelationshipId, long primaryKey,
+			boolean reverse)
 		throws PortalException {
 
 		return getService().getManyToManyRelatedObjectEntriesCount(
-			groupId, objectRelationshipId, primaryKey);
+			groupId, objectRelationshipId, primaryKey, reverse);
 	}
 
 	/**

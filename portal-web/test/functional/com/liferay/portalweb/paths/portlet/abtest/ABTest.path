@@ -21,12 +21,32 @@
 	<td></td>
 </tr>
 <tr>
+	<td>AB_TEST_TITLE_DXP</td>
+	<td>//*[@class= 'mb-0 text-dark text-truncate' and contains(text(),'${key_title}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>AB_TEST_TITLE_FIELD</td>
 	<td>//input[@class='form-control mt-1']</td>
 	<td></td>
 </tr>
 <tr>
+	<td>AB_TEST_DETAILS_FIELD</td>
+	<td>//*[@class= 'd-inline inline-item-after text-secondary' and contains(text(),'${key_name}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>AB_TEST_SIDE_BAR</td>
+	<td>//*[contains(@class, 'sidebar sidebar-light sidenav-menu sidebar-sm')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CHANGE_SELECT_GOAL</td>
+	<td>//select[contains(@class,'form-control mt-1')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CHANGE_EXPERIENCE</td>
 	<td>//select[contains(@class,'form-control')]</td>
 	<td></td>
 </tr>
@@ -41,13 +61,38 @@
 	<td></td>
 </tr>
 <tr>
+	<td>CANCEL_VARIANT_NAME_BUTTON</td>
+	<td>//*[contains(@class,'btn btn-secondary') and contains(text(),'Cancel')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>CLOSE_BUTTON</td>
+	<td>//div[contains(@class,'modal-dialog')]//*//button[contains (@class,'close')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>CREATE_VARIANT_BUTTON</td>
 	<td>//*[contains(@class,'btn btn-secondary') and contains(text(),'Create Variant')]</td>
 	<td></td>
 </tr>
 <tr>
+	<td>HIDE_AB_TEST_BUTTON</td>
+	<td>//a[contains(@class,'d-block')]//*[contains(text(),'Do not show me this again.')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>DELETE_VARIANT_BUTTON</td>
 	<td>//div[@class='dropdown-menu show']//button[contains(@class, 'dropdown-item') and contains(text(), 'Delete')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EDIT_VARIANT_BUTTON</td>
+	<td>//div[@class='dropdown-menu show']//button[contains(@class, 'dropdown-item') and contains(text(), 'Edit')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>EDIT_AB_TEST_MODAL</td>
+	<td>//div[@class ="modal-content" and contains(.,'Edit Test')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -71,6 +116,11 @@
 	<td></td>
 </tr>
 <tr>
+	<td>LABEL_ITEM_STATUS</td>
+	<td>//div[contains(@class, 'card-header d-flex justify-content-between')]//h3[contains(text(), '${status}')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>OK_BUTTON</td>
 	<td>//*[contains(@class,'btn btn-primary') and text()='OK']</td>
 	<td></td>
@@ -78,6 +128,21 @@
 <tr>
 	<td>REVIEW_AND_RUN_TEST_BUTTON</td>
 	<td>//button[contains(@class,'btn-primary') and contains(text(),'Review and Run Test')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REVIEW_NO_HAVE_VARIANTS</td>
+	<td>//p[contains(@class,'mb-2') and contains(text(),'Create at least one variant to run the test.')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REVIEW_VARIANTS_PERCENTAGE</td>
+	<td>//label[contains(@class,'form-group-autofit')][${key_index}]//*[contains(text(),'${key_value}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REVIEW_VARIANTS_ANALYTICS_CLOUD</td>
+	<td>//div[@class='analytics-variant-card-table']//tr[${key_index}]//*[contains(@class,'table-cell-expanded') and h5[contains(text(),'${name}')]]</td>
 	<td></td>
 </tr>
 <tr>
@@ -127,7 +192,7 @@
 </tr>
 <tr>
 	<td>VARIANT_DROPDOWN</td>
-	<td>//div[@class='autofit-col']//*[contains(@class, 'dropdown-toggle btn-monospaced btn btn-outline-borderless btn-outline-secondary')]</td>
+	<td>xpath=(//div[@class='autofit-col']//*[contains(@class, 'dropdown-toggle btn-monospaced btn btn-outline-borderless btn-outline-secondary')])[${key_index}]</td>
 	<td></td>
 </tr>
 <tr>
@@ -143,6 +208,26 @@
 <tr>
 	<td>VIEW_DATA_ANALYTICS_CLOUD_BUTTON</td>
 	<td>//*[contains(@class,'btn-secondary') and contains(text(),'View Data in Analytics Cloud')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VIEW_INFO_ITEMS</td>
+	<td>xpath=(//label[contains(@class,'form-group-autofit')])[${key_index}]//*[contains(text(),'${key_value}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VIEW_ESTIMATED_TIME</td>
+	<td>//div[contains(@class,'d-flex')]//label[contains(text(),'${key_name}')]/parent::div/following-sibling::p//span[contains(text(),'${key_value}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VIEW_TEST_STATUS_ANALYTICS_CLOUD</td>
+	<td>//h3[contains(.,'t') and contains(text(),'${status}')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>VARIANT_NAME</td>
+	<td>//ul[contains(@class,'list-group show-quick-actions-on-hover')]//li[${key_index}]//*[text()='${name}']</td>
 	<td></td>
 </tr>
 </tbody>

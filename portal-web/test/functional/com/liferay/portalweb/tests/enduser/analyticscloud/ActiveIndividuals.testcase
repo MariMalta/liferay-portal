@@ -34,6 +34,8 @@ definition {
 		}
 		else {
 			JSONGroup.deleteGroupByName(groupName = "Site Name");
+
+			JSONUser.tearDownNonAdminUsers();
 		}
 
 		ACUtils.tearDownAC();
@@ -63,11 +65,11 @@ definition {
 				userLoginEmailAddress = "ac@liferay.com",
 				userLoginFullName = "ac ac");
 
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
+				actionType = "View DM",
+				documentTitleList = "DM AC Title,DM AC Title,DM AC Title",
 				pageName = "AC Page",
 				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
 		task ("Close all sessions") {
@@ -138,11 +140,11 @@ definition {
 				userLoginEmailAddress = "ac@liferay.com",
 				userLoginFullName = "ac ac");
 
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
+				actionType = "View DM",
+				documentTitleList = "DM AC Title,DM AC Title,DM AC Title",
 				pageName = "AC Page",
 				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
 		task ("Close all sessions") {
@@ -196,7 +198,8 @@ definition {
 
 		task ("Get the last 24 hours Date") {
 			var previousDay = DateUtil.getFormattedDate("-1", "d");
-			var previousDate = "${displayDateMonth} ${previousDay}, ${displayDateYear}";
+			var previousMonth = DateUtil.getFormattedDate("-1", "MMMM");
+			var previousDate = "${previousMonth} ${previousDay}, ${displayDateYear}";
 		}
 
 		task ("Assert the display time range") {
@@ -233,11 +236,11 @@ definition {
 				userLoginEmailAddress = "ac@liferay.com",
 				userLoginFullName = "ac ac");
 
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
+				actionType = "View DM",
+				documentTitleList = "DM AC Title",
 				pageName = "AC Page",
 				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
 		}
 
 		task ("Close all sessions") {
@@ -282,10 +285,6 @@ definition {
 
 		ACDXPSettings.syncNewContactData();
 
-		Navigator.openURL();
-
-		Pause(locator1 = "5000");
-
 		User.logoutAndLoginPG(
 			userLoginEmailAddress = "userea@liferay.com",
 			userLoginFullName = "userfn userln");
@@ -322,13 +321,11 @@ definition {
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
-		for (var n : list "1,2,3,4") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View DM",
+			documentTitleList = "DM AC Title,DM AC Title,DM AC Title,DM AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -339,12 +336,10 @@ definition {
 		ACNavigation.goToIndividuals();
 
 		var displayDateDay = DateUtil.getCurrentDate();
-		var displayMonth = DateUtil.getCurrentMonth();
 		var displayDateMonth = DateUtil.getCurrentMonthName();
 		var displayDateYear = DateUtil.getCurrentYear();
 		var previousDay = DateUtil.getFormattedDate("-1", "d");
 		var previousMonth = DateUtil.getFormattedDate("-1", "MMMM");
-		var previousYear = DateUtil.getFormattedDate("-1", "yyyy");
 
 		ACTimeFilter.setCustomRange(
 			endDay = "${displayDateDay}",
@@ -352,7 +347,7 @@ definition {
 			endYear = "${displayDateYear}",
 			startDay = "${previousDay}",
 			startMonth = "${previousMonth}",
-			startYear = "${previousYear}");
+			startYear = "${displayDateYear}");
 
 		AssertElementPresent(locator1 = "ACIndividualsDashboard#ACTIVE_INDIVIDUAL_CHART");
 	}
@@ -364,13 +359,11 @@ definition {
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
-		for (var n : list "1,2,3,4") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View DM",
+			documentTitleList = "DM AC Title,DM AC Title,DM AC Title,DM AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -412,13 +405,11 @@ definition {
 			userLoginEmailAddress = "ac@liferay.com",
 			userLoginFullName = "ac ac");
 
-		for (var n : list "1,2,3,4") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-
-			DMNavigator.gotoDocumentCP(dmDocumentTitle = "DM AC Title");
-		}
+		ACUtils.navigateToSitePage(
+			actionType = "View DM",
+			documentTitleList = "DM AC Title,DM AC Title,DM AC Title,DM AC Title",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 

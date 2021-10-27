@@ -55,6 +55,10 @@ public class FragmentStyle implements Serializable {
 		return ObjectMapperUtil.readValue(FragmentStyle.class, json);
 	}
 
+	public static FragmentStyle unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(FragmentStyle.class, json);
+	}
+
 	@Schema(description = "The fragment's background color.")
 	public String getBackgroundColor() {
 		return backgroundColor;
@@ -311,6 +315,36 @@ public class FragmentStyle implements Serializable {
 	@GraphQLField(description = "The fragment's height.")
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String height;
+
+	@Schema(description = "Specifies if the fragment is hidden to the user.")
+	public Boolean getHidden() {
+		return hidden;
+	}
+
+	public void setHidden(Boolean hidden) {
+		this.hidden = hidden;
+	}
+
+	@JsonIgnore
+	public void setHidden(
+		UnsafeSupplier<Boolean, Exception> hiddenUnsafeSupplier) {
+
+		try {
+			hidden = hiddenUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "Specifies if the fragment is hidden to the user."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Boolean hidden;
 
 	@Schema(description = "The fragment's margin bottom.")
 	public String getMarginBottom() {
@@ -963,6 +997,16 @@ public class FragmentStyle implements Serializable {
 			sb.append(_escape(height));
 
 			sb.append("\"");
+		}
+
+		if (hidden != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"hidden\": ");
+
+			sb.append(hidden);
 		}
 
 		if (marginBottom != null) {

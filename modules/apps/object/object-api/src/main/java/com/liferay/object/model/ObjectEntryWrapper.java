@@ -245,6 +245,13 @@ public class ObjectEntryWrapper
 		return model.getMvccVersion();
 	}
 
+	@Override
+	public long getNonzeroGroupId()
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return model.getNonzeroGroupId();
+	}
+
 	/**
 	 * Returns the object definition ID of this object entry.
 	 *
@@ -323,6 +330,13 @@ public class ObjectEntryWrapper
 	@Override
 	public Date getStatusDate() {
 		return model.getStatusDate();
+	}
+
+	@Override
+	public String getTitleValue()
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return model.getTitleValue();
 	}
 
 	/**

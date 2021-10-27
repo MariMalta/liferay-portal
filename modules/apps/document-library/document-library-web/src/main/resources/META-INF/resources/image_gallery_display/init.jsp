@@ -16,6 +16,11 @@
 
 <%@ include file="/init.jsp" %>
 
+<%@ page import="com.liferay.item.selector.ItemSelector" %><%@
+page import="com.liferay.item.selector.criteria.FolderItemSelectorReturnType" %><%@
+page import="com.liferay.item.selector.criteria.folder.criterion.FolderItemSelectorCriterion" %><%@
+page import="com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil" %>
+
 <%
 if (layout.isTypeControlPanel()) {
 	portletPreferences = PortletPreferencesLocalServiceUtil.getPreferences(themeDisplay.getCompanyId(), scopeGroupId, PortletKeys.PREFS_OWNER_TYPE_GROUP, 0, DLPortletKeys.DOCUMENT_LIBRARY, null);
@@ -29,6 +34,9 @@ long rootFolderId = dlPortletInstanceSettings.getRootFolderId();
 
 String rootFolderName = StringPool.BLANK;
 
+boolean rootFolderInTrash = false;
+boolean rootFolderNotFound = false;
+
 if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 	try {
 		Folder rootFolder = DLAppLocalServiceUtil.getFolder(rootFolderId);
@@ -39,9 +47,19 @@ if (rootFolderId != DLFolderConstants.DEFAULT_PARENT_FOLDER_ID) {
 			rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
 			rootFolderName = StringPool.BLANK;
 		}
+
+		if (rootFolder.isRepositoryCapabilityProvided(TrashCapability.class)) {
+			TrashCapability trashCapability = rootFolder.getRepositoryCapability(TrashCapability.class);
+
+			rootFolderInTrash = trashCapability.isInTrash(rootFolder);
+
+			if (rootFolderInTrash) {
+				rootFolderName = trashHelper.getOriginalTitle(rootFolder.getName());
+			}
+		}
 	}
 	catch (NoSuchFolderException nsfe) {
-		rootFolderId = DLFolderConstants.DEFAULT_PARENT_FOLDER_ID;
+		rootFolderNotFound = true;
 	}
 }
 

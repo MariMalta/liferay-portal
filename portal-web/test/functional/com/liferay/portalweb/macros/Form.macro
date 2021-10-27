@@ -244,6 +244,21 @@ definition {
 		LexiconEntry.viewNoEntry(rowEntry = "${formName}");
 	}
 
+	macro deleteCurrentLastPage {
+		var key_formDropDownNumber = "${formDropDownNumber}";
+		var key_formPageNumber = "${formPageNumber}";
+
+		//AssertElementPresent(locator1 = "FormPortlet#FORM_PAGE_ACTIVE");
+
+		Click(locator1 = "Form#PAGE_CONTROLS_ELLIPSIS_ICON");
+
+		AssertClick(
+			locator1 = "Form#PAGE_CONTROLS_DELETE_CURRENT_PAGE_LAST",
+			value1 = "Remove Page");
+
+		AssertElementNotPresent(locator1 = "FormPortlet#FORM_PAGE");
+	}
+
 	macro deleteCurrentPage {
 		var key_formDropDownNumber = "${formDropDownNumber}";
 		var key_formPageNumber = "${formPageNumber}";
@@ -285,10 +300,6 @@ definition {
 
 	macro disableAutocompleteConfiguration {
 		FormFields.disableSwitch(fieldName = "Autocomplete");
-	}
-
-	macro disableAutocompleteSwitchTextField {
-		Click(locator1 = "FormFields#SWITCH_TEXTFIELD");
 	}
 
 	macro duplicate {
@@ -470,7 +481,7 @@ definition {
 	}
 
 	macro enableAutocompleteConfiguration {
-		Click(locator1 = "FormFields#SWITCH_TEXTFIELD");
+		FormFields.enableSwitch(fieldName = "Autocomplete");
 	}
 
 	macro getPublishedFormPublicURL {

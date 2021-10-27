@@ -140,12 +140,15 @@ public class ObjectActionPersistenceTest {
 
 		newObjectAction.setActive(RandomTestUtil.randomBoolean());
 
+		newObjectAction.setName(RandomTestUtil.randomString());
+
+		newObjectAction.setObjectActionExecutorKey(
+			RandomTestUtil.randomString());
+
 		newObjectAction.setObjectActionTriggerKey(
 			RandomTestUtil.randomString());
 
 		newObjectAction.setParameters(RandomTestUtil.randomString());
-
-		newObjectAction.setType(RandomTestUtil.randomString());
 
 		_objectActions.add(_persistence.update(newObjectAction));
 
@@ -179,13 +182,16 @@ public class ObjectActionPersistenceTest {
 		Assert.assertEquals(
 			existingObjectAction.isActive(), newObjectAction.isActive());
 		Assert.assertEquals(
+			existingObjectAction.getName(), newObjectAction.getName());
+		Assert.assertEquals(
+			existingObjectAction.getObjectActionExecutorKey(),
+			newObjectAction.getObjectActionExecutorKey());
+		Assert.assertEquals(
 			existingObjectAction.getObjectActionTriggerKey(),
 			newObjectAction.getObjectActionTriggerKey());
 		Assert.assertEquals(
 			existingObjectAction.getParameters(),
 			newObjectAction.getParameters());
-		Assert.assertEquals(
-			existingObjectAction.getType(), newObjectAction.getType());
 	}
 
 	@Test
@@ -246,7 +252,8 @@ public class ObjectActionPersistenceTest {
 			"ObjectAction", "mvccVersion", true, "uuid", true, "objectActionId",
 			true, "companyId", true, "userId", true, "userName", true,
 			"createDate", true, "modifiedDate", true, "objectDefinitionId",
-			true, "active", true, "objectActionTriggerKey", true, "type", true);
+			true, "active", true, "name", true, "objectActionExecutorKey", true,
+			"objectActionTriggerKey", true);
 	}
 
 	@Test
@@ -485,11 +492,13 @@ public class ObjectActionPersistenceTest {
 
 		objectAction.setActive(RandomTestUtil.randomBoolean());
 
+		objectAction.setName(RandomTestUtil.randomString());
+
+		objectAction.setObjectActionExecutorKey(RandomTestUtil.randomString());
+
 		objectAction.setObjectActionTriggerKey(RandomTestUtil.randomString());
 
 		objectAction.setParameters(RandomTestUtil.randomString());
-
-		objectAction.setType(RandomTestUtil.randomString());
 
 		_objectActions.add(_persistence.update(objectAction));
 

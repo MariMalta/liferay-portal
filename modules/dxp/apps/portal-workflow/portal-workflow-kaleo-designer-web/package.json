@@ -1,4 +1,9 @@
 {
+	"dependencies": {
+		"dagre": "0.8.2",
+		"react": "16.12.0",
+		"react-flow-renderer": "9.1.0"
+	},
 	"jest": {
 		"setupFilesAfterEnv": [
 			"<rootDir>/test/setup.js"
@@ -14,5 +19,5 @@
 		"format": "liferay-npm-scripts fix",
 		"test": "liferay-npm-scripts test"
 	},
-	"version": "5.0.13"
+	"version": "5.0.19"
 }

@@ -17,7 +17,6 @@ dependencies {
 	compileOnly project(":apps:commerce:commerce-notification-api")
 	compileOnly project(":apps:commerce:commerce-payment-api")
 	compileOnly project(":apps:commerce:commerce-product-api")
-	compileOnly project(":apps:commerce:commerce-product-service")
 	compileOnly project(":apps:petra:petra-encryptor")
 	compileOnly project(":apps:portal:portal-spring-extender-api")
 	compileOnly project(":apps:static:portal:portal-upgrade-api")
@@ -25,5 +24,4 @@ dependencies {
 	compileOnly project(":core:petra:petra-lang")
 	compileOnly project(":core:petra:petra-sql-dsl-api")
 	compileOnly project(":core:petra:petra-string")
-	compileOnly project(":core:registry-api")
 }

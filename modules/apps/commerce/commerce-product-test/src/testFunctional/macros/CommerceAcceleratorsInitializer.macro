@@ -55,6 +55,73 @@ definition {
 			locator1 = "CommerceAccelerators#ACCOUNT_MANAGEMENT_ADDRESS_TYPE");
 	}
 
+	macro addADT {
+		var key_adtType = "${adtType}";
+
+		LexiconEntry.gotoAdd();
+
+		if (IsElementPresent(key_text = "More", locator1 = "Button#ANY")) {
+			Button.clickMore();
+
+			if ("${adtType}" == "Search Results") {
+				ScrollWebElementIntoView(locator1 = "CommerceEntry#COMMERCE_SEARCH_RESULTS_TEMPLATE_MENU_ITEM");
+
+				Click(locator1 = "CommerceEntry#COMMERCE_SEARCH_RESULTS_TEMPLATE_MENU_ITEM");
+			}
+			else {
+				ScrollWebElementIntoView(
+					key_menuItem = "${adtType} Template",
+					locator1 = "MenuItem#ANY_MENU_ITEM");
+
+				MenuItem.click(menuItem = "${adtType} Template");
+			}
+		}
+		else {
+			MenuItem.click(menuItem = "${adtType} Template");
+		}
+
+		SiteAdmin.viewPortletTitle(portletTitle = "Add ${adtType} Template");
+
+		PortletEntry.inputName(name = "${adtType} Test ADT");
+
+		if (isSet(templateScript)) {
+			Type.sendKeysAceEditor(
+				locator1 = "DDMEditTemplate#CODE_MIRROR_EDITOR_CONTENT",
+				value1 = "${templateScript}");
+		}
+
+		else if (isSet(fieldNameList)) {
+			for (var fieldName : list "${fieldNameList}") {
+				AssertClick(
+					key_panelTitle = "Fields",
+					key_variableName = "${fieldName}",
+					locator1 = "DDMEditTemplate#WEB_CONTENT_SCRIPT_VARIABLE",
+					value1 = "${fieldName}");
+			}
+		}
+
+		else {
+			Click(locator1 = "Icon#HEADER_VERTICAL_ELLIPSIS");
+
+			var testBaseDirName = PropsUtil.get("test.base.dir.name");
+			var testDependenciesDirName = PropsUtil.get("test.dependencies.dir.name");
+			var filePath = "${testBaseDirName}tests/enduser/wem/applicationdisplaytemplate/${testDependenciesDirName}/${adtFile}";
+			var filePath = FileUtil.fixFilePath("${filePath}");
+
+			UploadFile(
+				inputFieldId = "importScript",
+				locator1 = "TextInput#INPUT_ID",
+				value1 = "${filePath}");
+		}
+
+		PortletEntry.save();
+
+		AssertTextEquals(
+			key_rowEntry = "${adtType} Test ADT",
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			value1 = "${adtType} Test ADT");
+	}
+
 	macro addPortlet {
 		if ("${portletName}" == "Where are the Liferay members?") {
 			var portletName = "Map";
@@ -87,7 +154,7 @@ definition {
 
 		AssertElementPresent(
 			key_portletName = "${portletName}",
-			locator1 = "CommerceAccelerators#PORTLET_LOADED");
+			locator1 = "Portlet#LOADED");
 
 		Refresh();
 	}
@@ -101,23 +168,7 @@ definition {
 	}
 
 	macro createNewAccountViaFront {
-		Click.mouseDownMouseUp(
-			key_text = "Add Account",
-			locator1 = "Button#ANY");
-
-		Pause(locator1 = "2000");
-
-		Type(
-			locator1 = "TextInput#NAME",
-			value1 = "${accountName}");
-
-		Click(
-			key_userEmailAddress = "${adminEmailAddress}",
-			locator1 = "CommerceAccelerators#ACCOUNT_MANAGEMENT_ADD_MODAL_PLUS_BUTTON");
-
-		Click(
-			key_button = "Create Account",
-			locator1 = "CommerceAccelerators#ANY_BUTTON");
+		Accounts.addBusinessAccount(accountName = "${accountName}");
 	}
 
 	macro createNewOrderFromAccountSelectorDropdown {
@@ -127,13 +178,7 @@ definition {
 	}
 
 	macro deactivateCommerceAccountViaFront {
-		Click(
-			key_entryName = "${accountName}",
-			locator1 = "CommerceEntry#ENTRY_NAME_BODY_VERTICAL_ELLIPSIS");
-
-		CommerceEntry.clickNoError(menuItem = "Deactivate");
-
-		Alert.viewSuccessMessage();
+		Accounts.deactivateAccount(accountName = "${accountName}");
 	}
 
 	macro gotoMiniumProductDetailsPage {
@@ -143,38 +188,16 @@ definition {
 	}
 
 	macro inviteNewMemberWithRoleToAccount {
-		Click(
-			key_text = "Invite user",
-			locator1 = "Button#ANY");
+		Accounts.addNewUserToBusinessAccount(
+			accountName = "${accountName}",
+			userEmailAddress = "${emailAddress}",
+			userFirstName = "${userFirstName}",
+			userLastName = "${userLastName}",
+			userScreenName = "${userScreenName}");
 
-		Type(
-			key_fieldLabel = "Name or Email",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "${emailAddress}");
-
-		Click(
-			key_userEmailAddress = "${emailAddress}",
-			locator1 = "CommerceAccelerators#ACCOUNT_MANAGEMENT_ADD_MODAL_PLUS_BUTTON");
-
-		Click(
-			key_button = "Invite user",
-			locator1 = "CommerceAccelerators#ANY_BUTTON");
-
-		Click(
-			key_memberEmailAddress = "${emailAddress}",
-			locator1 = "CommerceAccelerators#ACCOUNT_MANAGEMENT_MEMBER_ACTIONS_DROPDOWN");
-
-		CommerceEntry.clickNoError(menuItem = "View");
-
-		Click(locator1 = "CommerceAccelerators#ROLES_BUTTON");
-
-		Click(
-			key_role = "${role}",
-			locator1 = "CommerceAccelerators#ROLES_MODAL_ROLE_CHECKBOX");
-
-		Click(
-			key_button = "Done",
-			locator1 = "CommerceAccelerators#ANY_BUTTON");
+		Accounts.addAssigneeToRoleViaUsersTab(
+			accountRoleTitle = "${role}",
+			accountUserName = "${emailAddress}");
 	}
 
 	macro reviewOrder {

@@ -53,7 +53,6 @@ import com.liferay.commerce.test.util.order.status.Test2CommerceOrderStatusImpl;
 import com.liferay.commerce.test.util.order.status.Test3CommerceOrderStatusImpl;
 import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.RandomUtil;
@@ -65,7 +64,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
-import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -73,8 +71,6 @@ import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.registry.Registry;
-import com.liferay.registry.RegistryUtil;
 
 import java.math.BigDecimal;
 
@@ -88,7 +84,6 @@ import org.frutilla.FrutillaRule;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -112,17 +107,11 @@ public class CommerceOrderEngineTest {
 		new LiferayIntegrationTestRule(),
 		PermissionCheckerMethodTestRule.INSTANCE);
 
-	@BeforeClass
-	public static void setUpClass() throws Exception {
-		_company = CompanyTestUtil.addCompany();
-
-		_user = UserTestUtil.addUser(_company);
-	}
-
 	@Before
 	public void setUp() throws Exception {
-		_group = GroupTestUtil.addGroup(
-			_company.getCompanyId(), _user.getUserId(), 0);
+		_group = GroupTestUtil.addGroup();
+
+		_user = UserTestUtil.addUser();
 
 		PrincipalThreadLocal.setName(_user.getUserId());
 
@@ -151,7 +140,7 @@ public class CommerceOrderEngineTest {
 			_commerceAccount.getCommerceAccountId(),
 			_commerceCurrency.getCommerceCurrencyId());
 
-		_commerceOrder = CommerceTestUtil.addCheckoutDetailsToUserOrder(
+		_commerceOrder = CommerceTestUtil.addCheckoutDetailsToCommerceOrder(
 			_commerceOrder, _user.getUserId(), false);
 
 		_commerceShipment1 = _commerceShipmentLocalService.addCommerceShipment(
@@ -708,13 +697,8 @@ public class CommerceOrderEngineTest {
 				"has a higher priority than those two"
 		);
 
-		Registry registry = RegistryUtil.getRegistry();
-
-		ServiceComponentRuntime serviceComponentRuntime = registry.getService(
-			registry.getServiceReference(ServiceComponentRuntime.class));
-
 		Collection<ComponentDescriptionDTO> componentDescriptionDTOs =
-			serviceComponentRuntime.getComponentDescriptionDTOs(
+			_serviceComponentRuntime.getComponentDescriptionDTOs(
 				FrameworkUtil.getBundle(Test1CommerceOrderStatusImpl.class),
 				FrameworkUtil.getBundle(Test2CommerceOrderStatusImpl.class),
 				FrameworkUtil.getBundle(Test3CommerceOrderStatusImpl.class));
@@ -722,8 +706,9 @@ public class CommerceOrderEngineTest {
 		for (ComponentDescriptionDTO componentDescriptionDTO :
 				componentDescriptionDTOs) {
 
-			Promise<Void> voidPromise = serviceComponentRuntime.enableComponent(
-				componentDescriptionDTO);
+			Promise<Void> voidPromise =
+				_serviceComponentRuntime.enableComponent(
+					componentDescriptionDTO);
 
 			voidPromise.getValue();
 		}
@@ -876,7 +861,7 @@ public class CommerceOrderEngineTest {
 				componentDescriptionDTOs) {
 
 			Promise<Void> voidPromise =
-				serviceComponentRuntime.disableComponent(
+				_serviceComponentRuntime.disableComponent(
 					componentDescriptionDTO);
 
 			voidPromise.getValue();
@@ -1106,7 +1091,6 @@ public class CommerceOrderEngineTest {
 	@Rule
 	public FrutillaRule frutillaRule = new FrutillaRule();
 
-	private static Company _company;
 	private static User _user;
 
 	private CommerceAccount _commerceAccount;
@@ -1144,6 +1128,10 @@ public class CommerceOrderEngineTest {
 	private CommerceShipmentLocalService _commerceShipmentLocalService;
 
 	private Group _group;
+
+	@Inject
+	private ServiceComponentRuntime _serviceComponentRuntime;
+
 	private ServiceContext _serviceContext;
 
 }

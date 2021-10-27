@@ -4,5 +4,15 @@
 }
 
 .newsletter-form .form-control {
-	margin-right: var(--spacer);
+	margin-right: var(--spacer-2);
+}
+
+@media (max-width: 768px) {
+	.newsletter-form {
+		display: block;
+	}
+	.bootcamp-btn {
+		margin-top: var(--spacer-3);
+		width: 100%;
+	}
 }

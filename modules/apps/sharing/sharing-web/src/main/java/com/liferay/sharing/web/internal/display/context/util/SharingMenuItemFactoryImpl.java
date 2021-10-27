@@ -23,13 +23,10 @@ import com.liferay.portal.kernel.servlet.taglib.ui.JavaScriptToolbarItem;
 import com.liferay.portal.kernel.servlet.taglib.ui.MenuItem;
 import com.liferay.portal.kernel.servlet.taglib.ui.ToolbarItem;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.sharing.display.context.util.SharingDropdownItemFactory;
 import com.liferay.sharing.display.context.util.SharingJavaScriptFactory;
 import com.liferay.sharing.display.context.util.SharingMenuItemFactory;
 import com.liferay.sharing.display.context.util.SharingToolbarItemFactory;
-
-import java.util.ResourceBundle;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -56,12 +53,15 @@ public class SharingMenuItemFactoryImpl
 			HttpServletRequest httpServletRequest)
 		throws PortalException {
 
-		String manageCollaboratorsOnClickMethod =
-			_sharingJavaScriptFactory.createManageCollaboratorsOnClickMethod(
-				className, classPK, httpServletRequest);
-
 		return DropdownItemBuilder.setHref(
-			"javascript:" + manageCollaboratorsOnClickMethod
+			() -> {
+				String manageCollaboratorsOnClickMethod =
+					_sharingJavaScriptFactory.
+						createManageCollaboratorsOnClickMethod(
+							className, classPK, httpServletRequest);
+
+				return "javascript:" + manageCollaboratorsOnClickMethod;
+			}
 		).setLabel(
 			_getManageCollaboratorsLabel(httpServletRequest)
 		).build();
@@ -110,12 +110,14 @@ public class SharingMenuItemFactoryImpl
 			HttpServletRequest httpServletRequest)
 		throws PortalException {
 
-		String sharingOnClickMethod =
-			_sharingJavaScriptFactory.createSharingOnClickMethod(
-				className, classPK, httpServletRequest);
-
 		return DropdownItemBuilder.setHref(
-			"javascript:" + sharingOnClickMethod
+			() -> {
+				String sharingOnClickMethod =
+					_sharingJavaScriptFactory.createSharingOnClickMethod(
+						className, classPK, httpServletRequest);
+
+				return "javascript:" + sharingOnClickMethod;
+			}
 		).setLabel(
 			_getSharingLabel(httpServletRequest)
 		).build();
@@ -159,11 +161,7 @@ public class SharingMenuItemFactoryImpl
 	private String _getLabel(
 		String key, HttpServletRequest httpServletRequest) {
 
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			_portal.getLocale(httpServletRequest),
-			SharingJavaScriptFactoryImpl.class);
-
-		return _language.get(resourceBundle, key);
+		return _language.get(_portal.getLocale(httpServletRequest), key);
 	}
 
 	private String _getManageCollaboratorsLabel(

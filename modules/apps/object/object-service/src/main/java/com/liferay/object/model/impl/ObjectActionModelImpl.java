@@ -82,8 +82,8 @@ public class ObjectActionModelImpl
 		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
 		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
 		{"objectDefinitionId", Types.BIGINT}, {"active_", Types.BOOLEAN},
-		{"objectActionTriggerKey", Types.VARCHAR}, {"parameters", Types.CLOB},
-		{"type_", Types.VARCHAR}
+		{"name", Types.VARCHAR}, {"objectActionExecutorKey", Types.VARCHAR},
+		{"objectActionTriggerKey", Types.VARCHAR}, {"parameters", Types.CLOB}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -100,13 +100,14 @@ public class ObjectActionModelImpl
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("objectDefinitionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("active_", Types.BOOLEAN);
+		TABLE_COLUMNS_MAP.put("name", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("objectActionExecutorKey", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("objectActionTriggerKey", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("parameters", Types.CLOB);
-		TABLE_COLUMNS_MAP.put("type_", Types.VARCHAR);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table ObjectAction (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,objectActionId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,active_ BOOLEAN,objectActionTriggerKey VARCHAR(75) null,parameters TEXT null,type_ VARCHAR(75) null)";
+		"create table ObjectAction (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,objectActionId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,active_ BOOLEAN,name VARCHAR(75) null,objectActionExecutorKey VARCHAR(75) null,objectActionTriggerKey VARCHAR(75) null,parameters TEXT null)";
 
 	public static final String TABLE_SQL_DROP = "drop table ObjectAction";
 
@@ -198,9 +199,11 @@ public class ObjectActionModelImpl
 		model.setModifiedDate(soapModel.getModifiedDate());
 		model.setObjectDefinitionId(soapModel.getObjectDefinitionId());
 		model.setActive(soapModel.isActive());
+		model.setName(soapModel.getName());
+		model.setObjectActionExecutorKey(
+			soapModel.getObjectActionExecutorKey());
 		model.setObjectActionTriggerKey(soapModel.getObjectActionTriggerKey());
 		model.setParameters(soapModel.getParameters());
-		model.setType(soapModel.getType());
 
 		return model;
 	}
@@ -395,6 +398,16 @@ public class ObjectActionModelImpl
 		attributeSetterBiConsumers.put(
 			"active",
 			(BiConsumer<ObjectAction, Boolean>)ObjectAction::setActive);
+		attributeGetterFunctions.put("name", ObjectAction::getName);
+		attributeSetterBiConsumers.put(
+			"name", (BiConsumer<ObjectAction, String>)ObjectAction::setName);
+		attributeGetterFunctions.put(
+			"objectActionExecutorKey",
+			ObjectAction::getObjectActionExecutorKey);
+		attributeSetterBiConsumers.put(
+			"objectActionExecutorKey",
+			(BiConsumer<ObjectAction, String>)
+				ObjectAction::setObjectActionExecutorKey);
 		attributeGetterFunctions.put(
 			"objectActionTriggerKey", ObjectAction::getObjectActionTriggerKey);
 		attributeSetterBiConsumers.put(
@@ -405,9 +418,6 @@ public class ObjectActionModelImpl
 		attributeSetterBiConsumers.put(
 			"parameters",
 			(BiConsumer<ObjectAction, String>)ObjectAction::setParameters);
-		attributeGetterFunctions.put("type", ObjectAction::getType);
-		attributeSetterBiConsumers.put(
-			"type", (BiConsumer<ObjectAction, String>)ObjectAction::setType);
 
 		_attributeGetterFunctions = Collections.unmodifiableMap(
 			attributeGetterFunctions);
@@ -644,6 +654,46 @@ public class ObjectActionModelImpl
 
 	@JSON
 	@Override
+	public String getName() {
+		if (_name == null) {
+			return "";
+		}
+		else {
+			return _name;
+		}
+	}
+
+	@Override
+	public void setName(String name) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_name = name;
+	}
+
+	@JSON
+	@Override
+	public String getObjectActionExecutorKey() {
+		if (_objectActionExecutorKey == null) {
+			return "";
+		}
+		else {
+			return _objectActionExecutorKey;
+		}
+	}
+
+	@Override
+	public void setObjectActionExecutorKey(String objectActionExecutorKey) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_objectActionExecutorKey = objectActionExecutorKey;
+	}
+
+	@JSON
+	@Override
 	public String getObjectActionTriggerKey() {
 		if (_objectActionTriggerKey == null) {
 			return "";
@@ -689,26 +739,6 @@ public class ObjectActionModelImpl
 		}
 
 		_parameters = parameters;
-	}
-
-	@JSON
-	@Override
-	public String getType() {
-		if (_type == null) {
-			return "";
-		}
-		else {
-			return _type;
-		}
-	}
-
-	@Override
-	public void setType(String type) {
-		if (_columnOriginalValues == Collections.EMPTY_MAP) {
-			_setColumnOriginalValues();
-		}
-
-		_type = type;
 	}
 
 	@Override
@@ -783,9 +813,11 @@ public class ObjectActionModelImpl
 		objectActionImpl.setModifiedDate(getModifiedDate());
 		objectActionImpl.setObjectDefinitionId(getObjectDefinitionId());
 		objectActionImpl.setActive(isActive());
+		objectActionImpl.setName(getName());
+		objectActionImpl.setObjectActionExecutorKey(
+			getObjectActionExecutorKey());
 		objectActionImpl.setObjectActionTriggerKey(getObjectActionTriggerKey());
 		objectActionImpl.setParameters(getParameters());
-		objectActionImpl.setType(getType());
 
 		objectActionImpl.resetOriginalValues();
 
@@ -814,11 +846,13 @@ public class ObjectActionModelImpl
 			this.<Long>getColumnOriginalValue("objectDefinitionId"));
 		objectActionImpl.setActive(
 			this.<Boolean>getColumnOriginalValue("active_"));
+		objectActionImpl.setName(this.<String>getColumnOriginalValue("name"));
+		objectActionImpl.setObjectActionExecutorKey(
+			this.<String>getColumnOriginalValue("objectActionExecutorKey"));
 		objectActionImpl.setObjectActionTriggerKey(
 			this.<String>getColumnOriginalValue("objectActionTriggerKey"));
 		objectActionImpl.setParameters(
 			this.<String>getColumnOriginalValue("parameters"));
-		objectActionImpl.setType(this.<String>getColumnOriginalValue("type_"));
 
 		return objectActionImpl;
 	}
@@ -943,6 +977,26 @@ public class ObjectActionModelImpl
 
 		objectActionCacheModel.active = isActive();
 
+		objectActionCacheModel.name = getName();
+
+		String name = objectActionCacheModel.name;
+
+		if ((name != null) && (name.length() == 0)) {
+			objectActionCacheModel.name = null;
+		}
+
+		objectActionCacheModel.objectActionExecutorKey =
+			getObjectActionExecutorKey();
+
+		String objectActionExecutorKey =
+			objectActionCacheModel.objectActionExecutorKey;
+
+		if ((objectActionExecutorKey != null) &&
+			(objectActionExecutorKey.length() == 0)) {
+
+			objectActionCacheModel.objectActionExecutorKey = null;
+		}
+
 		objectActionCacheModel.objectActionTriggerKey =
 			getObjectActionTriggerKey();
 
@@ -961,14 +1015,6 @@ public class ObjectActionModelImpl
 
 		if ((parameters != null) && (parameters.length() == 0)) {
 			objectActionCacheModel.parameters = null;
-		}
-
-		objectActionCacheModel.type = getType();
-
-		String type = objectActionCacheModel.type;
-
-		if ((type != null) && (type.length() == 0)) {
-			objectActionCacheModel.type = null;
 		}
 
 		return objectActionCacheModel;
@@ -1072,9 +1118,10 @@ public class ObjectActionModelImpl
 	private boolean _setModifiedDate;
 	private long _objectDefinitionId;
 	private boolean _active;
+	private String _name;
+	private String _objectActionExecutorKey;
 	private String _objectActionTriggerKey;
 	private String _parameters;
-	private String _type;
 
 	public <T> T getColumnValue(String columnName) {
 		columnName = _attributeNames.getOrDefault(columnName, columnName);
@@ -1115,10 +1162,12 @@ public class ObjectActionModelImpl
 		_columnOriginalValues.put("modifiedDate", _modifiedDate);
 		_columnOriginalValues.put("objectDefinitionId", _objectDefinitionId);
 		_columnOriginalValues.put("active_", _active);
+		_columnOriginalValues.put("name", _name);
+		_columnOriginalValues.put(
+			"objectActionExecutorKey", _objectActionExecutorKey);
 		_columnOriginalValues.put(
 			"objectActionTriggerKey", _objectActionTriggerKey);
 		_columnOriginalValues.put("parameters", _parameters);
-		_columnOriginalValues.put("type_", _type);
 	}
 
 	private static final Map<String, String> _attributeNames;
@@ -1128,7 +1177,6 @@ public class ObjectActionModelImpl
 
 		attributeNames.put("uuid_", "uuid");
 		attributeNames.put("active_", "active");
-		attributeNames.put("type_", "type");
 
 		_attributeNames = Collections.unmodifiableMap(attributeNames);
 	}
@@ -1164,11 +1212,13 @@ public class ObjectActionModelImpl
 
 		columnBitmasks.put("active_", 512L);
 
-		columnBitmasks.put("objectActionTriggerKey", 1024L);
+		columnBitmasks.put("name", 1024L);
 
-		columnBitmasks.put("parameters", 2048L);
+		columnBitmasks.put("objectActionExecutorKey", 2048L);
 
-		columnBitmasks.put("type_", 4096L);
+		columnBitmasks.put("objectActionTriggerKey", 4096L);
+
+		columnBitmasks.put("parameters", 8192L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

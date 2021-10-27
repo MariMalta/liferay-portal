@@ -67,6 +67,9 @@ public class ObjectRelationshipTable
 	public final Column<ObjectRelationshipTable, Long> objectFieldId2 =
 		createColumn(
 			"objectFieldId2", Long.class, Types.BIGINT, Column.FLAG_DEFAULT);
+	public final Column<ObjectRelationshipTable, String> deletionType =
+		createColumn(
+			"deletionType", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<ObjectRelationshipTable, String> dbTableName =
 		createColumn(
 			"dbTableName", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
@@ -74,6 +77,9 @@ public class ObjectRelationshipTable
 		"label", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<ObjectRelationshipTable, String> name = createColumn(
 		"name", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<ObjectRelationshipTable, Boolean> reverse =
+		createColumn(
+			"reverse", Boolean.class, Types.BOOLEAN, Column.FLAG_DEFAULT);
 	public final Column<ObjectRelationshipTable, String> type = createColumn(
 		"type_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 

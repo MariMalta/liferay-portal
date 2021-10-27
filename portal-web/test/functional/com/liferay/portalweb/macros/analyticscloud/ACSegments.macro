@@ -97,6 +97,14 @@ definition {
 		for (var tableMember : list "${tableMember}") {
 			var key_TableMember = "${tableMember}";
 
+			Type(
+				locator1 = "ACSegments#SEARCH_MEMBER",
+				value1 = "${tableMember}");
+
+			KeyPress(
+				locator1 = "Segmentation#SEARCH_FIELD",
+				value1 = "\ENTER");
+
 			Click(locator1 = "ACSegments#TABLE_CHECKBOX");
 		}
 
@@ -213,7 +221,7 @@ definition {
 			index = "${index}",
 			locator1 = "ACSegments#CRITERIA_ELLIPSIS");
 
-		MenuItem.click(menuItem = "Delete");
+		MenuItem.clickNoError(menuItem = "Delete");
 	}
 
 	macro deleteSegmentViaSegmentListInlineButton {
@@ -558,6 +566,12 @@ definition {
 
 		ACSegments.searchSegment(findSegment = "${documentTitle}");
 
+		while (IsElementNotPresent(locator1 = "ACSegments#TABLE_CHECKBOX") && (maxIterations = "50")) {
+			ACUtils.clearSearchBar();
+
+			ACSegments.searchSegment(findSegment = "${documentTitle}");
+		}
+
 		Click(locator1 = "ACSegments#TABLE_CHECKBOX");
 
 		Click(locator1 = "ACSegments#ADD_BUTTON");
@@ -711,15 +725,19 @@ definition {
 			locator1 = "ACSegments#SEGMENT_CRITERIA_TYPE",
 			type = "Individual");
 
-		AssertTextEquals(
-			index = "${index}",
-			locator1 = "ACSegments#SEGMENT_CRITERIA_ATTRIBUTE_NAME",
-			value1 = "${attributeName}");
+		if (isSet(attributeName)) {
+			AssertTextEquals(
+				index = "${index}",
+				locator1 = "ACSegments#SEGMENT_CRITERIA_ATTRIBUTE_NAME",
+				value1 = "${attributeName}");
+		}
 
-		AssertTextEquals(
-			index = "${index}",
-			locator1 = "ACSegments#SEGMENT_CRITERIA_CONDITION",
-			value1 = "${condition}");
+		if (isSet(condition)) {
+			AssertTextEquals(
+				index = "${index}",
+				locator1 = "ACSegments#SEGMENT_CRITERIA_CONDITION",
+				value1 = "${condition}");
+		}
 
 		if (isSet(attributeValue)) {
 			AssertTextEquals(

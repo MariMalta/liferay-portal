@@ -23,6 +23,8 @@ ObjectDefinitionsDetailsDisplayContext objectDefinitionsDetailsDisplayContext = 
 
 ObjectDefinition objectDefinition = objectDefinitionsDetailsDisplayContext.getObjectDefinition();
 
+List<ObjectField> objectFields = (List<ObjectField>)request.getAttribute(ObjectWebKeys.OBJECT_FIELDS);
+
 portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(backURL);
 
@@ -40,6 +42,7 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 
 	<liferay-frontend:edit-form-body>
 		<liferay-ui:error exception="<%= DuplicateObjectDefinitionException.class %>" />
+		<liferay-ui:error exception="<%= ObjectDefinitionActiveException.class %>" />
 		<liferay-ui:error exception="<%= ObjectDefinitionLabelException.class %>" />
 		<liferay-ui:error exception="<%= ObjectDefinitionNameException.class %>" />
 		<liferay-ui:error exception="<%= ObjectDefinitionPluralLabelException.class %>" />
@@ -75,8 +78,56 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 				</clay:row>
 
 				<aui:field-wrapper cssClass="form-group lfr-input-text-container">
-					<aui:input disabled="<%= objectDefinition.isSystem() %>" label="" labelOff="inactive" labelOn="active" name="active" type="toggle-switch" value="<%= objectDefinition.isActive() %>" />
+					<aui:input disabled="<%= !objectDefinition.isApproved() || objectDefinition.isSystem() %>" label="" labelOff="inactive" labelOn="active" name="active" type="toggle-switch" value="<%= objectDefinition.isActive() %>" />
 				</aui:field-wrapper>
+			</clay:sheet-section>
+
+			<clay:sheet-section>
+				<h3 class="sheet-subtitle">
+					<%= LanguageUtil.get(request, "entry-display") %>
+				</h3>
+
+				<clay:row>
+					<clay:col
+						md="11"
+					>
+						<aui:select disabled="<%= objectDefinition.isSystem() %>" name="titleObjectFieldId" showEmptyOption="<%= true %>">
+
+							<%
+							for (ObjectField objectField : objectFields) {
+							%>
+
+								<aui:option label="<%= objectField.getLabel(locale) %>" selected="<%= Objects.equals(objectField.getObjectFieldId(), objectDefinition.getTitleObjectFieldId()) %>" value="<%= objectField.getObjectFieldId() %>" />
+
+							<%
+							}
+							%>
+
+						</aui:select>
+					</clay:col>
+				</clay:row>
+
+				<clay:row
+					cssClass="hide"
+				>
+					<clay:col
+						md="11"
+					>
+						<aui:select disabled="<%= objectDefinition.isSystem() %>" name="descriptionObjectFieldId" showEmptyOption="<%= true %>">
+
+							<%
+							for (ObjectField objectField : objectFields) {
+							%>
+
+								<aui:option label="<%= objectField.getLabel(locale) %>" selected="<%= Objects.equals(objectField.getObjectFieldId(), objectDefinition.getDescriptionObjectFieldId()) %>" value="<%= objectField.getObjectFieldId() %>" />
+
+							<%
+							}
+							%>
+
+						</aui:select>
+					</clay:col>
+				</clay:row>
 			</clay:sheet-section>
 
 			<clay:sheet-section>
@@ -130,7 +181,9 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 	<liferay-frontend:edit-form-footer>
 		<aui:button name="save" onClick='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "submitObjectDefinition(true);" %>' value="save" />
 
-		<aui:button disabled="<%= objectDefinition.isApproved() %>" name="publish" onClick='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "submitObjectDefinition(false);" %>' type="submit" value="publish" />
+		<c:if test="<%= !objectDefinition.isApproved() %>">
+			<aui:button disabled="<%= !objectDefinitionsDetailsDisplayContext.hasPublishObjectPermission() %>" name="publish" onClick='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "submitObjectDefinition(false);" %>' type="submit" value="publish" />
+		</c:if>
 
 		<aui:button href="<%= backURL %>" type="cancel" />
 	</liferay-frontend:edit-form-footer>

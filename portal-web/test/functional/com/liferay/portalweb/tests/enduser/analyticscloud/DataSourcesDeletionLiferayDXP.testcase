@@ -58,15 +58,14 @@ definition {
 
 		ACNavigation.goToSettings();
 
-		AssertElementNotPresent(locator1 = "ACSettings#ITEM_ON_LIST");
+		ACUtils.assertItemsNameNotPresent(itemList = "${itemName}");
 
 		ACUtils.launchDXP(userEmailAddress = "ac@liferay.com");
 
-		for (var n : list "1,2,3") {
-			Navigator.gotoSitePage(
-				pageName = "AC Page",
-				siteName = "Site Name");
-		}
+		ACUtils.navigateToSitePage(
+			documentTitleList = "1,2,3",
+			pageName = "AC Page",
+			siteName = "Site Name");
 
 		ACUtils.closeAllSessionsAndWait();
 
@@ -91,7 +90,7 @@ definition {
 		ACTimeFilter.setLast24Hours();
 
 		AssertElementNotPresent(
-			key_assetName = "Web Content AC Title",
+			key_nameList = "Web Content AC Title",
 			locator1 = "ACUtils#NAME_LIST");
 	}
 

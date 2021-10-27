@@ -25,11 +25,13 @@ import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
@@ -134,8 +136,17 @@ public interface ObjectRelationshipLocalService
 	 * @throws PortalException
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ObjectRelationship deleteObjectRelationship(
 			ObjectRelationship objectRelationship)
+		throws PortalException;
+
+	public void deleteObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1)
+		throws PortalException;
+
+	public void deleteObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1, long primaryKey2)
 		throws PortalException;
 
 	/**
@@ -237,6 +248,10 @@ public interface ObjectRelationshipLocalService
 		String uuid, long companyId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public ObjectRelationship fetchReverseObjectRelationship(
+		ObjectRelationship objectRelationship, boolean reverse);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -312,7 +327,8 @@ public interface ObjectRelationshipLocalService
 		throws PortalException;
 
 	public ObjectRelationship updateObjectRelationship(
-			long objectRelationshipId, Map<Locale, String> labelMap)
+			long objectRelationshipId, String deletionType,
+			Map<Locale, String> labelMap)
 		throws PortalException;
 
 	/**

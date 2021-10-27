@@ -113,6 +113,15 @@ definition {
 			entryTitle = "Blogs Entry Title");
 	}
 
+	@description = "This is a test for LRQA-70157. Verify that an approved web content is displayed on Asset Publisher."
+	@ignore = "Test Stub"
+	@priority = "4"
+	test ApprovedWebContentIsDisplayed {
+
+		// TODO LRQA-70157 ApprovedWebContentIsDisplayed pending implementation
+
+	}
+
 	@description = "This is a use case for LPS-72846."
 	@priority = "5"
 	test ApproveMessageBoardsThreadPG {
@@ -193,6 +202,125 @@ definition {
 			webContentTitle = "WC WebContent Title");
 	}
 
+	@description = "This is a test for LRQA-69817. Verify that a Draft Blog Entry is not displayed on Asset Publisher."
+	@priority = "3"
+	test DraftBlogIsNotDisplayed {
+		BlogsNavigator.openToAddEntry(
+			layoutName = "Asset Publisher Page",
+			siteURLKey = "guest");
+
+		BlogsEntry.addEntryContent(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		BlogsEntry.saveAsDraft();
+
+		Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+		AssetPublisherPortlet.viewManualNoAssetsMessagePG();
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			panel = "Site Administration",
+			portlet = "Blogs");
+
+		AssertElementPresent(
+			key_resultBarMessage = "Draft",
+			locator1 = "MyWorkflowTasks#MY_WORKFLOW_TASKS_SEARCH_RESULT_BAR");
+	}
+
+	@description = "This is a test for LRQA-69816. Verify that when the user edits an approved blog, the blog returns to pending and is removed from Asset Publisher."
+	@priority = "3"
+	test EditedBlogReturnsToPendingAndIsNotDisplayed {
+		BlogsNavigator.openToAddEntry(
+			layoutName = "Asset Publisher Page",
+			siteURLKey = "guest");
+
+		BlogsEntry.addEntryContent(
+			entryContent = "Blogs Entry Content",
+			entryTitle = "Blogs Entry Title");
+
+		Button.clickSubmitForPublication();
+
+		UserBar.gotoDropdownItem(dropdownItem = "My Workflow Tasks");
+
+		Workflow.assignToMeTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Workflow.approveTaskByActions(
+			workflowAssetTitle = "Blogs Entry Title",
+			workflowAssetType = "Blogs Entry",
+			workflowTask = "Review");
+
+		Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+		AssetPublisherPortlet.viewAssetPG(assetTitle = "Blogs Entry Title");
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			panel = "Site Administration",
+			portlet = "Blogs");
+
+		AssertClick(
+			key_workflowInstanceName = "Blogs Entry Title",
+			locator1 = "AssetWorkflow#DETAILS_WORKFLOW_TITLE",
+			value1 = "Blogs Entry Title");
+
+		BlogsEntry.editTitle(
+			entryTitle = "Blogs Entry Title",
+			entryTitleEdit = "Blogs Entry Title Edit");
+
+		Button.clickSubmitForPublication();
+
+		Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+		AssetPublisherPortlet.viewManualNoAssetsMessagePG();
+	}
+
+	@description = "This is a test for LRQA-69814. Verify that a Pending Web Content is not displayed on Asset Publisher."
+	@priority = "3"
+	test PendingWebContentIsNotDisplayed {
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Navigator.gotoNavTab(navTab = "Configuration");
+
+		Workflow.configureWorkflow(
+			workflowDefinition = "Single Approver",
+			workflowResourceValue = "Web Content Article");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages",
+			site = "Liferay DXP");
+
+		Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+		WorkflowAsset.createNewBasicWebContent();
+
+		Button.clickSubmitForPublication();
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			panel = "Site Administration",
+			portlet = "Web Content");
+
+		AssertElementPresent(locator1 = "SitePages#SITE_PENDING_STATUS");
+
+		ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			panel = "Site Administration",
+			portlet = "Pages");
+
+		Navigator.gotoPage(pageName = "Asset Publisher Page");
+
+		AssetPublisherPortlet.viewManualNoAssetsMessagePG();
+	}
+
 	@priority = "4"
 	test RejectBlogsEntryPG {
 		Navigator.gotoPage(pageName = "Asset Publisher Page");
@@ -230,6 +358,15 @@ definition {
 		BlogsEntry.viewWithWorkflowPGViaAP(
 			entryTitle = "Blogs Entry Title",
 			webContentTitle = "Blogs Entry Title");
+	}
+
+	@description = "This is a test for LRQA-69815. Verify that a rejected web content is not displayed on Asset Publisher."
+	@ignore = "Test Stub"
+	@priority = "3"
+	test RejectedWebContentIsNotDisplayed {
+
+		// TODO LRQA-69815 RejectedWebContentIsNotDisplayed pending implementation
+
 	}
 
 }

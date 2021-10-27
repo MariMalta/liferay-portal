@@ -88,16 +88,15 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 		throws StorageException {
 
 		try {
-			long objectDefinitionId =
-				ddmStorageAdapterDeleteRequest.getPrimaryKey();
+			long objectEntryId = ddmStorageAdapterDeleteRequest.getPrimaryKey();
 
-			ObjectDefinition objectDefinition = _getObjectDefinition(
-				objectDefinitionId);
+			ObjectDefinition objectDefinition = _fetchObjectDefinition(
+				objectEntryId);
 
 			ObjectEntry objectEntry = _objectEntryManager.fetchObjectEntry(
 				_getDTOConverterContext(
 					null, null, LocaleUtil.getSiteDefault()),
-				objectDefinition, objectDefinitionId);
+				objectDefinition, objectEntryId);
 
 			if (objectEntry != null) {
 				_objectEntryManager.deleteObjectEntry(objectEntry.getId());
@@ -119,20 +118,18 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 		try {
 			DDMForm ddmForm = ddmStorageAdapterGetRequest.getDDMForm();
 
-			long objectDefinitionId =
-				ddmStorageAdapterGetRequest.getPrimaryKey();
+			long objectEntryId = ddmStorageAdapterGetRequest.getPrimaryKey();
 
-			ObjectDefinition objectDefinition = _getObjectDefinition(
-				objectDefinitionId);
+			ObjectDefinition objectDefinition = _fetchObjectDefinition(
+				objectEntryId);
 
 			return DDMStorageAdapterGetResponse.Builder.newBuilder(
 				_getDDMFormValues(
 					ddmForm,
 					_objectEntryManager.getObjectEntry(
 						_getDTOConverterContext(
-							objectDefinitionId, null,
-							ddmForm.getDefaultLocale()),
-						objectDefinition, objectDefinitionId))
+							objectEntryId, null, ddmForm.getDefaultLocale()),
+						objectDefinition, objectEntryId))
 			).build();
 		}
 		catch (Exception exception) {
@@ -163,7 +160,7 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 
 			ObjectEntry addObjectEntry = _objectEntryManager.addObjectEntry(
 				_getDTOConverterContext(null, user, ddmForm.getDefaultLocale()),
-				user.getUserId(), objectDefinition,
+				objectDefinition,
 				new ObjectEntry() {
 					{
 						properties = _getObjectEntryProperties(
@@ -180,8 +177,22 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			).build();
 		}
 		catch (Exception exception) {
-			throw new StorageException(exception);
+			throw new StorageException(exception.getMessage(), exception);
 		}
+	}
+
+	private ObjectDefinition _fetchObjectDefinition(long objectEntryId)
+		throws PortalException {
+
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
+			_objectEntryService.fetchObjectEntry(objectEntryId);
+
+		if (serviceBuilderObjectEntry != null) {
+			return _objectDefinitionLocalService.getObjectDefinition(
+				serviceBuilderObjectEntry.getObjectDefinitionId());
+		}
+
+		return null;
 	}
 
 	private Value _getDDMFormFieldValue(
@@ -264,16 +275,6 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			Collections.singletonMap(
 				"delete", Collections.singletonMap("delete", "")),
 			null, null, objectEntryId, locale, null, user);
-	}
-
-	private ObjectDefinition _getObjectDefinition(long objectDefinitionId)
-		throws PortalException {
-
-		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
-			_objectEntryService.getObjectEntry(objectDefinitionId);
-
-		return _objectDefinitionLocalService.getObjectDefinition(
-			serviceBuilderObjectEntry.getObjectDefinitionId());
 	}
 
 	private long _getObjectDefinitionId(

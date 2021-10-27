@@ -20,12 +20,15 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.model.ObjectField;
 import com.liferay.object.rest.context.path.RESTContextPathResolver;
 import com.liferay.object.rest.context.path.RESTContextPathResolverRegistry;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
-import com.liferay.petra.string.StringPool;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -64,13 +67,14 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 		return HashMapBuilder.<String, Object>put(
 			"apiURL", _getAPIURL(ddmFormField, ddmFormFieldRenderingContext)
 		).put(
-			"initialLabel", ddmFormFieldRenderingContext.getValue()
-		).put(
-			"initialValue", ddmFormFieldRenderingContext.getValue()
+			"initialLabel", _getInitialLabel(ddmFormFieldRenderingContext)
 		).put(
 			"inputName", ddmFormField.getName()
 		).put(
-			"labelKey", "id"
+			"labelKey", _getLabelKey(ddmFormField)
+		).put(
+			"objectDefinitionId",
+			GetterUtil.getLong(ddmFormField.getProperty("objectDefinitionId"))
 		).put(
 			"placeholder",
 			() -> {
@@ -111,19 +115,6 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
-		long objectDefinitionId = GetterUtil.getLong(
-			getValue(
-				GetterUtil.getString(
-					ddmFormField.getProperty("objectDefinitionId"))));
-
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.fetchObjectDefinition(
-				objectDefinitionId);
-
-		if (objectDefinition == null) {
-			return StringPool.BLANK;
-		}
-
 		String apiURL = GetterUtil.getString(
 			ddmFormField.getProperty("apiURL"));
 
@@ -133,6 +124,12 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 
 		apiURL = _portal.getPortalURL(
 			ddmFormFieldRenderingContext.getHttpServletRequest());
+
+		ObjectDefinition objectDefinition = _getObjectDefinition(ddmFormField);
+
+		if (objectDefinition == null) {
+			return apiURL;
+		}
 
 		RESTContextPathResolver restContextPathResolver =
 			_restContextPathResolverRegistry.getRESTContextPathResolver(
@@ -174,11 +171,71 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 		}
 	}
 
+	private String _getInitialLabel(
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
+
+		if (!Validator.isBlank(ddmFormFieldRenderingContext.getValue())) {
+			ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
+				GetterUtil.getLong(ddmFormFieldRenderingContext.getValue()));
+
+			if (objectEntry != null) {
+				try {
+					return objectEntry.getTitleValue();
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException, portalException);
+					}
+				}
+			}
+		}
+
+		return ddmFormFieldRenderingContext.getValue();
+	}
+
+	private String _getLabelKey(DDMFormField ddmFormField) {
+		String labelKey = GetterUtil.getString(
+			ddmFormField.getProperty("labelKey"));
+
+		if (Validator.isNotNull(labelKey)) {
+			return labelKey;
+		}
+
+		ObjectDefinition objectDefinition = _getObjectDefinition(ddmFormField);
+
+		if ((objectDefinition != null) &&
+			(objectDefinition.getTitleObjectFieldId() > 0)) {
+
+			ObjectField objectField = _objectFieldLocalService.fetchObjectField(
+				objectDefinition.getTitleObjectFieldId());
+
+			if (objectField != null) {
+				return objectField.getName();
+			}
+		}
+
+		return "id";
+	}
+
+	private ObjectDefinition _getObjectDefinition(DDMFormField ddmFormField) {
+		return _objectDefinitionLocalService.fetchObjectDefinition(
+			GetterUtil.getLong(
+				getValue(
+					GetterUtil.getString(
+						ddmFormField.getProperty("objectDefinitionId")))));
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectRelationshipDDMFormFieldTemplateContextContributor.class);
 
 	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
+	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Reference
+	private ObjectFieldLocalService _objectFieldLocalService;
 
 	@Reference
 	private ObjectScopeProviderRegistry _objectScopeProviderRegistry;

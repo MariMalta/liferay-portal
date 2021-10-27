@@ -44,9 +44,11 @@ public class ObjectRelationshipSoap implements Serializable {
 		soapModel.setObjectDefinitionId1(model.getObjectDefinitionId1());
 		soapModel.setObjectDefinitionId2(model.getObjectDefinitionId2());
 		soapModel.setObjectFieldId2(model.getObjectFieldId2());
+		soapModel.setDeletionType(model.getDeletionType());
 		soapModel.setDBTableName(model.getDBTableName());
 		soapModel.setLabel(model.getLabel());
 		soapModel.setName(model.getName());
+		soapModel.setReverse(model.isReverse());
 		soapModel.setType(model.getType());
 
 		return soapModel;
@@ -198,6 +200,14 @@ public class ObjectRelationshipSoap implements Serializable {
 		_objectFieldId2 = objectFieldId2;
 	}
 
+	public String getDeletionType() {
+		return _deletionType;
+	}
+
+	public void setDeletionType(String deletionType) {
+		_deletionType = deletionType;
+	}
+
 	public String getDBTableName() {
 		return _dbTableName;
 	}
@@ -222,6 +232,18 @@ public class ObjectRelationshipSoap implements Serializable {
 		_name = name;
 	}
 
+	public boolean getReverse() {
+		return _reverse;
+	}
+
+	public boolean isReverse() {
+		return _reverse;
+	}
+
+	public void setReverse(boolean reverse) {
+		_reverse = reverse;
+	}
+
 	public String getType() {
 		return _type;
 	}
@@ -241,9 +263,11 @@ public class ObjectRelationshipSoap implements Serializable {
 	private long _objectDefinitionId1;
 	private long _objectDefinitionId2;
 	private long _objectFieldId2;
+	private String _deletionType;
 	private String _dbTableName;
 	private String _label;
 	private String _name;
+	private boolean _reverse;
 	private String _type;
 
 }

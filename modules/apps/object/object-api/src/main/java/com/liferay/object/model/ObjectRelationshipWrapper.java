@@ -54,9 +54,11 @@ public class ObjectRelationshipWrapper
 		attributes.put("objectDefinitionId1", getObjectDefinitionId1());
 		attributes.put("objectDefinitionId2", getObjectDefinitionId2());
 		attributes.put("objectFieldId2", getObjectFieldId2());
+		attributes.put("deletionType", getDeletionType());
 		attributes.put("dbTableName", getDBTableName());
 		attributes.put("label", getLabel());
 		attributes.put("name", getName());
+		attributes.put("reverse", isReverse());
 		attributes.put("type", getType());
 
 		return attributes;
@@ -131,6 +133,12 @@ public class ObjectRelationshipWrapper
 			setObjectFieldId2(objectFieldId2);
 		}
 
+		String deletionType = (String)attributes.get("deletionType");
+
+		if (deletionType != null) {
+			setDeletionType(deletionType);
+		}
+
 		String dbTableName = (String)attributes.get("dbTableName");
 
 		if (dbTableName != null) {
@@ -147,6 +155,12 @@ public class ObjectRelationshipWrapper
 
 		if (name != null) {
 			setName(name);
+		}
+
+		Boolean reverse = (Boolean)attributes.get("reverse");
+
+		if (reverse != null) {
+			setReverse(reverse);
 		}
 
 		String type = (String)attributes.get("type");
@@ -199,6 +213,16 @@ public class ObjectRelationshipWrapper
 	@Override
 	public String getDefaultLanguageId() {
 		return model.getDefaultLanguageId();
+	}
+
+	/**
+	 * Returns the deletion type of this object relationship.
+	 *
+	 * @return the deletion type of this object relationship
+	 */
+	@Override
+	public String getDeletionType() {
+		return model.getDeletionType();
 	}
 
 	/**
@@ -358,6 +382,16 @@ public class ObjectRelationshipWrapper
 	}
 
 	/**
+	 * Returns the reverse of this object relationship.
+	 *
+	 * @return the reverse of this object relationship
+	 */
+	@Override
+	public boolean getReverse() {
+		return model.getReverse();
+	}
+
+	/**
 	 * Returns the type of this object relationship.
 	 *
 	 * @return the type of this object relationship
@@ -405,6 +439,16 @@ public class ObjectRelationshipWrapper
 	@Override
 	public String getUuid() {
 		return model.getUuid();
+	}
+
+	/**
+	 * Returns <code>true</code> if this object relationship is reverse.
+	 *
+	 * @return <code>true</code> if this object relationship is reverse; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isReverse() {
+		return model.isReverse();
 	}
 
 	@Override
@@ -455,6 +499,16 @@ public class ObjectRelationshipWrapper
 	@Override
 	public void setDBTableName(String dbTableName) {
 		model.setDBTableName(dbTableName);
+	}
+
+	/**
+	 * Sets the deletion type of this object relationship.
+	 *
+	 * @param deletionType the deletion type of this object relationship
+	 */
+	@Override
+	public void setDeletionType(String deletionType) {
+		model.setDeletionType(deletionType);
 	}
 
 	/**
@@ -599,6 +653,16 @@ public class ObjectRelationshipWrapper
 	@Override
 	public void setPrimaryKey(long primaryKey) {
 		model.setPrimaryKey(primaryKey);
+	}
+
+	/**
+	 * Sets whether this object relationship is reverse.
+	 *
+	 * @param reverse the reverse of this object relationship
+	 */
+	@Override
+	public void setReverse(boolean reverse) {
+		model.setReverse(reverse);
 	}
 
 	/**

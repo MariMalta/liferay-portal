@@ -30,7 +30,9 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
+import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.uuid.PortalUUID;
@@ -91,8 +93,6 @@ public class EditMVCActionCommand extends BaseMVCActionCommand {
 
 		String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
-		String redirect = ParamUtil.getString(actionRequest, "redirect");
-
 		if (cmd.equals("reindex")) {
 			reindex(actionRequest);
 
@@ -104,6 +104,16 @@ public class EditMVCActionCommand extends BaseMVCActionCommand {
 		else if (cmd.equals("reindexIndexReindexer")) {
 			reindexIndexReindexer(actionRequest);
 		}
+
+		String redirect = ParamUtil.getString(actionRequest, "redirect");
+
+		redirect = _http.setParameter(
+			redirect, actionResponse.getNamespace() + "companyIds",
+			StringUtil.merge(
+				ParamUtil.getLongValues(actionRequest, "companyIds")));
+		redirect = _http.setParameter(
+			redirect, actionResponse.getNamespace() + "scope",
+			ParamUtil.getString(actionRequest, "scope"));
 
 		sendRedirect(actionRequest, actionResponse, redirect);
 	}
@@ -235,6 +245,9 @@ public class EditMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private BackgroundTaskManager _backgroundTaskManager;
+
+	@Reference
+	private Http _http;
 
 	private final Map<String, IndexReindexer> _indexReindexers =
 		new ConcurrentHashMap<>();

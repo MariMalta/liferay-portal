@@ -12,18 +12,17 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6258. UI lifecycle for activating a tax engine (ByAddress)"
@@ -210,7 +209,6 @@ definition {
 	@priority = "3"
 	test AddTaxRateToByAddressTaxEngine {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceTaxEngine#AddTaxRateToByAddressTaxEngine";
 
 		// TODO Review
 
@@ -402,7 +400,6 @@ definition {
 	@priority = "3"
 	test AddTaxRateToFixedTaxEngine {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceTaxEngine#AddTaxRateToFixedTaxEngine";
 
 		// TODO Review
 
@@ -530,7 +527,6 @@ definition {
 	@priority = "3"
 	test AssertAddressRestrictiedTaxIsCorrectlyCalculated {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceTaxEngine#AssertAddressRestrictiedTaxIsCorrectlyCalculated";
 
 		// TODO Review
 
@@ -617,17 +613,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
-
-		Click(
-			key_navUnderline = "Members",
-			locator1 = "NavUnderline#NAV_UNDERLINE_LINK");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceAcceleratorsInitializer.inviteNewMemberWithRoleToAccount(
+			accountName = "Test Account",
 			emailAddress = "buyer@liferay.com",
-			role = "Buyer");
+			role = "Buyer",
+			userFirstName = "Buyer",
+			userLastName = "User",
+			userScreenName = "buyeruser");
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Users",
@@ -637,7 +631,7 @@ definition {
 		CommerceLogin.editPasswordCP(
 			newPassword = "ttest",
 			requirePasswordReset = "true",
-			userScreenName = "buyer");
+			userScreenName = "buyeruser");
 
 		User.logoutPG();
 

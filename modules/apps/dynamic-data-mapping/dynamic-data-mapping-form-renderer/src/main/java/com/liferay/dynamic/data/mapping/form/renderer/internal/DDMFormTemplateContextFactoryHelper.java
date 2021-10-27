@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +41,7 @@ public class DDMFormTemplateContextFactoryHelper {
 	public Set<String> getEvaluableDDMFormFieldNames(
 		DDMForm ddmForm, DDMFormLayout ddmFormLayout) {
 
-		Set<String> evaluableDDMFormFieldNames = new HashSet<>();
+		Set<String> expressionParameterNames = new HashSet<>();
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(true);
@@ -53,68 +54,60 @@ public class DDMFormTemplateContextFactoryHelper {
 			ddmFormRules = ddmForm.getDDMFormRules();
 		}
 
-		evaluableDDMFormFieldNames.addAll(
-			getReferencedFieldNamesByDDMFormRules(
-				ddmFormRules, ddmFormFieldNames));
+		expressionParameterNames.addAll(
+			_getParameterNamesByDDMFormRules(ddmFormRules));
 
 		for (DDMFormField ddmFormField : ddmFormFieldsMap.values()) {
-			if (isDDMFormFieldEvaluable(ddmFormField)) {
-				evaluableDDMFormFieldNames.add(ddmFormField.getName());
+			if (_isDDMFormFieldEvaluable(ddmFormField)) {
+				expressionParameterNames.add(ddmFormField.getName());
 			}
 
-			evaluableDDMFormFieldNames.addAll(
-				getReferencedFieldNamesByExpression(
-					ddmFormField.getVisibilityExpression(), ddmFormFieldNames));
+			expressionParameterNames.addAll(
+				_getParameterNamesByExpression(
+					ddmFormField.getVisibilityExpression()));
 		}
 
-		return evaluableDDMFormFieldNames;
+		ddmFormFieldNames.retainAll(expressionParameterNames);
+
+		return ddmFormFieldNames;
 	}
 
-	protected Set<String> getReferencedFieldNamesByDDMFormRules(
-		List<DDMFormRule> ddmFormRules, Set<String> ddmFormFieldNames) {
+	private Set<String> _getParameterNamesByDDMFormRules(
+		List<DDMFormRule> ddmFormRules) {
 
-		Set<String> referencedFieldNames = new HashSet<>();
+		Set<String> parameterNames = new HashSet<>();
 
 		for (DDMFormRule ddmFormRule : ddmFormRules) {
-			referencedFieldNames.addAll(
-				getReferencedFieldNamesByExpression(
-					ddmFormRule.getCondition(), ddmFormFieldNames));
+			parameterNames.addAll(
+				_getParameterNamesByExpression(ddmFormRule.getCondition()));
 
 			for (String action : ddmFormRule.getActions()) {
-				referencedFieldNames.addAll(
-					getReferencedFieldNamesByExpression(
-						action, ddmFormFieldNames));
+				parameterNames.addAll(_getParameterNamesByExpression(action));
 			}
 		}
 
-		return referencedFieldNames;
+		return parameterNames;
 	}
 
-	protected Set<String> getReferencedFieldNamesByExpression(
-		String expression, Set<String> ddmFormFieldNames) {
-
+	private Set<String> _getParameterNamesByExpression(String expression) {
 		if (Validator.isNull(expression)) {
 			return Collections.emptySet();
 		}
 
-		Set<String> referencedFieldNames = new HashSet<>();
+		Set<String> parameterNames = new HashSet<>();
 
-		for (String ddmFormFieldName : ddmFormFieldNames) {
-			Pattern pattern = Pattern.compile(
-				String.format(".*('?%s'?).*", ddmFormFieldName));
+		Matcher matcher = _pattern.matcher(expression);
 
-			Matcher matcher = pattern.matcher(expression);
-
-			if (matcher.find()) {
-				referencedFieldNames.add(ddmFormFieldName);
-			}
+		while (matcher.find()) {
+			parameterNames.add(matcher.group(1));
 		}
 
-		return referencedFieldNames;
+		return parameterNames;
 	}
 
-	protected boolean isDDMFormFieldEvaluable(DDMFormField ddmFormField) {
-		if (GetterUtil.getBoolean(ddmFormField.getProperty("inputMask")) ||
+	private boolean _isDDMFormFieldEvaluable(DDMFormField ddmFormField) {
+		if (Objects.equals(ddmFormField.getType(), "object-relationship") ||
+			GetterUtil.getBoolean(ddmFormField.getProperty("inputMask")) ||
 			GetterUtil.getBoolean(
 				ddmFormField.getProperty("requireConfirmation")) ||
 			GetterUtil.getBoolean(ddmFormField.getProperty("required"))) {
@@ -134,5 +127,8 @@ public class DDMFormTemplateContextFactoryHelper {
 
 		return false;
 	}
+
+	private static final Pattern _pattern = Pattern.compile(
+		"'?([\\w]+)'?\\s*[,\\)]\\s*");
 
 }

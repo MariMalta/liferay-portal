@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.puppycrawl.tools.checkstyle.api.DetailAST;
 import com.puppycrawl.tools.checkstyle.api.FullIdent;
 import com.puppycrawl.tools.checkstyle.api.TokenTypes;
+import com.puppycrawl.tools.checkstyle.utils.AnnotationUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -134,20 +135,11 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 		DetailAST identDetailAST = assignValueDetailAST.findFirstToken(
 			TokenTypes.IDENT);
 
-		if (identDetailAST == null) {
-			return null;
+		if (identDetailAST != null) {
+			return identDetailAST.getText();
 		}
 
-		DetailAST elistDetailAST = assignValueDetailAST.findFirstToken(
-			TokenTypes.ELIST);
-
-		if ((elistDetailAST == null) ||
-			(elistDetailAST.getFirstChild() != null)) {
-
-			return null;
-		}
-
-		return identDetailAST.getText();
+		return null;
 	}
 
 	protected Map<String, String[][]> getReservedKeywordsMap() {
@@ -213,6 +205,12 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 			DetailAST parentDetailAST = variableDefinitionDetailAST.getParent();
 
 			if (parentDetailAST.getType() == TokenTypes.OBJBLOCK) {
+				if (AnnotationUtil.containsAnnotation(
+						variableDefinitionDetailAST, "Reference")) {
+
+					continue;
+				}
+
 				DetailAST modifiersDetailAST =
 					variableDefinitionDetailAST.findFirstToken(
 						TokenTypes.MODIFIERS);
@@ -443,7 +441,8 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 
 					if ((!allowNullValues() &&
 						 _isNullValueExpression(childDetailAST)) ||
-						containsVariableName(childDetailAST, variableName)) {
+						containsVariableName(
+							childDetailAST, variableName, true)) {
 
 						return;
 					}
@@ -452,7 +451,9 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 				}
 			}
 
-			if (containsVariableName(nextSiblingDetailAST, variableName)) {
+			if (containsVariableName(
+					nextSiblingDetailAST, variableName, true)) {
+
 				return;
 			}
 		}
@@ -591,8 +592,6 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 		List<String> variableNames = _getVariableNames(
 			parentDetailAST, "get.*");
 
-		variableNames.add(variableName);
-
 		String[] builderMethodNames = builderInformation.getMethodNames();
 
 		DetailAST nextSiblingDetailAST = parentDetailAST.getNextSibling();
@@ -614,9 +613,15 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 				return;
 			}
 
+			if (containsVariableName(
+					nextSiblingDetailAST, variableName, false)) {
+
+				return;
+			}
+
 			for (String curVariableName : variableNames) {
 				if (containsVariableName(
-						nextSiblingDetailAST, curVariableName)) {
+						nextSiblingDetailAST, curVariableName, true)) {
 
 					return;
 				}
@@ -738,6 +743,21 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 
 		if (matchingMethodName == null) {
 			return;
+		}
+
+		DetailAST literalTryDetailAST = getParentWithTokenType(
+			variableDefinitionDetailAST, TokenTypes.LITERAL_TRY);
+
+		if (literalTryDetailAST != null) {
+			DetailAST literalCatchDetailAST = getParentWithTokenType(
+				variableDefinitionDetailAST, TokenTypes.LITERAL_CATCH);
+
+			if ((literalCatchDetailAST == null) ||
+				(literalCatchDetailAST.getLineNo() <
+					literalTryDetailAST.getLineNo())) {
+
+				return;
+			}
 		}
 
 		List<DetailAST> additionalDependentDetailASTList =
@@ -1357,6 +1377,16 @@ public abstract class BaseBuilderCheck extends BaseChainedMethodCheck {
 
 					if (variableNames.contains(
 							dependentIdentDetailAST.getText())) {
+
+						List<int[]> nonfinalVariableRangeList =
+							_addNonfinalVariableRangeList(
+								null, expressionDetailAST);
+
+						for (int[] array : nonfinalVariableRangeList) {
+							if (expressionDetailAST.getLineNo() > array[0]) {
+								return null;
+							}
+						}
 
 						if (methodName != null) {
 							return null;

@@ -15,6 +15,7 @@
 package com.liferay.document.library.kernel.store;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.util.ServiceProxyFactory;
 
 import java.io.File;
 import java.io.InputStream;
@@ -43,22 +44,42 @@ import java.io.InputStream;
  * String dirName = "portlet_name/1234";
  *
  * try {
- * DLStoreUtil.addDirectory(companyId, repositoryId, dirName);
+ *     DLStoreUtil.addDirectory(companyId, repositoryId, dirName);
  * }
  * catch (PortalException pe) {
  * }
  *
  * DLStoreUtil.addFile(
- * companyId, repositoryId, dirName + "/" + fileName, file);
+ *     companyId, repositoryId, dirName + "/" + fileName, file);
  * </code>
  * </pre></p>
  *
  * @author Brian Wing Shun Chan
  * @author Alexander Chow
  * @author Edward Han
+ * @author Raymond Augé
  * @see    DLStoreImpl
  */
 public class DLStoreUtil {
+
+	public static void addFile(DLStoreRequest dlStoreRequest, byte[] bytes)
+		throws PortalException {
+
+		_store.addFile(dlStoreRequest, bytes);
+	}
+
+	public static void addFile(DLStoreRequest dlStoreRequest, File file)
+		throws PortalException {
+
+		_store.addFile(dlStoreRequest, file);
+	}
+
+	public static void addFile(
+			DLStoreRequest dlStoreRequest, InputStream inputStream)
+		throws PortalException {
+
+		_store.addFile(dlStoreRequest, inputStream);
+	}
 
 	/**
 	 * Adds a file based on a byte array.
@@ -397,6 +418,19 @@ public class DLStoreUtil {
 		return _store.hasFile(companyId, repositoryId, fileName, versionLabel);
 	}
 
+	public static void updateFile(DLStoreRequest dlStoreRequest, File file)
+		throws PortalException {
+
+		_store.updateFile(dlStoreRequest, file);
+	}
+
+	public static void updateFile(
+			DLStoreRequest dlStoreRequest, InputStream inputStream)
+		throws PortalException {
+
+		_store.updateFile(dlStoreRequest, inputStream);
+	}
+
 	/**
 	 * Moves a file to a new data repository.
 	 *
@@ -586,15 +620,14 @@ public class DLStoreUtil {
 	}
 
 	/**
-	 * Set's the {@link DLStore} object. Used primarily by Spring and should not
-	 * be used by the client.
-	 *
-	 * @param store the {@link DLStore} object
+	 * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
 	 */
+	@Deprecated
 	public void setStore(DLStore store) {
-		_store = store;
 	}
 
-	private static DLStore _store;
+	private static volatile DLStore _store =
+		ServiceProxyFactory.newServiceTrackedInstance(
+			DLStore.class, DLStoreUtil.class, "_store", true);
 
 }

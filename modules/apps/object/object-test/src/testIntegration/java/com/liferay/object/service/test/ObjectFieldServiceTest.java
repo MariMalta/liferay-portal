@@ -22,6 +22,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldService;
 import com.liferay.object.util.LocalizedMapUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -38,6 +39,8 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
+
+import java.util.Collections;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -74,6 +77,15 @@ public class ObjectFieldServiceTest {
 				"A" + RandomTestUtil.randomString(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionConstants.SCOPE_COMPANY, null);
+
+		_systemObjectDefinition =
+			_objectDefinitionLocalService.addSystemObjectDefinition(
+				TestPropsValues.getUserId(), "Test", null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				"Test", null, null,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				ObjectDefinitionConstants.SCOPE_COMPANY, 1,
+				Collections.<ObjectField>emptyList());
 	}
 
 	@After
@@ -86,7 +98,8 @@ public class ObjectFieldServiceTest {
 	@Test
 	public void testAddCustomObjectField() throws Exception {
 		try {
-			_testAddCustomObjectField(_defaultUser);
+			_testAddCustomObjectField(
+				_objectDefinition.getObjectDefinitionId(), _defaultUser);
 
 			Assert.fail();
 		}
@@ -99,7 +112,25 @@ public class ObjectFieldServiceTest {
 						" must have UPDATE permission for"));
 		}
 
-		_testAddCustomObjectField(_user);
+		try {
+			_testAddCustomObjectField(
+				_systemObjectDefinition.getObjectDefinitionId(), _defaultUser);
+
+			Assert.fail();
+		}
+		catch (PrincipalException.MustHavePermission principalException) {
+			String message = principalException.getMessage();
+
+			Assert.assertTrue(
+				message.contains(
+					StringBundler.concat(
+						"User ", _defaultUser.getUserId(),
+						" must have EXTEND_SYSTEM_OBJECT_DEFINITION ",
+						"permission for")));
+		}
+
+		_testAddCustomObjectField(
+			_objectDefinition.getObjectDefinitionId(), _user);
 	}
 
 	@Test
@@ -172,15 +203,16 @@ public class ObjectFieldServiceTest {
 		PrincipalThreadLocal.setName(user.getUserId());
 	}
 
-	private void _testAddCustomObjectField(User user) throws Exception {
+	private void _testAddCustomObjectField(long objectDefinitionId, User user)
+		throws Exception {
+
 		ObjectField objectField = null;
 
 		try {
 			_setUser(user);
 
 			objectField = _objectFieldService.addCustomObjectField(
-				0, _objectDefinition.getObjectDefinitionId(), false, false,
-				null,
+				0, objectDefinitionId, false, false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				StringUtil.randomId(), true, "String");
 		}
@@ -264,6 +296,10 @@ public class ObjectFieldServiceTest {
 
 	private String _originalName;
 	private PermissionChecker _originalPermissionChecker;
+
+	@DeleteAfterTestRun
+	private ObjectDefinition _systemObjectDefinition;
+
 	private User _user;
 
 	@Inject(type = UserLocalService.class)

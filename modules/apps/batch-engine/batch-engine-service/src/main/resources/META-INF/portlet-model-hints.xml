@@ -17,15 +17,17 @@
 		<field name="contentType" type="String" />
 		<field name="endTime" type="Date" />
 		<field name="errorMessage" type="String">
-			<hint name="max-length">1000</hint>
+			<hint-collection name="CLOB" />
 		</field>
 		<field name="fieldNames" type="String">
 			<hint name="max-length">1000</hint>
 		</field>
 		<field name="executeStatus" type="String" />
 		<field name="parameters" type="Map" />
+		<field name="processedItemsCount" type="int" />
 		<field name="startTime" type="Date" />
 		<field name="taskItemDelegateName" type="String" />
+		<field name="totalItemsCount" type="int" />
 	</model>
 	<model name="com.liferay.batch.engine.model.BatchEngineImportTask">
 		<field name="mvccVersion" type="long" />
@@ -44,7 +46,7 @@
 		<field name="contentType" type="String" />
 		<field name="endTime" type="Date" />
 		<field name="errorMessage" type="String">
-			<hint name="max-length">1000</hint>
+			<hint-collection name="CLOB" />
 		</field>
 		<field name="executeStatus" type="String" />
 		<field name="fieldNameMapping" type="Map" />

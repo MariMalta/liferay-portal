@@ -14,11 +14,18 @@
 
 package com.liferay.object.model.impl;
 
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.model.ObjectField;
+import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.ObjectEntryLocalServiceUtil;
+import com.liferay.object.service.ObjectFieldLocalServiceUtil;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.cache.CacheField;
+import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
 
 import java.io.Serializable;
 
@@ -44,6 +51,47 @@ public class ObjectEntryImpl extends ObjectEntryBaseImpl {
 	public String getModelClassName() {
 		return "com.liferay.object.model.ObjectDefinition#" +
 			getObjectDefinitionId();
+	}
+
+	@Override
+	public long getNonzeroGroupId() throws PortalException {
+
+		// TODO If permission checking works with the group's company ID, then
+		// we should ensure it is always set and remove this workaround
+
+		long groupId = getGroupId();
+
+		if (groupId == 0) {
+			Company company = CompanyLocalServiceUtil.getCompany(
+				getCompanyId());
+
+			groupId = company.getGroupId();
+		}
+
+		return groupId;
+	}
+
+	@Override
+	public String getTitleValue() throws PortalException {
+		ObjectDefinition objectDefinition =
+			ObjectDefinitionLocalServiceUtil.getObjectDefinition(
+				getObjectDefinitionId());
+
+		if ((objectDefinition != null) &&
+			(objectDefinition.getTitleObjectFieldId() > 0)) {
+
+			ObjectField objectField =
+				ObjectFieldLocalServiceUtil.fetchObjectField(
+					objectDefinition.getTitleObjectFieldId());
+
+			if (objectField != null) {
+				Map<String, Serializable> values = getValues();
+
+				return String.valueOf(values.get(objectField.getName()));
+			}
+		}
+
+		return String.valueOf(getObjectEntryId());
 	}
 
 	@Override

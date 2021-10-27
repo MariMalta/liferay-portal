@@ -14,6 +14,7 @@
 
 package com.liferay.portal.util;
 
+import com.liferay.counter.kernel.service.CounterLocalServiceUtil;
 import com.liferay.document.library.kernel.exception.ImageSizeException;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolder;
@@ -2523,12 +2524,33 @@ public class PortalImpl implements Portal {
 			portlet, PropsValues.GOOGLE_GADGET_SERVLET_MAPPING, themeDisplay);
 	}
 
+	/**
+	 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link
+	 * #getGroupFriendlyURL(LayoutSet, ThemeDisplay, boolean, boolean)}
+	 */
+	@Deprecated
 	@Override
 	public String getGroupFriendlyURL(
 			LayoutSet layoutSet, ThemeDisplay themeDisplay)
 		throws PortalException {
 
 		return getGroupFriendlyURL(layoutSet, themeDisplay, false, false);
+	}
+
+	@Override
+	public String getGroupFriendlyURL(
+			LayoutSet layoutSet, ThemeDisplay themeDisplay,
+			boolean canonicalURL, boolean controlPanel)
+		throws PortalException {
+
+		Group group = themeDisplay.getSiteGroup();
+
+		if (group.getGroupId() != layoutSet.getGroupId()) {
+			group = layoutSet.getGroup();
+		}
+
+		return _getGroupFriendlyURL(
+			group, layoutSet, themeDisplay, canonicalURL, controlPanel);
 	}
 
 	@Override
@@ -2543,7 +2565,7 @@ public class PortalImpl implements Portal {
 		try {
 			setThemeDisplayI18n(themeDisplay, locale);
 
-			return getGroupFriendlyURL(layoutSet, themeDisplay);
+			return getGroupFriendlyURL(layoutSet, themeDisplay, false, false);
 		}
 		finally {
 			resetThemeDisplayI18n(
@@ -7014,7 +7036,16 @@ public class PortalImpl implements Portal {
 			}
 		}
 
-		Image image = ImageLocalServiceUtil.moveImage(imageId, bytes);
+		Image image = null;
+
+		if (imageId > 0) {
+			image = ImageLocalServiceUtil.moveImage(imageId, bytes);
+		}
+		else {
+			image = ImageLocalServiceUtil.updateImage(
+				BeanPropertiesUtil.getLong(baseModel, "companyId"),
+				CounterLocalServiceUtil.increment(), bytes);
+		}
 
 		BeanPropertiesUtil.setProperty(
 			baseModel, fieldName, image.getImageId());
@@ -7720,21 +7751,6 @@ public class PortalImpl implements Portal {
 			layoutSet, themeDisplay, canonicalURL, false);
 	}
 
-	protected String getGroupFriendlyURL(
-			LayoutSet layoutSet, ThemeDisplay themeDisplay,
-			boolean canonicalURL, boolean controlPanel)
-		throws PortalException {
-
-		Group group = themeDisplay.getSiteGroup();
-
-		if (group.getGroupId() != layoutSet.getGroupId()) {
-			group = layoutSet.getGroup();
-		}
-
-		return _getGroupFriendlyURL(
-			group, layoutSet, themeDisplay, canonicalURL, controlPanel);
-	}
-
 	protected String[] getGroupPermissions(
 		String[] groupPermissions, String className,
 		String inputPermissionsShowOptions) {
@@ -8249,20 +8265,18 @@ public class PortalImpl implements Portal {
 			Set<Locale> availableLocales)
 		throws PortalException {
 
-		String virtualHostname = getVirtualHostname(
+		TreeMap<String, String> virtualHostnames = getVirtualHostnames(
 			themeDisplay.getLayoutSet());
 
-		if (Validator.isNull(virtualHostname)) {
-			Company company = themeDisplay.getCompany();
-
-			virtualHostname = company.getVirtualHostname();
-		}
+		String virtualHostname = _getVirtualHostname(
+			virtualHostnames, themeDisplay);
 
 		String portalDomain = themeDisplay.getPortalDomain();
 
-		if (!Validator.isBlank(portalDomain) &&
-			!StringUtil.equalsIgnoreCase(portalDomain, _LOCALHOST) &&
-			StringUtil.equalsIgnoreCase(virtualHostname, _LOCALHOST)) {
+		if ((!Validator.isBlank(portalDomain) &&
+			 !StringUtil.equalsIgnoreCase(portalDomain, _LOCALHOST) &&
+			 StringUtil.equalsIgnoreCase(virtualHostname, _LOCALHOST)) ||
+			virtualHostnames.containsKey(portalDomain)) {
 
 			virtualHostname = portalDomain;
 		}
@@ -8434,9 +8448,19 @@ public class PortalImpl implements Portal {
 
 		boolean useGroupVirtualHostname = false;
 
+		String defaultVirtualHostName = _LOCALHOST;
+
+		Company company = themeDisplay.getCompany();
+
+		if ((company != null) &&
+			Validator.isNotNull(company.getVirtualHostname())) {
+
+			defaultVirtualHostName = company.getVirtualHostname();
+		}
+
 		if (canonicalURL ||
 			!StringUtil.equalsIgnoreCase(
-				themeDisplay.getServerName(), _LOCALHOST)) {
+				themeDisplay.getServerName(), defaultVirtualHostName)) {
 
 			useGroupVirtualHostname = true;
 		}
@@ -8462,9 +8486,10 @@ public class PortalImpl implements Portal {
 			String portalDomain = themeDisplay.getPortalDomain();
 
 			if (!virtualHostnames.isEmpty() &&
-				(canonicalURL || !virtualHostnames.containsKey(_LOCALHOST))) {
+				(canonicalURL ||
+				 !virtualHostnames.containsKey(defaultVirtualHostName))) {
 
-				if (!controlPanel) {
+				if (!controlPanel || !privateLayoutSet) {
 					if (canonicalURL) {
 						String path = StringPool.BLANK;
 
@@ -8472,7 +8497,8 @@ public class PortalImpl implements Portal {
 							path = PropsValues.WIDGET_SERVLET_MAPPING;
 						}
 
-						if (!virtualHostnames.containsKey(_LOCALHOST) &&
+						if (!virtualHostnames.containsKey(
+								defaultVirtualHostName) &&
 							!_containsHostname(
 								virtualHostnames, portalDomain)) {
 
@@ -8513,13 +8539,12 @@ public class PortalImpl implements Portal {
 
 						String serverName = themeDisplay.getServerName();
 
-						if (Validator.isNotNull(serverName)) {
+						if (Validator.isNotNull(serverName) &&
+							!serverName.equals(defaultVirtualHostName)) {
+
 							virtualHostnames.put(serverName, StringPool.BLANK);
 						}
-
-						if (virtualHostnames.isEmpty() ||
-							virtualHostnames.containsKey(_LOCALHOST)) {
-
+						else {
 							LayoutSet curLayoutSet =
 								LayoutSetLocalServiceUtil.getLayoutSet(
 									themeDisplay.getSiteGroupId(),
@@ -8531,20 +8556,15 @@ public class PortalImpl implements Portal {
 					}
 
 					if (virtualHostnames.isEmpty() ||
-						virtualHostnames.containsKey(_LOCALHOST)) {
+						virtualHostnames.containsKey(defaultVirtualHostName)) {
 
 						virtualHostnames = TreeMapBuilder.put(
-							() -> {
-								Company company = themeDisplay.getCompany();
-
-								return company.getVirtualHostname();
-							},
-							StringPool.BLANK
+							company::getVirtualHostname, StringPool.BLANK
 						).build();
 					}
 
 					if (canonicalURL ||
-						!virtualHostnames.containsKey(_LOCALHOST)) {
+						!virtualHostnames.containsKey(defaultVirtualHostName)) {
 
 						String virtualHostname = getCanonicalDomain(
 							virtualHostnames, portalDomain);
@@ -8760,6 +8780,18 @@ public class PortalImpl implements Portal {
 		}
 
 		return group;
+	}
+
+	private String _getVirtualHostname(
+		TreeMap<String, String> virtualHostnames, ThemeDisplay themeDisplay) {
+
+		if (virtualHostnames.isEmpty()) {
+			Company company = themeDisplay.getCompany();
+
+			return company.getVirtualHostname();
+		}
+
+		return virtualHostnames.firstKey();
 	}
 
 	private boolean _requiresLayoutFriendlyURL(

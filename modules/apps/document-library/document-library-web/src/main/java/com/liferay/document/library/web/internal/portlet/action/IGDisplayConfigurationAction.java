@@ -15,10 +15,16 @@
 package com.liferay.document.library.web.internal.portlet.action;
 
 import com.liferay.document.library.constants.DLPortletKeys;
+import com.liferay.item.selector.ItemSelector;
 import com.liferay.portal.kernel.portlet.ConfigurationAction;
+import com.liferay.trash.TrashHelper;
+import com.liferay.trash.util.TrashWebKeys;
+
+import javax.portlet.PortletConfig;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,6 +45,20 @@ public class IGDisplayConfigurationAction
 	}
 
 	@Override
+	public void include(
+			PortletConfig portletConfig, HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse)
+		throws Exception {
+
+		httpServletRequest.setAttribute(
+			ItemSelector.class.getName(), _itemSelector);
+		httpServletRequest.setAttribute(
+			TrashWebKeys.TRASH_HELPER, _trashHelper);
+
+		super.include(portletConfig, httpServletRequest, httpServletResponse);
+	}
+
+	@Override
 	@Reference(
 		target = "(osgi.web.symbolicname=com.liferay.document.library.web)",
 		unbind = "-"
@@ -46,5 +66,11 @@ public class IGDisplayConfigurationAction
 	public void setServletContext(ServletContext servletContext) {
 		super.setServletContext(servletContext);
 	}
+
+	@Reference
+	private ItemSelector _itemSelector;
+
+	@Reference
+	private TrashHelper _trashHelper;
 
 }

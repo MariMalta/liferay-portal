@@ -28,33 +28,42 @@ import com.liferay.object.exception.NoSuchObjectDefinitionException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.web.internal.info.item.ObjectEntryInfoItemFields;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.template.info.item.provider.TemplateInfoItemFieldSetProvider;
 
-import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
-
-import org.osgi.framework.Constants;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Jorge Ferrer
+ * @author Guilherme Camacho
  */
-@Component(
-	immediate = true, property = Constants.SERVICE_RANKING + ":Integer=10",
-	service = InfoItemFormProvider.class
-)
 public class ObjectEntryInfoItemFormProvider
 	implements InfoItemFormProvider<ObjectEntry> {
+
+	public ObjectEntryInfoItemFormProvider(
+		ObjectDefinition objectDefinition,
+		InfoItemFieldReaderFieldSetProvider infoItemFieldReaderFieldSetProvider,
+		ObjectDefinitionLocalService objectDefinitionLocalService,
+		ObjectFieldLocalService objectFieldLocalService,
+		ObjectRelationshipLocalService objectRelationshipLocalService,
+		TemplateInfoItemFieldSetProvider templateInfoItemFieldSetProvider) {
+
+		_objectDefinition = objectDefinition;
+		_infoItemFieldReaderFieldSetProvider =
+			infoItemFieldReaderFieldSetProvider;
+		_objectDefinitionLocalService = objectDefinitionLocalService;
+		_objectFieldLocalService = objectFieldLocalService;
+		_objectRelationshipLocalService = objectRelationshipLocalService;
+		_templateInfoItemFieldSetProvider = templateInfoItemFieldSetProvider;
+	}
 
 	@Override
 	public InfoForm getInfoForm() {
@@ -93,7 +102,13 @@ public class ObjectEntryInfoItemFormProvider
 	public InfoForm getInfoForm(String formVariationKey, long groupId)
 		throws NoSuchFormVariationException {
 
-		return _getInfoForm(GetterUtil.getLong(formVariationKey));
+		long objectDefinitionId = GetterUtil.getLong(formVariationKey);
+
+		if (objectDefinitionId == 0) {
+			objectDefinitionId = _objectDefinition.getObjectDefinitionId();
+		}
+
+		return _getInfoForm(objectDefinitionId);
 	}
 
 	private InfoFieldSet _getBasicInformationInfoFieldSet() {
@@ -137,18 +152,6 @@ public class ObjectEntryInfoItemFormProvider
 	private InfoForm _getInfoForm(long objectDefinitionId)
 		throws NoSuchFormVariationException {
 
-		Set<Locale> availableLocales = LanguageUtil.getAvailableLocales();
-
-		InfoLocalizedValue.Builder infoLocalizedValueBuilder =
-			InfoLocalizedValue.builder();
-
-		for (Locale locale : availableLocales) {
-			infoLocalizedValueBuilder.value(
-				locale,
-				ResourceActionsUtil.getModelResource(
-					locale, ObjectEntry.class.getName()));
-		}
-
 		return InfoForm.builder(
 		).infoFieldSetEntry(
 			_getBasicInformationInfoFieldSet()
@@ -165,9 +168,12 @@ public class ObjectEntryInfoItemFormProvider
 			_infoItemFieldReaderFieldSetProvider.getInfoFieldSet(
 				ObjectEntry.class.getName())
 		).labelInfoLocalizedValue(
-			infoLocalizedValueBuilder.build()
+			InfoLocalizedValue.<String>builder(
+			).values(
+				_objectDefinition.getLabelMap()
+			).build()
 		).name(
-			ObjectEntry.class.getName()
+			_objectDefinition.getClassName()
 		).build();
 	}
 
@@ -200,6 +206,31 @@ public class ObjectEntryInfoItemFormProvider
 						_objectFieldLocalService.getObjectFields(
 							objectDefinitionId)) {
 
+					if (Validator.isNotNull(
+							objectField.getRelationshipType())) {
+
+						try {
+							ObjectRelationship objectRelationship =
+								_objectRelationshipLocalService.
+									fetchObjectRelationshipByObjectFieldId2(
+										objectField.getObjectFieldId());
+
+							ObjectDefinition relatedObjectDefinition =
+								_objectDefinitionLocalService.
+									getObjectDefinition(
+										objectRelationship.
+											getObjectDefinitionId1());
+
+							if (!relatedObjectDefinition.isActive()) {
+								continue;
+							}
+						}
+						catch (PortalException portalException) {
+							throw new RuntimeException(
+								"Unexpected exception", portalException);
+						}
+					}
+
 					unsafeConsumer.accept(
 						InfoField.builder(
 						).infoFieldType(
@@ -227,17 +258,14 @@ public class ObjectEntryInfoItemFormProvider
 		).build();
 	}
 
-	@Reference
-	private InfoItemFieldReaderFieldSetProvider
+	private final InfoItemFieldReaderFieldSetProvider
 		_infoItemFieldReaderFieldSetProvider;
-
-	@Reference
-	private ObjectDefinitionLocalService _objectDefinitionLocalService;
-
-	@Reference
-	private ObjectFieldLocalService _objectFieldLocalService;
-
-	@Reference
-	private TemplateInfoItemFieldSetProvider _templateInfoItemFieldSetProvider;
+	private final ObjectDefinition _objectDefinition;
+	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
+	private final ObjectFieldLocalService _objectFieldLocalService;
+	private final ObjectRelationshipLocalService
+		_objectRelationshipLocalService;
+	private final TemplateInfoItemFieldSetProvider
+		_templateInfoItemFieldSetProvider;
 
 }

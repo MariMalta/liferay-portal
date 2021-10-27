@@ -53,9 +53,7 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import java.text.DateFormat;
 
@@ -197,6 +195,71 @@ public abstract class BaseOrderTypeResourceTestCase {
 		orderType = OrderTypeSerDes.toDTO(json);
 
 		Assert.assertEquals(regex, orderType.getExternalReferenceCode());
+	}
+
+	@Test
+	public void testGetOrderRuleOrderTypeOrderType() throws Exception {
+		OrderType postOrderType =
+			testGetOrderRuleOrderTypeOrderType_addOrderType();
+
+		OrderType getOrderType =
+			orderTypeResource.getOrderRuleOrderTypeOrderType(null);
+
+		assertEquals(postOrderType, getOrderType);
+		assertValid(getOrderType);
+	}
+
+	protected OrderType testGetOrderRuleOrderTypeOrderType_addOrderType()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGraphQLGetOrderRuleOrderTypeOrderType() throws Exception {
+		OrderType orderType = testGraphQLOrderType_addOrderType();
+
+		Assert.assertTrue(
+			equals(
+				orderType,
+				OrderTypeSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"orderRuleOrderTypeOrderType",
+								new HashMap<String, Object>() {
+									{
+										put("orderRuleOrderTypeId", null);
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data",
+						"Object/orderRuleOrderTypeOrderType"))));
+	}
+
+	@Test
+	public void testGraphQLGetOrderRuleOrderTypeOrderTypeNotFound()
+		throws Exception {
+
+		Long irrelevantOrderRuleOrderTypeId = RandomTestUtil.randomLong();
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"orderRuleOrderTypeOrderType",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"orderRuleOrderTypeId",
+									irrelevantOrderRuleOrderTypeId);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
 	}
 
 	@Test
@@ -350,7 +413,7 @@ public abstract class BaseOrderTypeResourceTestCase {
 
 				String entityFieldName = entityField.getName();
 
-				Method method = clazz.getMethod(
+				java.lang.reflect.Method method = clazz.getMethod(
 					"get" + StringUtil.upperCaseFirstLetter(entityFieldName));
 
 				Class<?> returnType = method.getReturnType();
@@ -990,7 +1053,7 @@ public abstract class BaseOrderTypeResourceTestCase {
 	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field :
+		for (java.lang.reflect.Field field :
 				getDeclaredFields(
 					com.liferay.headless.commerce.admin.order.dto.v1_0.
 						OrderType.class)) {
@@ -1007,12 +1070,13 @@ public abstract class BaseOrderTypeResourceTestCase {
 		return graphQLFields;
 	}
 
-	protected List<GraphQLField> getGraphQLFields(Field... fields)
+	protected List<GraphQLField> getGraphQLFields(
+			java.lang.reflect.Field... fields)
 		throws Exception {
 
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field : fields) {
+		for (java.lang.reflect.Field field : fields) {
 			com.liferay.portal.vulcan.graphql.annotation.GraphQLField
 				vulcanGraphQLField = field.getAnnotation(
 					com.liferay.portal.vulcan.graphql.annotation.GraphQLField.
@@ -1228,14 +1292,16 @@ public abstract class BaseOrderTypeResourceTestCase {
 		return false;
 	}
 
-	protected Field[] getDeclaredFields(Class clazz) throws Exception {
-		Stream<Field> stream = Stream.of(
+	protected java.lang.reflect.Field[] getDeclaredFields(Class clazz)
+		throws Exception {
+
+		Stream<java.lang.reflect.Field> stream = Stream.of(
 			ReflectionUtil.getDeclaredFields(clazz));
 
 		return stream.filter(
 			field -> !field.isSynthetic()
 		).toArray(
-			Field[]::new
+			java.lang.reflect.Field[]::new
 		);
 	}
 

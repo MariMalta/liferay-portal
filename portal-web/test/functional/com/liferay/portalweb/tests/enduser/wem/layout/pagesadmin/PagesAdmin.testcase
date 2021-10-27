@@ -293,15 +293,6 @@ definition {
 			PortletEntry.publish();
 		}
 
-		task ("Select the Web Content under manual collection") {
-			PageEditor.editCollectionDisplay(
-				assetType = "Basic Web Content",
-				configureWithoutAutoSave = "true",
-				fragmentName = "Collection Display",
-				selectAssetList = "Web Content Title",
-				selectedName = "Manual Collection");
-		}
-
 		task ("Assert the web content article is shown in Collection Display") {
 			AssertVisible(
 				key_colPosition = "1",
@@ -421,7 +412,7 @@ definition {
 		task ("View the new user cannot add a page via Page Tree panel") {
 			ProductMenuHelper.openProductMenu();
 
-			PagesFinder.goToFindAPage();
+			PagesFinder.goToPagesFinder();
 
 			AssertNotVisible(locator1 = "Icon#PLUS");
 		}
@@ -571,9 +562,9 @@ definition {
 			key_itemName = "Content Collection Page Name",
 			locator1 = "SitePages#LIST_GROUP_ITEM");
 
-		Click(locator1 = "ProductMenu#GO_TO_SITES_LINK");
+		ProductMenu.gotoHomePage();
 
-		PagesFinder.goToFindAPage();
+		PagesFinder.goToPagesFinder();
 
 		for (var i : list "1,2,3") {
 			WaitForLiferayEvent.initializeLiferayEventLog();
@@ -610,10 +601,10 @@ definition {
 			groupName = "Test Site Name",
 			title = "Webcontent Title");
 
-		JSONBlog.addEntry(
-			entryContent = "Blogs Entry Content",
-			entryTitle = "Blogs Entry Title",
-			groupName = "Test Site Name");
+		HeadlessBlog.addBlogEntry(
+			content = "Blogs Entry Content",
+			groupName = "Test Site Name",
+			title = "Blogs Entry Title");
 
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentTitle = "Document Title",
@@ -695,9 +686,9 @@ definition {
 			key_pageName = "Content Collection Page Name",
 			locator1 = "SitePages#LIST_GROUP_ITEM_ENTRY_TITLE");
 
-		Click(locator1 = "ProductMenu#GO_TO_SITES_LINK");
+		ProductMenu.gotoHomePage();
 
-		PagesFinder.goToFindAPage();
+		PagesFinder.goToPagesFinder();
 
 		WaitForLiferayEvent.initializeLiferayEventLog();
 
@@ -764,7 +755,7 @@ definition {
 
 		ControlMenu.viewHeaderTitle(headerTitle = "Content Collection Page Name");
 
-		PagesFinder.viewPageNameInPagesFinder(pageName = "Content Collection Page Name");
+		PagesFinder.viewPageNameInPagesFinder(pageName = "Content Collection Page Name*");
 	}
 
 	@description = "This is for LPS-110108. The hovered item shows Add Page quick action and a Kebab menu with the actions available for that item. Clicking on item title navigates to the content."
@@ -1100,6 +1091,119 @@ definition {
 			privacy = "Public Pages");
 	}
 
+	@description = "Users can preview draft for a collection page from Pages admin when they exist."
+	@priority = "3"
+	test PreviewDraftCollectionPage {
+		task ("Add a collection page based on Highest Rated Assets collection provider") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+			ContentPages.addPublicCollectionPage(
+				collectionName = "Highest Rated Assets",
+				pageName = "Test Page Name",
+				tabName = "Collection Providers");
+		}
+
+		task ("Navigate to the Pages admin") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+		}
+
+		task ("Preview the draft collection page in a new tab") {
+			SitePages.gotoPageMenuItem(
+				menuItem = "Preview Draft",
+				pageName = "Test Page Name");
+
+			SelectWindow.selectPopUp(locator1 = "null");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Page Name");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "heading",
+				id = "element-text",
+				text = "Highest Rated Assets");
+		}
+	}
+
+	@description = "Users can preview draft for a content page from Pages admin when they exist."
+	@priority = "5"
+	test PreviewDraftContentPage {
+		property portal.acceptance = "true";
+
+		task ("Add a public content page") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Public Page Name",
+				type = "content");
+		}
+
+		task ("Add a private content page") {
+			JSONLayout.addPrivateLayout(
+				groupName = "Test Site Name",
+				layoutName = "Test Private Page Name",
+				type = "content");
+		}
+
+		task ("Add a Button fragment to public page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Public Page Name",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Button");
+		}
+
+		task ("Add a Heading fragment to private page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Private Page Name",
+				privateLayout = "true",
+				siteName = "Test Site Name");
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Heading");
+		}
+
+		task ("Navigate to the Pages admin") {
+			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+		}
+
+		task ("Preview the draft public content page") {
+			SitePages.gotoPageMenuItem(
+				menuItem = "Preview Draft",
+				pageName = "Test Public Page Name");
+
+			SelectWindow.selectPopUp(locator1 = "null");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Public Page Name");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "button",
+				id = "link",
+				text = "Go Somewhere");
+		}
+
+		task ("Close the new tab and select the original tab") {
+			Navigator.closeWindow();
+		}
+
+		task ("Preview the draft private content page") {
+			SitePages.togglePrivacy(privacy = "Private Pages");
+
+			SitePages.gotoPageMenuItem(
+				menuItem = "Preview Draft",
+				pageName = "Test Private Page Name");
+
+			SelectWindow.selectPopUp(locator1 = "null");
+
+			ControlMenu.viewHeaderTitle(headerTitle = "Test Private Page Name");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "heading",
+				id = "element-text",
+				text = "Heading Example");
+		}
+	}
+
 	@description = "This is a test for LPS-76825. A user can search for a page from pages admin."
 	@priority = "5"
 	test SearchPages {
@@ -1234,10 +1338,10 @@ definition {
 			groupName = "Test Site Name",
 			title = "Webcontent Title");
 
-		JSONBlog.addEntry(
-			entryContent = "Blogs Entry Content",
-			entryTitle = "Blogs Entry Title",
-			groupName = "Test Site Name");
+		HeadlessBlog.addBlogEntry(
+			content = "Blogs Entry Content",
+			groupName = "Test Site Name",
+			title = "Blogs Entry Title");
 
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentTitle = "Document Title",
@@ -1257,9 +1361,9 @@ definition {
 			pageName = "Content Collection Page Name",
 			tabName = "Collections");
 
-		PagesFinder.goToFindAPage();
+		PagesFinder.goToPagesFinder();
 
-		PagesFinder.viewPageNameInPagesFinder(pageName = "Content Collection Page Name");
+		PagesFinder.viewPageNameInPagesFinder(pageName = "Content Collection Page Name*");
 
 		WaitForLiferayEvent.initializeLiferayEventLog();
 

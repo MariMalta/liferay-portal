@@ -401,11 +401,11 @@ definition {
 			pageName = "Form Page 1",
 			sitePageType = "Widget Page");
 
-		var friendlyURL = SitePages.getFriendlyUrl();
+		var friendlyURL = SitePages.getFriendlyURL();
 
 		FormsAdmin.addForm();
 
-		Form.editName(formName = "Form 1");
+		Form.editName();
 
 		Form.gotoAddField(
 			fieldPositionNumber = "0",
@@ -422,6 +422,28 @@ definition {
 		Form.publishForm();
 
 		FormsAdminNavigator.gotoPublishedForm();
+
+		FormFields.editText(
+			fieldName = "Text",
+			fieldValue = "test");
+
+		FormPortlet.submit();
+
+		Form.viewRedirectedURL(friendlyURL = "${friendlyURL}");
+
+		Navigator.gotoPage(pageName = "Form Page 1");
+
+		Portlet.addPG(
+			pageName = "Form Page 1",
+			portletName = "Form");
+
+		FormPortletNavigator.gotoSelectForm();
+
+		FormPortletConfiguration.selectForm();
+
+		PortletEntry.save();
+
+		Navigator.gotoPage(pageName = "Form Page 1");
 
 		FormFields.editText(
 			fieldName = "Text",

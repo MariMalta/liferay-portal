@@ -22,9 +22,10 @@
 
 		<column name="objectDefinitionId" type="long" />
 		<column name="active" type="boolean" />
+		<column name="name" type="String" />
+		<column name="objectActionExecutorKey" type="String" />
 		<column name="objectActionTriggerKey" type="String" />
 		<column name="parameters" type="String" />
-		<column name="type" type="String" />
 
 		<!-- Finder methods -->
 
@@ -50,6 +51,8 @@
 
 		<!-- Other fields -->
 
+		<column name="descriptionObjectFieldId" type="long" />
+		<column name="titleObjectFieldId" type="long" />
 		<column name="active" type="boolean" />
 		<column method-name="DBTableName" name="dbTableName" type="String" />
 		<column localized="true" name="label" type="String" />
@@ -358,9 +361,11 @@
 		<column name="objectDefinitionId1" type="long" />
 		<column name="objectDefinitionId2" type="long" />
 		<column name="objectFieldId2" type="long" />
+		<column name="deletionType" type="String" />
 		<column method-name="DBTableName" name="dbTableName" type="String" />
 		<column localized="true" name="label" type="String" />
 		<column name="name" type="String" />
+		<column name="reverse" type="boolean" />
 		<column name="type" type="String" />
 
 		<!-- Finder methods -->
@@ -384,12 +389,23 @@
 			<finder-column name="name" />
 			<finder-column name="type" />
 		</finder>
+		<finder name="ODI1_ODI2_N_R_T" return-type="ObjectRelationship">
+			<finder-column name="objectDefinitionId1" />
+			<finder-column name="objectDefinitionId2" />
+			<finder-column name="name" />
+			<finder-column name="reverse" />
+			<finder-column name="type" />
+		</finder>
 	</entity>
 	<exceptions>
 		<exception>DefaultObjectLayout</exception>
 		<exception>DuplicateObjectDefinition</exception>
 		<exception>DuplicateObjectField</exception>
 		<exception>DuplicateObjectRelationship</exception>
+		<exception>ObjectActionExecutorKey</exception>
+		<exception>ObjectActionName</exception>
+		<exception>ObjectActionTriggerKey</exception>
+		<exception>ObjectDefinitionActive</exception>
 		<exception>ObjectDefinitionLabel</exception>
 		<exception>ObjectDefinitionName</exception>
 		<exception>ObjectDefinitionPluralLabel</exception>
@@ -402,9 +418,11 @@
 		<exception>ObjectFieldType</exception>
 		<exception>ObjectLayoutColumnSize</exception>
 		<exception>ObjectRelationshipName</exception>
+		<exception>ObjectRelationshipReverse</exception>
 		<exception>ObjectRelationshipType</exception>
 		<exception>RequiredObjectDefinition</exception>
 		<exception>RequiredObjectField</exception>
+		<exception>RequiredObjectRelationship</exception>
 		<exception>ReservedObjectField</exception>
 	</exceptions>
 </service-builder>

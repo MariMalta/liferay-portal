@@ -66,6 +66,11 @@ components:
                 Represents an account's basic information, to be embedded in other resources. This resource's ID can be
                 used to query the account's complete information.
             properties:
+                externalReferenceCode:
+                    description:
+                        The account's external reference code.
+                    readOnly: true
+                    type: string
                 id:
                     description:
                         The account's ID.
@@ -865,6 +870,12 @@ components:
                         type: string
                     readOnly: true
                     type: array
+                lastLoginDate:
+                    description:
+                        The last time the user logged in.
+                    format: date-time
+                    readOnly: true
+                    type: string
                 name:
                     description:
                         The user's full name.
@@ -977,7 +988,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.user.client', and version '4.0.7'."
+        'com.liferay.headless.admin.user.client', and version '4.0.8'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

@@ -14,13 +14,13 @@
 
 import ClayLayout from '@clayui/layout';
 import {
+	EVENT_TYPES as CORE_EVENT_TYPES,
 	FormFieldSettings,
 	Pages,
 	useConfig,
 	useForm,
 	useFormState,
 } from 'data-engine-js-components-web';
-import {EVENT_TYPES as CORE_EVENT_TYPES} from 'data-engine-js-components-web/js/core/actions/eventTypes.es';
 import React, {useMemo} from 'react';
 
 import {useSettingsContextFilter} from '../../../utils/settingsForm.es';
@@ -41,7 +41,7 @@ const getColumn = ({objectFields}) => ({children, column, index}) => {
 				// Avoid using repeatable and searchable fields when object storage type is selected
 
 				if (
-					objectFields.length &&
+					!!objectFields.length &&
 					(fieldName === 'repeatable' || fieldName === 'indexType')
 				) {
 					return <React.Fragment key={index} />;
@@ -53,11 +53,10 @@ const getColumn = ({objectFields}) => ({children, column, index}) => {
 	);
 };
 
-export default function FieldsSidebarSettingsBody() {
+export default function FieldsSidebarSettingsBody({field}) {
 	const {
 		defaultLanguageId,
 		editingLanguageId,
-		focusedField,
 		objectFields,
 		pages,
 		rules,
@@ -68,7 +67,7 @@ export default function FieldsSidebarSettingsBody() {
 	const Column = useMemo(() => getColumn({objectFields}), [objectFields]);
 
 	const filteredSettingsContext = useSettingsContextFilter(
-		focusedField.settingsContext
+		field.settingsContext
 	);
 
 	return (
@@ -81,7 +80,7 @@ export default function FieldsSidebarSettingsBody() {
 				displayable={true}
 				editable={false}
 				editingLanguageId={editingLanguageId}
-				focusedField={focusedField}
+				focusedField={field}
 				objectFields={objectFields}
 				onAction={({payload, type}) => {
 					switch (type) {

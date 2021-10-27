@@ -535,6 +535,21 @@
 	<td>//div[contains(@class,'content')]//a[contains(.,'${key_contentType}') and contains(@class,'collapsed')]//span[contains(@class,'closed')]//*[name()='svg']</td>
 	<td></td>
 </tr>
+<tr>
+	<td>FILE_ENTRY_ID_FROM_PRODUCT_MEDIA</td>
+	<td>//input[@id="_com_liferay_commerce_product_definitions_web_internal_portlet_CPDefinitionsPortlet_fileEntryId"]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>COMMERCE_SEARCH_RESULTS_TEMPLATE_MENU_ITEM</td>
+	<td>xpath=((//div | //li)[contains(@class,'open') or contains(@class,'show')]//*[normalize-space(text())="Search Results Template"])[2]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>ENTRY_MENU_DROPDOWN_BUTTON</td>
+	<td>//a[contains(.,'${key_entryName}')]/../../..//button[contains(@class, 'dropdown-toggle') and contains(@class, 'btn-unstyled') and contains(@class, 'component-action')]</td>
+	<td></td>
+</tr>
 <!--CATALOGS-->
 <tr>
 	<td>CATALOGS_FORM</td>
@@ -679,7 +694,7 @@
 </tr>
 <tr>
 	<td>PRODUCT_CARD_CUSTOM_IMAGE</td>
-	<td>//span[contains(text(),'${key_itemName}')]/../../../../../../..//div[contains(@class,'product-card')]//div[contains(@style,'${key_itemImage}')]</td>
+	<td>//span[contains(text(),'${key_itemName}')]/../../../../../../..//div[contains(@class,'product-card')]//a//picture[@data-fileentryid="${key_fileEntryId}"]</td>
 	<td></td>
 </tr>
 <!--ATTACHMENT-->
@@ -779,11 +794,6 @@
 <tr>
 	<td>PRODUCT_CARD_NAME_AND_PRICE</td>
 	<td>//p[@title='${card_name}']//following-sibling::p[@class='card-text']//span[@class='price-value']</td>
-	<td></td>
-</tr>
-<tr>
-	<td>DEFAULT_PRODUCT_IMAGE</td>
-	<td>//div[contains(@style,'default')]</td>
 	<td></td>
 </tr>
 <tr>

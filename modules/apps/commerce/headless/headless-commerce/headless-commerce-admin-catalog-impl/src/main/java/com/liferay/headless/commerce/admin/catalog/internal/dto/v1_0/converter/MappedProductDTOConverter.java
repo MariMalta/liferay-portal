@@ -37,7 +37,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	enabled = false,
-	property = "model.class.name=com.liferay.commerce.shop.by.diagram.model.CSDiagramEntry",
+	property = "dto.class.name=com.liferay.commerce.shop.by.diagram.model.CSDiagramEntry",
 	service = {DTOConverter.class, MappedProductDTOConverter.class}
 )
 public class MappedProductDTOConverter
@@ -62,6 +62,7 @@ public class MappedProductDTOConverter
 
 		return new MappedProduct() {
 			{
+				actions = dtoConverterContext.getActions();
 				customFields = CustomFieldsUtil.toCustomFields(
 					dtoConverterContext.isAcceptAllLanguages(),
 					CSDiagramEntry.class.getName(),

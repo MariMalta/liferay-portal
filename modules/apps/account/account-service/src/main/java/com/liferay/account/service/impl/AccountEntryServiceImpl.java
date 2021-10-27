@@ -19,36 +19,25 @@ import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.base.AccountEntryServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.model.Organization;
-import com.liferay.portal.kernel.model.OrganizationConstants;
-import com.liferay.portal.kernel.model.OrganizationModel;
-import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.BaseModelSearchResult;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
-import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
-import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.permission.OrganizationPermission;
-import com.liferay.portal.kernel.util.LinkedHashMapBuilder;
-import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.service.permission.PortalPermissionUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Brian Wing Shun Chan
@@ -107,8 +96,8 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		_portletResourcePermission.check(
-			getPermissionChecker(), null, AccountActionKeys.ADD_ACCOUNT_ENTRY);
+		PortalPermissionUtil.check(
+			getPermissionChecker(), AccountActionKeys.ADD_ACCOUNT_ENTRY);
 
 		return accountEntryLocalService.addAccountEntry(
 			userId, parentAccountEntryId, name, description, domains, email,
@@ -143,48 +132,11 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 
 		PermissionChecker permissionChecker = _getPermissionChecker();
 
-		if (!permissionChecker.isCompanyAdmin()) {
-			try {
-				User user = _userLocalService.getUser(
-					permissionChecker.getUserId());
-
-				BaseModelSearchResult<Organization> baseModelSearchResult =
-					_organizationLocalService.searchOrganizations(
-						user.getCompanyId(),
-						OrganizationConstants.ANY_PARENT_ORGANIZATION_ID, null,
-						LinkedHashMapBuilder.<String, Object>put(
-							"accountsOrgsTree",
-							ListUtil.filter(
-								user.getOrganizations(true),
-								organization -> _hasManageAccountsPermission(
-									permissionChecker, organization))
-						).build(),
-						QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
-
-				if (baseModelSearchResult.getLength() == 0) {
-					return new BaseModelSearchResult<>(
-						Collections.<AccountEntry>emptyList(), 0);
-				}
-
-				if (params == null) {
-					params = new LinkedHashMap<>();
-				}
-
-				params.put(
-					"organizationIds",
-					ListUtil.toLongArray(
-						baseModelSearchResult.getBaseModels(),
-						OrganizationModel::getOrganizationId));
-			}
-			catch (PortalException portalException) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(portalException, portalException);
-				}
-
-				return new BaseModelSearchResult<>(
-					Collections.<AccountEntry>emptyList(), 0);
-			}
+		if (params == null) {
+			params = new LinkedHashMap<>();
 		}
+
+		params.put("permissionUserId", permissionChecker.getUserId());
 
 		return accountEntryLocalService.searchAccountEntries(
 			permissionChecker.getCompanyId(), keywords, params, cur, delta,
@@ -204,40 +156,11 @@ public class AccountEntryServiceImpl extends AccountEntryServiceBaseImpl {
 		}
 	}
 
-	private boolean _hasManageAccountsPermission(
-		PermissionChecker permissionChecker, Organization organization) {
-
-		try {
-			_organizationPermission.check(
-				permissionChecker, organization,
-				AccountActionKeys.MANAGE_ACCOUNTS);
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
-			}
-
-			return false;
-		}
-
-		return true;
-	}
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		AccountEntryServiceImpl.class);
 
 	@Reference
-	private OrganizationLocalService _organizationLocalService;
-
-	@Reference
 	private OrganizationPermission _organizationPermission;
-
-	@Reference(
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY,
-		target = "(resource.name=" + AccountConstants.RESOURCE_NAME + ")"
-	)
-	private volatile PortletResourcePermission _portletResourcePermission;
 
 	@Reference
 	private UserLocalService _userLocalService;

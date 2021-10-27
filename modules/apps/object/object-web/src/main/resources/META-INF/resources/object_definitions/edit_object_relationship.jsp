@@ -32,20 +32,33 @@ ObjectRelationship objectRelationship = (ObjectRelationship)request.getAttribute
 						<liferay-ui:message key="basic-info" />
 					</h2>
 
+					<c:if test="<%= objectRelationship.isReverse() %>">
+						<clay:alert
+							displayType="warning"
+							message="reverse-object-relationships-cannot-be-updated"
+						/>
+					</c:if>
+
 					<aui:model-context bean="<%= objectRelationship %>" model="<%= ObjectRelationship.class %>" />
 
-					<aui:input name="label" required="<%= true %>" value="<%= objectRelationship.getLabel(themeDisplay.getLocale()) %>" />
+					<aui:input disabled="<%= objectRelationship.isReverse() %>" name="label" required="<%= true %>" value="<%= objectRelationship.getLabel(themeDisplay.getLocale()) %>" />
 
 					<aui:input disabled="<%= true %>" name="name" required="<%= true %>" value="<%= objectRelationship.getName() %>" />
 
 					<aui:select disabled="<%= true %>" name="type" required="<%= true %>">
-						<aui:option label="one-to-one" selected='<%= Objects.equals(objectRelationship.getType(), "one_to_one") %>' value="one_to_one" />
-						<aui:option label="one-to-many" selected='<%= Objects.equals(objectRelationship.getType(), "one_to_many") %>' value="one_to_many" />
-						<aui:option label="many-to-many" selected='<%= Objects.equals(objectRelationship.getType(), "many_to_many") %>' value="many_to_many" />
+						<%--<aui:option label="one-to-one" selected="<%= Objects.equals(objectRelationship.getType(), ObjectRelationshipConstants.TYPE_ONE_TO_ONE) %>" value="<%= ObjectRelationshipConstants.TYPE_ONE_TO_ONE %>" />--%>
+						<aui:option label="one-to-many" selected="<%= Objects.equals(objectRelationship.getType(), ObjectRelationshipConstants.TYPE_ONE_TO_MANY) %>" value="<%= ObjectRelationshipConstants.TYPE_ONE_TO_MANY %>" />
+						<aui:option label="many-to-many" selected="<%= Objects.equals(objectRelationship.getType(), ObjectRelationshipConstants.TYPE_MANY_TO_MANY) %>" value="<%= ObjectRelationshipConstants.TYPE_MANY_TO_MANY %>" />
 					</aui:select>
 
 					<aui:select disabled="<%= true %>" name="object" required="<%= true %>">
 						<aui:option label="<%= objectDefinition.getShortName() %>" selected="<%= true %>" value="<%= objectDefinition.getObjectDefinitionId() %>" />
+					</aui:select>
+
+					<aui:select disabled="<%= objectRelationship.isReverse() %>" name="deletionType" required="<%= true %>">
+						<aui:option label="cascade" selected="<%= Objects.equals(objectRelationship.getDeletionType(), ObjectRelationshipConstants.DELETION_TYPE_CASCADE) %>" value="<%= ObjectRelationshipConstants.DELETION_TYPE_CASCADE %>" />
+						<aui:option label="disassociate" selected="<%= Objects.equals(objectRelationship.getDeletionType(), ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE) %>" value="<%= ObjectRelationshipConstants.DELETION_TYPE_DISASSOCIATE %>" />
+						<aui:option label="prevent" selected="<%= Objects.equals(objectRelationship.getDeletionType(), ObjectRelationshipConstants.DELETION_TYPE_PREVENT) %>" value="<%= ObjectRelationshipConstants.DELETION_TYPE_PREVENT %>" />
 					</aui:select>
 				</div>
 			</div>
@@ -53,7 +66,7 @@ ObjectRelationship objectRelationship = (ObjectRelationship)request.getAttribute
 			<div class="side-panel-content__footer">
 				<aui:button cssClass="btn-cancel mr-1" name="cancel" value='<%= LanguageUtil.get(request, "cancel") %>' />
 
-				<aui:button name="save" type="submit" value='<%= LanguageUtil.get(request, "save") %>' />
+				<aui:button disabled="<%= objectRelationship.isReverse() %>" name="save" type="submit" value='<%= LanguageUtil.get(request, "save") %>' />
 			</div>
 		</div>
 	</form>
@@ -64,6 +77,11 @@ ObjectRelationship objectRelationship = (ObjectRelationship)request.getAttribute
 		const localizedInputs = document.querySelectorAll(
 			"input[id^='<portlet:namespace />'][type='hidden']"
 		);
+
+		const deletionType = document.getElementById(
+			'<portlet:namespace />deletionType'
+		);
+
 		const localizedLabels = Array(...localizedInputs).reduce(
 			(prev, cur, index) => {
 				if (cur.value) {
@@ -80,6 +98,7 @@ ObjectRelationship objectRelationship = (ObjectRelationship)request.getAttribute
 			'/o/object-admin/v1.0/object-relationships/<%= objectRelationship.getObjectRelationshipId() %>',
 			{
 				body: JSON.stringify({
+					deletionType: deletionType.value,
 					label: localizedLabels,
 				}),
 				headers: new Headers({

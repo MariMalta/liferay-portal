@@ -65,6 +65,20 @@ public class ObjectRelationshipSerDes {
 			sb.append(_toJSON(objectRelationship.getActions()));
 		}
 
+		if (objectRelationship.getDeletionType() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deletionType\": ");
+
+			sb.append("\"");
+
+			sb.append(objectRelationship.getDeletionType());
+
+			sb.append("\"");
+		}
+
 		if (objectRelationship.getId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -119,6 +133,20 @@ public class ObjectRelationshipSerDes {
 			sb.append(objectRelationship.getObjectDefinitionId2());
 		}
 
+		if (objectRelationship.getObjectDefinitionName2() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionName2\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectRelationship.getObjectDefinitionName2()));
+
+			sb.append("\"");
+		}
+
 		if (objectRelationship.getType() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -161,6 +189,15 @@ public class ObjectRelationshipSerDes {
 			map.put("actions", String.valueOf(objectRelationship.getActions()));
 		}
 
+		if (objectRelationship.getDeletionType() == null) {
+			map.put("deletionType", null);
+		}
+		else {
+			map.put(
+				"deletionType",
+				String.valueOf(objectRelationship.getDeletionType()));
+		}
+
 		if (objectRelationship.getId() == null) {
 			map.put("id", null);
 		}
@@ -200,6 +237,15 @@ public class ObjectRelationshipSerDes {
 				String.valueOf(objectRelationship.getObjectDefinitionId2()));
 		}
 
+		if (objectRelationship.getObjectDefinitionName2() == null) {
+			map.put("objectDefinitionName2", null);
+		}
+		else {
+			map.put(
+				"objectDefinitionName2",
+				String.valueOf(objectRelationship.getObjectDefinitionName2()));
+		}
+
 		if (objectRelationship.getType() == null) {
 			map.put("type", null);
 		}
@@ -235,6 +281,13 @@ public class ObjectRelationshipSerDes {
 							(String)jsonParserFieldValue));
 				}
 			}
+			else if (Objects.equals(jsonParserFieldName, "deletionType")) {
+				if (jsonParserFieldValue != null) {
+					objectRelationship.setDeletionType(
+						ObjectRelationship.DeletionType.create(
+							(String)jsonParserFieldValue));
+				}
+			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
 				if (jsonParserFieldValue != null) {
 					objectRelationship.setId(
@@ -267,6 +320,14 @@ public class ObjectRelationshipSerDes {
 				if (jsonParserFieldValue != null) {
 					objectRelationship.setObjectDefinitionId2(
 						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "objectDefinitionName2")) {
+
+				if (jsonParserFieldValue != null) {
+					objectRelationship.setObjectDefinitionName2(
+						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "type")) {

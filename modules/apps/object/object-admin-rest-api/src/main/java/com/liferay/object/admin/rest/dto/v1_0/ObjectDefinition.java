@@ -57,6 +57,10 @@ public class ObjectDefinition implements Serializable {
 		return ObjectMapperUtil.readValue(ObjectDefinition.class, json);
 	}
 
+	public static ObjectDefinition unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(ObjectDefinition.class, json);
+	}
+
 	@Schema
 	@Valid
 	public Map<String, Map<String, String>> getActions() {
@@ -251,6 +255,35 @@ public class ObjectDefinition implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String name;
+
+	@Schema
+	@Valid
+	public ObjectAction[] getObjectActions() {
+		return objectActions;
+	}
+
+	public void setObjectActions(ObjectAction[] objectActions) {
+		this.objectActions = objectActions;
+	}
+
+	@JsonIgnore
+	public void setObjectActions(
+		UnsafeSupplier<ObjectAction[], Exception> objectActionsUnsafeSupplier) {
+
+		try {
+			objectActions = objectActionsUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected ObjectAction[] objectActions;
 
 	@Schema
 	@Valid
@@ -594,6 +627,26 @@ public class ObjectDefinition implements Serializable {
 			sb.append(_escape(name));
 
 			sb.append("\"");
+		}
+
+		if (objectActions != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectActions\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < objectActions.length; i++) {
+				sb.append(String.valueOf(objectActions[i]));
+
+				if ((i + 1) < objectActions.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
 		}
 
 		if (objectFields != null) {

@@ -50,7 +50,6 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 import java.text.DateFormat;
@@ -664,6 +663,14 @@ public abstract class BaseCartItemResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("productURLs", additionalAssertFieldName)) {
+				if (cartItem.getProductURLs() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("quantity", additionalAssertFieldName)) {
 				if (cartItem.getQuantity() == null) {
 					valid = false;
@@ -752,7 +759,7 @@ public abstract class BaseCartItemResourceTestCase {
 	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field :
+		for (java.lang.reflect.Field field :
 				getDeclaredFields(
 					com.liferay.headless.commerce.delivery.cart.dto.v1_0.
 						CartItem.class)) {
@@ -769,12 +776,13 @@ public abstract class BaseCartItemResourceTestCase {
 		return graphQLFields;
 	}
 
-	protected List<GraphQLField> getGraphQLFields(Field... fields)
+	protected List<GraphQLField> getGraphQLFields(
+			java.lang.reflect.Field... fields)
 		throws Exception {
 
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field : fields) {
+		for (java.lang.reflect.Field field : fields) {
 			com.liferay.portal.vulcan.graphql.annotation.GraphQLField
 				vulcanGraphQLField = field.getAnnotation(
 					com.liferay.portal.vulcan.graphql.annotation.GraphQLField.
@@ -914,6 +922,17 @@ public abstract class BaseCartItemResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("productURLs", additionalAssertFieldName)) {
+				if (!equals(
+						(Map)cartItem1.getProductURLs(),
+						(Map)cartItem2.getProductURLs())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("quantity", additionalAssertFieldName)) {
 				if (!Objects.deepEquals(
 						cartItem1.getQuantity(), cartItem2.getQuantity())) {
@@ -1019,14 +1038,16 @@ public abstract class BaseCartItemResourceTestCase {
 		return false;
 	}
 
-	protected Field[] getDeclaredFields(Class clazz) throws Exception {
-		Stream<Field> stream = Stream.of(
+	protected java.lang.reflect.Field[] getDeclaredFields(Class clazz)
+		throws Exception {
+
+		Stream<java.lang.reflect.Field> stream = Stream.of(
 			ReflectionUtil.getDeclaredFields(clazz));
 
 		return stream.filter(
 			field -> !field.isSynthetic()
 		).toArray(
-			Field[]::new
+			java.lang.reflect.Field[]::new
 		);
 	}
 
@@ -1135,6 +1156,11 @@ public abstract class BaseCartItemResourceTestCase {
 		}
 
 		if (entityFieldName.equals("productId")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("productURLs")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}

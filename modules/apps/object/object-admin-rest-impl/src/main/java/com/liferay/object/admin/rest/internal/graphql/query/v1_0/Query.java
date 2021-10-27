@@ -14,12 +14,14 @@
 
 package com.liferay.object.admin.rest.internal.graphql.query.v1_0;
 
+import com.liferay.object.admin.rest.dto.v1_0.ObjectAction;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectLayout;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectLayoutColumn;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectLayoutTab;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectRelationship;
+import com.liferay.object.admin.rest.resource.v1_0.ObjectActionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
@@ -31,12 +33,15 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
+import com.liferay.portal.vulcan.aggregation.Aggregation;
+import com.liferay.portal.vulcan.aggregation.Facet;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLField;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLName;
 import com.liferay.portal.vulcan.graphql.annotation.GraphQLTypeExtension;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -55,6 +60,14 @@ import org.osgi.service.component.ComponentServiceObjects;
  */
 @Generated("")
 public class Query {
+
+	public static void setObjectActionResourceComponentServiceObjects(
+		ComponentServiceObjects<ObjectActionResource>
+			objectActionResourceComponentServiceObjects) {
+
+		_objectActionResourceComponentServiceObjects =
+			objectActionResourceComponentServiceObjects;
+	}
 
 	public static void setObjectDefinitionResourceComponentServiceObjects(
 		ComponentServiceObjects<ObjectDefinitionResource>
@@ -91,13 +104,55 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinitions(page: ___, pageSize: ___, search: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectAction(objectActionId: ___){actions, active, dateCreated, dateModified, id, name, objectActionExecutorKey, objectActionTriggerKey, parameters}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public ObjectAction objectAction(
+			@GraphQLName("objectActionId") Long objectActionId)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectActionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectActionResource -> objectActionResource.getObjectAction(
+				objectActionId));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinitionObjectActions(objectDefinitionId: ___, page: ___, pageSize: ___, search: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public ObjectActionPage objectDefinitionObjectActions(
+			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
+			@GraphQLName("search") String search,
+			@GraphQLName("pageSize") int pageSize,
+			@GraphQLName("page") int page)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectActionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectActionResource -> new ObjectActionPage(
+				objectActionResource.getObjectDefinitionObjectActionsPage(
+					objectDefinitionId, search,
+					Pagination.of(page, pageSize))));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinitions(aggregation: ___, filter: ___, page: ___, pageSize: ___, search: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public ObjectDefinitionPage objectDefinitions(
 			@GraphQLName("search") String search,
+			@GraphQLName("aggregation") List<String> aggregations,
+			@GraphQLName("filter") String filterString,
 			@GraphQLName("pageSize") int pageSize,
-			@GraphQLName("page") int page)
+			@GraphQLName("page") int page,
+			@GraphQLName("sort") String sortsString)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
@@ -105,13 +160,20 @@ public class Query {
 			this::_populateResourceContext,
 			objectDefinitionResource -> new ObjectDefinitionPage(
 				objectDefinitionResource.getObjectDefinitionsPage(
-					search, Pagination.of(page, pageSize))));
+					search,
+					_aggregationBiFunction.apply(
+						objectDefinitionResource, aggregations),
+					_filterBiFunction.apply(
+						objectDefinitionResource, filterString),
+					Pagination.of(page, pageSize),
+					_sortsBiFunction.apply(
+						objectDefinitionResource, sortsString))));
 	}
 
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinition(objectDefinitionId: ___){actions, active, dateCreated, dateModified, id, label, name, objectFields, objectRelationships, panelAppOrder, panelCategoryKey, pluralLabel, scope, status, system}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinition(objectDefinitionId: ___){actions, active, dateCreated, dateModified, id, label, name, objectActions, objectFields, objectRelationships, panelAppOrder, panelCategoryKey, pluralLabel, scope, status, system}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public ObjectDefinition objectDefinition(
@@ -228,7 +290,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectRelationship(objectRelationshipId: ___){actions, id, label, name, objectDefinitionId1, objectDefinitionId2, type}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectRelationship(objectRelationshipId: ___){actions, deletionType, id, label, name, objectDefinitionId1, objectDefinitionId2, objectDefinitionName2, type}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public ObjectRelationship objectRelationship(
@@ -338,11 +400,51 @@ public class Query {
 
 	}
 
+	@GraphQLName("ObjectActionPage")
+	public class ObjectActionPage {
+
+		public ObjectActionPage(Page objectActionPage) {
+			actions = objectActionPage.getActions();
+
+			facets = objectActionPage.getFacets();
+
+			items = objectActionPage.getItems();
+			lastPage = objectActionPage.getLastPage();
+			page = objectActionPage.getPage();
+			pageSize = objectActionPage.getPageSize();
+			totalCount = objectActionPage.getTotalCount();
+		}
+
+		@GraphQLField
+		protected Map<String, Map> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
+
+		@GraphQLField
+		protected java.util.Collection<ObjectAction> items;
+
+		@GraphQLField
+		protected long lastPage;
+
+		@GraphQLField
+		protected long page;
+
+		@GraphQLField
+		protected long pageSize;
+
+		@GraphQLField
+		protected long totalCount;
+
+	}
+
 	@GraphQLName("ObjectDefinitionPage")
 	public class ObjectDefinitionPage {
 
 		public ObjectDefinitionPage(Page objectDefinitionPage) {
 			actions = objectDefinitionPage.getActions();
+
+			facets = objectDefinitionPage.getFacets();
 
 			items = objectDefinitionPage.getItems();
 			lastPage = objectDefinitionPage.getLastPage();
@@ -353,6 +455,9 @@ public class Query {
 
 		@GraphQLField
 		protected Map<String, Map> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
 
 		@GraphQLField
 		protected java.util.Collection<ObjectDefinition> items;
@@ -377,6 +482,8 @@ public class Query {
 		public ObjectFieldPage(Page objectFieldPage) {
 			actions = objectFieldPage.getActions();
 
+			facets = objectFieldPage.getFacets();
+
 			items = objectFieldPage.getItems();
 			lastPage = objectFieldPage.getLastPage();
 			page = objectFieldPage.getPage();
@@ -386,6 +493,9 @@ public class Query {
 
 		@GraphQLField
 		protected Map<String, Map> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
 
 		@GraphQLField
 		protected java.util.Collection<ObjectField> items;
@@ -410,6 +520,8 @@ public class Query {
 		public ObjectLayoutPage(Page objectLayoutPage) {
 			actions = objectLayoutPage.getActions();
 
+			facets = objectLayoutPage.getFacets();
+
 			items = objectLayoutPage.getItems();
 			lastPage = objectLayoutPage.getLastPage();
 			page = objectLayoutPage.getPage();
@@ -419,6 +531,9 @@ public class Query {
 
 		@GraphQLField
 		protected Map<String, Map> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
 
 		@GraphQLField
 		protected java.util.Collection<ObjectLayout> items;
@@ -443,6 +558,8 @@ public class Query {
 		public ObjectRelationshipPage(Page objectRelationshipPage) {
 			actions = objectRelationshipPage.getActions();
 
+			facets = objectRelationshipPage.getFacets();
+
 			items = objectRelationshipPage.getItems();
 			lastPage = objectRelationshipPage.getLastPage();
 			page = objectRelationshipPage.getPage();
@@ -452,6 +569,9 @@ public class Query {
 
 		@GraphQLField
 		protected Map<String, Map> actions;
+
+		@GraphQLField
+		protected List<Facet> facets;
 
 		@GraphQLField
 		protected java.util.Collection<ObjectRelationship> items;
@@ -487,6 +607,21 @@ public class Query {
 		finally {
 			componentServiceObjects.ungetService(resource);
 		}
+	}
+
+	private void _populateResourceContext(
+			ObjectActionResource objectActionResource)
+		throws Exception {
+
+		objectActionResource.setContextAcceptLanguage(_acceptLanguage);
+		objectActionResource.setContextCompany(_company);
+		objectActionResource.setContextHttpServletRequest(_httpServletRequest);
+		objectActionResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		objectActionResource.setContextUriInfo(_uriInfo);
+		objectActionResource.setContextUser(_user);
+		objectActionResource.setGroupLocalService(_groupLocalService);
+		objectActionResource.setRoleLocalService(_roleLocalService);
 	}
 
 	private void _populateResourceContext(
@@ -550,6 +685,8 @@ public class Query {
 		objectRelationshipResource.setRoleLocalService(_roleLocalService);
 	}
 
+	private static ComponentServiceObjects<ObjectActionResource>
+		_objectActionResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectDefinitionResource>
 		_objectDefinitionResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectFieldResource>
@@ -560,6 +697,8 @@ public class Query {
 		_objectRelationshipResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
+	private BiFunction<Object, List<String>, Aggregation>
+		_aggregationBiFunction;
 	private com.liferay.portal.kernel.model.Company _company;
 	private BiFunction<Object, String, Filter> _filterBiFunction;
 	private GroupLocalService _groupLocalService;

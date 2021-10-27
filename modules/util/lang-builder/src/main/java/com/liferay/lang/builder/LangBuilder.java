@@ -456,19 +456,17 @@ public class LangBuilder {
 	private String _fixContraction(
 		String s, String contraction, String replacement) {
 
-		if (true) {
+		int i = s.indexOf(contraction);
+
+		if ((i == -1) ||
+			((i > 0) && Character.isLetterOrDigit(s.charAt(i - 1))) ||
+			(((i + contraction.length()) < s.length()) &&
+			 Character.isLetterOrDigit(s.charAt(i + contraction.length())))) {
+
 			return s;
 		}
 
-		int i = s.indexOf(contraction);
-
-		if ((i != -1) && !Character.isLetterOrDigit(s.charAt(i - 1)) &&
-			!Character.isLetterOrDigit(s.charAt(i + contraction.length()))) {
-
-			return StringUtil.replaceFirst(s, contraction, replacement, i);
-		}
-
-		return s;
+		return StringUtil.replaceFirst(s, contraction, replacement, i);
 	}
 
 	private String _fixEnglishTranslation(String key, String value) {

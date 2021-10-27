@@ -16,11 +16,14 @@ package com.liferay.object.web.internal.object.definitions.portlet.action;
 
 import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.web.internal.constants.ObjectWebKeys;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.Validator;
 
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
@@ -55,6 +58,13 @@ public class EditObjectDefinitionMVCRenderCommand implements MVCRenderCommand {
 				ObjectWebKeys.OBJECT_DEFINITION,
 				_objectDefinitionLocalService.getObjectDefinition(
 					objectDefinitionId));
+			renderRequest.setAttribute(
+				ObjectWebKeys.OBJECT_FIELDS,
+				ListUtil.filter(
+					_objectFieldLocalService.getObjectFields(
+						objectDefinitionId),
+					objectField -> Validator.isNull(
+						objectField.getRelationshipType())));
 		}
 		catch (PortalException portalException) {
 			SessionErrors.add(renderRequest, portalException.getClass());
@@ -65,5 +75,8 @@ public class EditObjectDefinitionMVCRenderCommand implements MVCRenderCommand {
 
 	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
+	private ObjectFieldLocalService _objectFieldLocalService;
 
 }

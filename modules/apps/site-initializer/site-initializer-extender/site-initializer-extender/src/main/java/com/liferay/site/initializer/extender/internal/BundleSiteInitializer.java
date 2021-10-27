@@ -16,13 +16,12 @@ package com.liferay.site.initializer.extender.internal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.liferay.asset.list.model.AssetListEntry;
 import com.liferay.asset.list.service.AssetListEntryLocalService;
 import com.liferay.commerce.account.constants.CommerceAccountConstants;
-import com.liferay.commerce.account.util.CommerceAccountRoleHelper;
-import com.liferay.commerce.currency.service.CommerceCurrencyLocalService;
-import com.liferay.commerce.product.importer.CPFileImporter;
+import com.liferay.commerce.inventory.model.CommerceInventoryWarehouse;
 import com.liferay.commerce.product.model.CommerceChannel;
-import com.liferay.commerce.product.service.CPMeasurementUnitLocalService;
+import com.liferay.commerce.product.service.CommerceCatalogLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.dynamic.data.mapping.constants.DDMTemplateConstants;
@@ -58,6 +57,9 @@ import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.layout.util.structure.LayoutStructure;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.petra.function.UnsafeRunnable;
+import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -72,6 +74,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
 import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.model.User;
@@ -101,6 +104,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.NaturalOrderStringComparator;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -108,10 +112,13 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.zip.ZipWriter;
 import com.liferay.portal.kernel.zip.ZipWriterFactoryUtil;
+import com.liferay.portal.security.service.access.policy.model.SAPEntry;
+import com.liferay.portal.security.service.access.policy.service.SAPEntryLocalService;
 import com.liferay.portal.vulcan.multipart.BinaryFile;
 import com.liferay.portal.vulcan.multipart.MultipartBody;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
+import com.liferay.remote.app.model.RemoteAppEntry;
 import com.liferay.remote.app.service.RemoteAppEntryLocalService;
 import com.liferay.segments.constants.SegmentsExperienceConstants;
 import com.liferay.site.exception.InitializationException;
@@ -125,6 +132,7 @@ import com.liferay.site.navigation.type.SiteNavigationMenuItemTypeRegistry;
 import com.liferay.style.book.zip.processor.StyleBookEntryZipProcessor;
 
 import java.io.InputStream;
+import java.io.Serializable;
 
 import java.net.URL;
 import java.net.URLConnection;
@@ -153,12 +161,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 	public BundleSiteInitializer(
 		AssetListEntryLocalService assetListEntryLocalService, Bundle bundle,
-		CatalogResource.Factory catalogResourceFactory,
-		ChannelResource.Factory channelResourceFactory,
-		CommerceAccountRoleHelper commerceAccountRoleHelper,
-		CommerceCurrencyLocalService commerceCurrencyLocalService,
-		CPFileImporter cpFileImporter,
-		CPMeasurementUnitLocalService cpMeasurementUnitLocalService,
+		CommerceReferencesHolder commerceReferencesHolder,
 		DDMStructureLocalService ddmStructureLocalService,
 		DDMTemplateLocalService ddmTemplateLocalService,
 		DefaultDDMStructureHelper defaultDDMStructureHelper,
@@ -176,10 +179,12 @@ public class BundleSiteInitializer implements SiteInitializer {
 			layoutPageTemplateStructureLocalService,
 		LayoutSetLocalService layoutSetLocalService,
 		ObjectDefinitionResource.Factory objectDefinitionResourceFactory,
-		Portal portal, RemoteAppEntryLocalService remoteAppEntryLocalService,
+		ObjectEntryLocalService objectEntryLocalService, Portal portal,
+		RemoteAppEntryLocalService remoteAppEntryLocalService,
 		ResourcePermissionLocalService resourcePermissionLocalService,
-		RoleLocalService roleLocalService, ServletContext servletContext,
-		SettingsFactory settingsFactory,
+		RoleLocalService roleLocalService,
+		SAPEntryLocalService sapEntryLocalService,
+		ServletContext servletContext, SettingsFactory settingsFactory,
 		SiteNavigationMenuItemLocalService siteNavigationMenuItemLocalService,
 		SiteNavigationMenuItemTypeRegistry siteNavigationMenuItemTypeRegistry,
 		SiteNavigationMenuLocalService siteNavigationMenuLocalService,
@@ -191,14 +196,14 @@ public class BundleSiteInitializer implements SiteInitializer {
 		ThemeLocalService themeLocalService,
 		UserLocalService userLocalService) {
 
+		if (_log.isDebugEnabled()) {
+			_log.debug(
+				"Commerce references holder " + commerceReferencesHolder);
+		}
+
 		_assetListEntryLocalService = assetListEntryLocalService;
 		_bundle = bundle;
-		_catalogResourceFactory = catalogResourceFactory;
-		_channelResourceFactory = channelResourceFactory;
-		_commerceAccountRoleHelper = commerceAccountRoleHelper;
-		_commerceCurrencyLocalService = commerceCurrencyLocalService;
-		_cpFileImporter = cpFileImporter;
-		_cpMeasurementUnitLocalService = cpMeasurementUnitLocalService;
+		_commerceReferencesHolder = commerceReferencesHolder;
 		_ddmStructureLocalService = ddmStructureLocalService;
 		_ddmTemplateLocalService = ddmTemplateLocalService;
 		_defaultDDMStructureHelper = defaultDDMStructureHelper;
@@ -218,10 +223,12 @@ public class BundleSiteInitializer implements SiteInitializer {
 			layoutPageTemplateStructureLocalService;
 		_layoutSetLocalService = layoutSetLocalService;
 		_objectDefinitionResourceFactory = objectDefinitionResourceFactory;
+		_objectEntryLocalService = objectEntryLocalService;
 		_portal = portal;
 		_remoteAppEntryLocalService = remoteAppEntryLocalService;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
 		_roleLocalService = roleLocalService;
+		_sapEntryLocalService = sapEntryLocalService;
 		_servletContext = servletContext;
 		_settingsFactory = settingsFactory;
 		_siteNavigationMenuItemLocalService =
@@ -244,7 +251,11 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 	@Override
 	public String getDescription(Locale locale) {
-		return StringPool.BLANK;
+		Dictionary<String, String> headers = _bundle.getHeaders(
+			StringPool.BLANK);
+
+		return GetterUtil.getString(
+			headers.get("Liferay-Site-Initializer-Description"));
 	}
 
 	@Override
@@ -257,7 +268,9 @@ public class BundleSiteInitializer implements SiteInitializer {
 		Dictionary<String, String> headers = _bundle.getHeaders(
 			StringPool.BLANK);
 
-		return GetterUtil.getString(headers.get("Bundle-Name"));
+		return GetterUtil.getString(
+			headers.get("Liferay-Site-Initializer-Name"),
+			headers.get("Bundle-Name"));
 	}
 
 	@Override
@@ -267,6 +280,14 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 	@Override
 	public void initialize(long groupId) throws InitializationException {
+		long startTime = System.currentTimeMillis();
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				StringBundler.concat(
+					"Initializing ", getKey(), " for group ", groupId));
+		}
+
 		try {
 			User user = _userLocalService.getUser(
 				PrincipalThreadLocal.getUserId());
@@ -282,33 +303,61 @@ public class BundleSiteInitializer implements SiteInitializer {
 				}
 			};
 
-			_addPermissions(serviceContext);
+			_invoke(() -> _addPermissions(serviceContext));
 
-			_addCommerceCatalogs(serviceContext);
-			_addCommerceChannels(serviceContext);
-			_addDDMStructures(serviceContext);
-			_addFragmentEntries(serviceContext);
-			_addLayoutPageTemplates(serviceContext);
-			_addObjectDefinitions(serviceContext);
-			_addStyleBookEntries(serviceContext);
-			_addTaxonomyVocabularies(serviceContext);
-			_updateLayoutSets(serviceContext);
+			_invoke(() -> _addDDMStructures(serviceContext));
+			_invoke(() -> _addFragmentEntries(serviceContext));
+			_invoke(() -> _addObjectDefinitions(serviceContext));
+			_invoke(() -> _addSAPEntries(serviceContext));
+			_invoke(() -> _addStyleBookEntries(serviceContext));
+			_invoke(() -> _addTaxonomyVocabularies(serviceContext));
 
-			Map<String, String> documentsStringUtilReplaceValues =
-				_addDocuments(serviceContext);
+			_invoke(() -> _addCPDefinitions(serviceContext));
 
-			_addAssetListEntries(_ddmStructureLocalService, serviceContext);
-			_addDDMTemplates(_ddmStructureLocalService, serviceContext);
-			_addJournalArticles(
-				_ddmStructureLocalService, _ddmTemplateLocalService,
-				documentsStringUtilReplaceValues, serviceContext);
+			_invoke(() -> _updateLayoutSets(serviceContext));
 
-			_addLayouts(_journalArticleLocalService, serviceContext);
-			_addRemoteAppEntries(
-				documentsStringUtilReplaceValues, serviceContext);
+			Map<String, String> documentsStringUtilReplaceValues = _invoke(
+				() -> _addDocuments(serviceContext));
+
+			Map<String, String> assetListEntryIdsStringUtilReplaceValues =
+				_invoke(
+					() -> _addAssetListEntries(
+						_ddmStructureLocalService, serviceContext));
+
+			_invoke(
+				() -> _addDDMTemplates(
+					_ddmStructureLocalService, serviceContext));
+			_invoke(
+				() -> _addJournalArticles(
+					_ddmStructureLocalService, _ddmTemplateLocalService,
+					documentsStringUtilReplaceValues, serviceContext));
+			_invoke(
+				() -> _addLayoutPageTemplates(
+					assetListEntryIdsStringUtilReplaceValues,
+					documentsStringUtilReplaceValues, serviceContext));
+
+			Map<String, String> remoteAppEntryIdsStringUtilReplaceValues =
+				_invoke(
+					() -> _addRemoteAppEntries(
+						documentsStringUtilReplaceValues, serviceContext));
+
+			_invoke(
+				() -> _addLayouts(
+					assetListEntryIdsStringUtilReplaceValues,
+					documentsStringUtilReplaceValues,
+					remoteAppEntryIdsStringUtilReplaceValues, serviceContext));
 		}
 		catch (Exception exception) {
+			_log.error(exception, exception);
+
 			throw new InitializationException(exception);
+		}
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				StringBundler.concat(
+					"Initialized ", getKey(), " for group ", groupId, " in ",
+					System.currentTimeMillis() - startTime, " ms"));
 		}
 	}
 
@@ -317,15 +366,18 @@ public class BundleSiteInitializer implements SiteInitializer {
 		return true;
 	}
 
-	private void _addAssetListEntries(
+	private Map<String, String> _addAssetListEntries(
 			DDMStructureLocalService ddmStructureLocalService,
 			ServiceContext serviceContext)
 		throws Exception {
 
+		Map<String, String> assetListEntryIdsStringUtilReplaceValues =
+			new HashMap<>();
+
 		String json = _read("/site-initializer/asset-list-entries.json");
 
 		if (json == null) {
-			return;
+			return assetListEntryIdsStringUtilReplaceValues;
 		}
 
 		JSONArray assetListJSONArray = JSONFactoryUtil.createJSONArray(json);
@@ -337,6 +389,21 @@ public class BundleSiteInitializer implements SiteInitializer {
 			_addAssetListEntry(
 				assetListJSONObject, ddmStructureLocalService, serviceContext);
 		}
+
+		List<AssetListEntry> assetListEntries =
+			_assetListEntryLocalService.getAssetListEntries(
+				serviceContext.getScopeGroupId());
+
+		for (AssetListEntry assetListEntry : assetListEntries) {
+			String assetListEntryKeyUppercase = StringUtil.toUpperCase(
+				assetListEntry.getAssetListEntryKey());
+
+			assetListEntryIdsStringUtilReplaceValues.put(
+				"ASSET_LIST_ENTRY_ID:" + assetListEntryKeyUppercase,
+				String.valueOf(assetListEntry.getAssetListEntryId()));
+		}
+
+		return assetListEntryIdsStringUtilReplaceValues;
 	}
 
 	private void _addAssetListEntry(
@@ -407,32 +474,31 @@ public class BundleSiteInitializer implements SiteInitializer {
 			String.valueOf(new UnicodeProperties(map, true)), serviceContext);
 	}
 
-	private void _addCommerceCatalogs(ServiceContext serviceContext)
-		throws Exception {
-
-		_addCommerceCatalogs(
-			"/site-initializer/commerce-catalogs", serviceContext);
-	}
-
 	private void _addCommerceCatalogs(
-			String parentResourcePath, ServiceContext serviceContext)
+			Channel channel,
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses,
+			ServiceContext serviceContext)
 		throws Exception {
 
 		Set<String> resourcePaths = _servletContext.getResourcePaths(
-			parentResourcePath);
+			"/site-initializer/commerce-catalogs");
 
 		if (SetUtil.isEmpty(resourcePaths)) {
 			return;
 		}
 
 		CatalogResource.Builder catalogResourceBuilder =
-			_catalogResourceFactory.create();
+			_commerceReferencesHolder.catalogResourceFactory.create();
 
 		CatalogResource catalogResource = catalogResourceBuilder.user(
 			serviceContext.fetchUser()
 		).build();
 
 		for (String resourcePath : resourcePaths) {
+			if (resourcePath.endsWith(".products.json")) {
+				continue;
+			}
+
 			String json = _read(resourcePath);
 
 			Catalog catalog = Catalog.toDTO(json);
@@ -444,85 +510,162 @@ public class BundleSiteInitializer implements SiteInitializer {
 				continue;
 			}
 
-			catalogResource.postCatalog(catalog);
+			catalog = catalogResource.postCatalog(catalog);
+
+			_addCPDefinitions(
+				catalog, channel, commerceInventoryWarehouses,
+				StringUtil.replaceLast(resourcePath, ".json", ".products.json"),
+				serviceContext);
 		}
 	}
 
-	private void _addCommerceChannels(ServiceContext serviceContext)
+	private Channel _addCommerceChannel(ServiceContext serviceContext)
 		throws Exception {
 
-		Set<String> resourcePaths = _servletContext.getResourcePaths(
-			"/site-initializer/commerce-channels");
+		String resourcePath = "/site-initializer/commerce-channel.json";
 
-		if (SetUtil.isEmpty(resourcePaths)) {
-			return;
+		String json = _read(resourcePath);
+
+		if (json == null) {
+			return null;
 		}
 
 		ChannelResource.Builder channelResourceBuilder =
-			_channelResourceFactory.create();
+			_commerceReferencesHolder.channelResourceFactory.create();
 
 		ChannelResource channelResource = channelResourceBuilder.user(
 			serviceContext.fetchUser()
 		).build();
 
-		for (String resourcePath : resourcePaths) {
-			if (resourcePath.endsWith(".model-resource-permissions.json")) {
-				continue;
-			}
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
 
-			String json = _read(resourcePath);
+		jsonObject.put("siteGroupId", serviceContext.getScopeGroupId());
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
+		Channel channel = Channel.toDTO(jsonObject.toString());
 
-			jsonObject.put("siteGroupId", serviceContext.getScopeGroupId());
+		if (channel == null) {
+			_log.error(
+				"Unable to transform commerce channel from JSON: " + json);
 
-			Channel channel = Channel.toDTO(jsonObject.toString());
-
-			if (channel == null) {
-				_log.error(
-					"Unable to transform commerce channel from JSON: " + json);
-
-				continue;
-			}
-
-			channel = channelResource.postChannel(channel);
-
-			_addModelResourcePermissions(
-				CommerceChannel.class.getName(),
-				String.valueOf(channel.getId()),
-				StringUtil.replaceLast(
-					resourcePath, ".json", ".model-resource-permissions.json"),
-				serviceContext);
-
-			Group group = _groupLocalService.getGroup(
-				serviceContext.getScopeGroupId());
-
-			group.setType(GroupConstants.TYPE_SITE_PRIVATE);
-			group.setManualMembership(true);
-			group.setMembershipRestriction(
-				GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION);
-
-			_groupLocalService.updateGroup(group);
-
-			Settings settings = _settingsFactory.getSettings(
-				new GroupServiceSettingsLocator(
-					serviceContext.getScopeGroupId(),
-					CommerceAccountConstants.SERVICE_NAME));
-
-			ModifiableSettings modifiableSettings =
-				settings.getModifiableSettings();
-
-			modifiableSettings.setValue(
-				"commerceSiteType",
-				String.valueOf(CommerceAccountConstants.SITE_TYPE_B2C));
-
-			modifiableSettings.store();
-
-			_commerceAccountRoleHelper.checkCommerceAccountRoles(
-				serviceContext);
-			_commerceCurrencyLocalService.importDefaultValues(serviceContext);
-			_cpMeasurementUnitLocalService.importDefaultValues(serviceContext);
+			return null;
 		}
+
+		channel = channelResource.postChannel(channel);
+
+		_addModelResourcePermissions(
+			CommerceChannel.class.getName(), String.valueOf(channel.getId()),
+			StringUtil.replaceLast(
+				resourcePath, ".json", ".model-resource-permissions.json"),
+			serviceContext);
+
+		Group group = _groupLocalService.getGroup(
+			serviceContext.getScopeGroupId());
+
+		group.setType(GroupConstants.TYPE_SITE_PRIVATE);
+		group.setManualMembership(true);
+		group.setMembershipRestriction(
+			GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION);
+
+		_groupLocalService.updateGroup(group);
+
+		Settings settings = _settingsFactory.getSettings(
+			new GroupServiceSettingsLocator(
+				serviceContext.getScopeGroupId(),
+				CommerceAccountConstants.SERVICE_NAME));
+
+		ModifiableSettings modifiableSettings =
+			settings.getModifiableSettings();
+
+		modifiableSettings.setValue(
+			"commerceSiteType",
+			String.valueOf(CommerceAccountConstants.SITE_TYPE_B2C));
+
+		modifiableSettings.store();
+
+		_commerceReferencesHolder.commerceAccountRoleHelper.
+			checkCommerceAccountRoles(serviceContext);
+
+		_commerceReferencesHolder.commerceCurrencyLocalService.
+			importDefaultValues(serviceContext);
+
+		_commerceReferencesHolder.cpMeasurementUnitLocalService.
+			importDefaultValues(serviceContext);
+
+		return channel;
+	}
+
+	private List<CommerceInventoryWarehouse> _addCommerceInventoryWarehouses(
+			ServiceContext serviceContext)
+		throws Exception {
+
+		return _commerceReferencesHolder.commerceInventoryWarehousesImporter.
+			importCommerceInventoryWarehouses(
+				JSONFactoryUtil.createJSONArray(
+					_read(
+						"/site-initializer" +
+							"/commerce-inventory-warehouses.json")),
+				serviceContext.getScopeGroupId(), serviceContext.getUserId());
+	}
+
+	private void _addCPDefinitions(
+			Catalog catalog, Channel channel,
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses,
+			String resourcePath, ServiceContext serviceContext)
+		throws Exception {
+
+		String json = _read(resourcePath);
+
+		if (json == null) {
+			return;
+		}
+
+		Group commerceCatalogGroup =
+			CommerceCatalogLocalServiceUtil.getCommerceCatalogGroup(
+				catalog.getId());
+
+		TaxonomyVocabularyResource.Builder taxonomyVocabularyResourceBuilder =
+			_taxonomyVocabularyResourceFactory.create();
+
+		TaxonomyVocabularyResource taxonomyVocabularyResource =
+			taxonomyVocabularyResourceBuilder.user(
+				serviceContext.fetchUser()
+			).build();
+
+		Group companyGroup = _groupLocalService.getCompanyGroup(
+			serviceContext.getCompanyId());
+
+		TaxonomyVocabulary taxonomyVocabulary =
+			taxonomyVocabularyResource.
+				getSiteTaxonomyVocabularyByExternalReferenceCode(
+					companyGroup.getGroupId(),
+					channel.getExternalReferenceCode());
+
+		_commerceReferencesHolder.cpDefinitionsImporter.importCPDefinitions(
+			JSONFactoryUtil.createJSONArray(json), taxonomyVocabulary.getName(),
+			commerceCatalogGroup.getGroupId(), channel.getId(),
+			ListUtil.toLongArray(
+				commerceInventoryWarehouses,
+				CommerceInventoryWarehouse.
+					COMMERCE_INVENTORY_WAREHOUSE_ID_ACCESSOR),
+			BundleSiteInitializer.class.getClassLoader(),
+			"/site-initializer/commerce-catalogs/" +
+				StringUtil.replace(resourcePath, ".json", "/"),
+			serviceContext.getScopeGroupId(), serviceContext.getUserId());
+	}
+
+	private void _addCPDefinitions(ServiceContext serviceContext)
+		throws Exception {
+
+		if ((_commerceReferencesHolder == null) ||
+			!GetterUtil.getBoolean(
+				PropsUtil.get("enterprise.product.commerce.enabled"))) {
+
+			return;
+		}
+
+		_addCommerceCatalogs(
+			_addCommerceChannel(serviceContext),
+			_addCommerceInventoryWarehouses(serviceContext), serviceContext);
 	}
 
 	private void _addDDMStructures(ServiceContext serviceContext)
@@ -598,7 +741,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 		resourcePath = resourcePath.substring(0, resourcePath.length() - 1);
 
-		String json = _read(resourcePath + "._si.json");
+		String json = _read(resourcePath + ".metadata.json");
 
 		if (json != null) {
 			documentFolder = DocumentFolder.toDTO(json);
@@ -607,6 +750,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 			documentFolder = DocumentFolder.toDTO(
 				JSONUtil.put(
 					"name", FileUtil.getShortFileName(resourcePath)
+				).put(
+					"viewableBy", "Anyone"
 				).toString());
 		}
 
@@ -655,7 +800,9 @@ public class BundleSiteInitializer implements SiteInitializer {
 				continue;
 			}
 
-			if (resourcePath.endsWith("._si.json")) {
+			if (resourcePath.endsWith(".gitkeep") ||
+				resourcePath.endsWith(".metadata.json")) {
+
 				continue;
 			}
 
@@ -667,10 +814,17 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			Map<String, String> values = new HashMap<>();
 
-			String json = _read(resourcePath + "._si.json");
+			String json = _read(resourcePath + ".metadata.json");
 
 			if (json != null) {
 				values = Collections.singletonMap("document", json);
+			}
+			else {
+				values = Collections.singletonMap(
+					"document",
+					JSONUtil.put(
+						"viewableBy", "Anyone"
+					).toString());
 			}
 
 			Document document = null;
@@ -704,6 +858,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			FileEntry fileEntry = DLAppLocalServiceUtil.getFileEntry(
 				document.getId());
+
+			documentsStringUtilReplaceValues.put(
+				"DOCUMENT_FILE_ENTRY_ID:" + key,
+				String.valueOf(fileEntry.getFileEntryId()));
 
 			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
 				JSONFactoryUtil.looseSerialize(fileEntry));
@@ -763,9 +921,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			parentResourcePath = resourcePath.substring(
 				0, resourcePath.length() - 1);
 
-			if (resourcePath.endsWith("/") &&
-				resourcePaths.contains(parentResourcePath + "._si.json")) {
-
+			if (resourcePath.endsWith("/")) {
 				_addJournalArticles(
 					ddmStructureLocalService, ddmTemplateLocalService,
 					_addStructuredContentFolders(
@@ -776,8 +932,9 @@ public class BundleSiteInitializer implements SiteInitializer {
 				continue;
 			}
 
-			if (resourcePath.endsWith("._si.json") ||
-				resourcePath.endsWith(".xml") || resourcePath.endsWith("/")) {
+			if (resourcePath.endsWith(".gitkeep") ||
+				resourcePath.endsWith(".metadata.json") ||
+				resourcePath.endsWith(".xml")) {
 
 				continue;
 			}
@@ -806,7 +963,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			ddmTemplateLocalService.getTemplate(
 				serviceContext.getScopeGroupId(),
-				_portal.getClassNameId(JournalArticle.class), ddmTemplateKey);
+				_portal.getClassNameId(DDMStructure.class), ddmTemplateKey);
 
 			Calendar calendar = CalendarFactoryUtil.getCalendar(
 				serviceContext.getTimeZone());
@@ -848,13 +1005,14 @@ public class BundleSiteInitializer implements SiteInitializer {
 	}
 
 	private void _addLayout(
-			JournalArticleLocalService journalArticleLocalService,
+			Map<String, String> assetListEntryIdsStringUtilReplaceValues,
+			Map<String, String> documentsStringUtilReplaceValues,
+			Map<String, String> remoteAppEntryIdsStringUtilReplaceValues,
 			String resourcePath, ServiceContext serviceContext)
 		throws Exception {
 
-		String json = _read(resourcePath + "page.json");
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(json);
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
+			_read(resourcePath + "page.json"));
 
 		String type = StringUtil.toLowerCase(jsonObject.getString("type"));
 
@@ -874,14 +1032,29 @@ public class BundleSiteInitializer implements SiteInitializer {
 			jsonObject.getBoolean("hidden"), jsonObject.getBoolean("system"),
 			_toMap(jsonObject.getString("friendlyURL_i18n")), serviceContext);
 
+		String json = _read(resourcePath + "page-definition.json");
+
+		if (json == null) {
+			return;
+		}
+
+		json = StringUtil.replace(
+			json, "\"[$", "$]\"",
+			HashMapBuilder.putAll(
+				assetListEntryIdsStringUtilReplaceValues
+			).putAll(
+				documentsStringUtilReplaceValues
+			).putAll(
+				remoteAppEntryIdsStringUtilReplaceValues
+			).build());
+
+		JSONObject pageDefinitionJSONObject = JSONFactoryUtil.createJSONObject(
+			json);
+
 		Layout draftLayout = layout.fetchDraftLayout();
 
 		if (Objects.equals(type, LayoutConstants.TYPE_COLLECTION) ||
 			Objects.equals(type, LayoutConstants.TYPE_CONTENT)) {
-
-			JSONObject pageDefinitionJSONObject =
-				JSONFactoryUtil.createJSONObject(
-					resourcePath + "page-definition.json");
 
 			JSONObject pageElementJSONObject =
 				pageDefinitionJSONObject.getJSONObject("pageElement");
@@ -925,23 +1098,11 @@ public class BundleSiteInitializer implements SiteInitializer {
 				String key = typeSettingJSONObject.getString("key");
 				String value = typeSettingJSONObject.getString("value");
 
-				if (StringUtil.equals(key, "collectionPK") &&
-					value.startsWith("[$JOURNAL_ARTICLE_ID=")) {
-
-					int x = value.indexOf("=");
-
-					int y = value.indexOf("$", x);
-
-					String journalArticleId = value.substring(x, y);
-
-					JournalArticle journalArticle =
-						journalArticleLocalService.fetchArticle(
-							serviceContext.getScopeGroupId(), journalArticleId);
-
-					value = String.valueOf(journalArticle.getResourcePrimKey());
-				}
-
-				unicodeProperties.put(key, value);
+				unicodeProperties.put(
+					key,
+					StringUtil.replace(
+						value, "[$", "$]",
+						assetListEntryIdsStringUtilReplaceValues));
 			}
 
 			draftLayout = _layoutLocalService.updateLayout(
@@ -951,10 +1112,6 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 		if (Objects.equals(type, LayoutConstants.TYPE_COLLECTION) ||
 			Objects.equals(type, LayoutConstants.TYPE_CONTENT)) {
-
-			JSONObject pageDefinitionJSONObject =
-				JSONFactoryUtil.createJSONObject(
-					resourcePath + "page-definition.json");
 
 			JSONObject settingsJSONObject =
 				pageDefinitionJSONObject.getJSONObject("settings");
@@ -975,7 +1132,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 		}
 	}
 
-	private void _addLayoutPageTemplates(ServiceContext serviceContext)
+	private void _addLayoutPageTemplates(
+			Map<String, String> assetListEntryIdsStringUtilReplaceValues,
+			Map<String, String> documentsStringUtilReplaceValues,
+			ServiceContext serviceContext)
 		throws Exception {
 
 		Enumeration<URL> enumeration = _bundle.findEntries(
@@ -995,18 +1155,28 @@ public class BundleSiteInitializer implements SiteInitializer {
 			if (StringUtil.endsWith(urlPath, ".json")) {
 				String json = StringUtil.read(url.openStream());
 
+				json = StringUtil.replace(
+					json, "\"[$", "$]\"",
+					HashMapBuilder.putAll(
+						assetListEntryIdsStringUtilReplaceValues
+					).putAll(
+						documentsStringUtilReplaceValues
+					).build());
+
 				Group scopeGroup = serviceContext.getScopeGroup();
+
+				json = StringUtil.replace(
+					json,
+					new String[] {"[$GROUP_FRIENDLY_URL$]", "[$GROUP_ID$]"},
+					new String[] {
+						scopeGroup.getFriendlyURL(),
+						String.valueOf(serviceContext.getScopeGroupId())
+					});
 
 				zipWriter.addEntry(
 					StringUtil.removeFirst(
 						urlPath, "/site-initializer/layout-page-templates/"),
-					StringUtil.replace(
-						json,
-						new String[] {"[$GROUP_FRIENDLY_URL$]", "[$GROUP_ID$]"},
-						new String[] {
-							scopeGroup.getFriendlyURL(),
-							String.valueOf(serviceContext.getScopeGroupId())
-						}));
+					json);
 			}
 			else {
 				zipWriter.addEntry(
@@ -1022,24 +1192,33 @@ public class BundleSiteInitializer implements SiteInitializer {
 	}
 
 	private void _addLayouts(
-			JournalArticleLocalService journalArticleLocalService,
+			Map<String, String> assetListEntryIdsStringUtilReplaceValues,
+			Map<String, String> documentsStringUtilReplaceValues,
+			Map<String, String> remoteAppEntryIdsStringUtilReplaceValues,
 			ServiceContext serviceContext)
 		throws Exception {
 
-		Set<String> resourcePaths = new TreeSet<>(
-			new NaturalOrderStringComparator());
-
-		resourcePaths.addAll(
-			_servletContext.getResourcePaths("/site-initializer/layouts"));
+		Set<String> resourcePaths = _servletContext.getResourcePaths(
+			"/site-initializer/layouts");
 
 		if (SetUtil.isEmpty(resourcePaths)) {
 			return;
 		}
 
+		Set<String> sortedResourcePaths = new TreeSet<>(
+			new NaturalOrderStringComparator());
+
+		sortedResourcePaths.addAll(resourcePaths);
+
+		resourcePaths = sortedResourcePaths;
+
 		for (String resourcePath : resourcePaths) {
 			if (resourcePath.endsWith("/")) {
 				_addLayout(
-					journalArticleLocalService, resourcePath, serviceContext);
+					assetListEntryIdsStringUtilReplaceValues,
+					documentsStringUtilReplaceValues,
+					remoteAppEntryIdsStringUtilReplaceValues, resourcePath,
+					serviceContext);
 			}
 		}
 
@@ -1094,6 +1273,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 			).build();
 
 		for (String resourcePath : resourcePaths) {
+			if (resourcePath.endsWith(".object-entries.json")) {
+				continue;
+			}
+
 			String json = _read(resourcePath);
 
 			ObjectDefinition objectDefinition = ObjectDefinition.toDTO(json);
@@ -1105,7 +1288,18 @@ public class BundleSiteInitializer implements SiteInitializer {
 				continue;
 			}
 
-			try {
+			Page<ObjectDefinition> objectDefinitionsPage =
+				objectDefinitionResource.getObjectDefinitionsPage(
+					null, null,
+					objectDefinitionResource.toFilter(
+						StringBundler.concat(
+							"name eq '", objectDefinition.getName(), "'")),
+					null, null);
+
+			ObjectDefinition existingObjectDefinition =
+				objectDefinitionsPage.fetchFirstItem();
+
+			if (existingObjectDefinition == null) {
 				objectDefinition =
 					objectDefinitionResource.postObjectDefinition(
 						objectDefinition);
@@ -1113,10 +1307,31 @@ public class BundleSiteInitializer implements SiteInitializer {
 				objectDefinitionResource.postObjectDefinitionPublish(
 					objectDefinition.getId());
 			}
-			catch (Exception exception) {
+			else {
+				objectDefinition =
+					objectDefinitionResource.patchObjectDefinition(
+						existingObjectDefinition.getId(), objectDefinition);
+			}
 
-				// TODO PUT
+			String objectEntriesJSON = _read(
+				StringUtil.replaceLast(
+					resourcePath, ".json", ".object-entries.json"));
 
+			if (objectEntriesJSON == null) {
+				continue;
+			}
+
+			JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+				objectEntriesJSON);
+
+			for (int i = 0; i < jsonArray.length(); i++) {
+				_objectEntryLocalService.addObjectEntry(
+					serviceContext.getUserId(),
+					serviceContext.getScopeGroupId(), objectDefinition.getId(),
+					ObjectMapperUtil.readValue(
+						Serializable.class,
+						String.valueOf(jsonArray.getJSONObject(i))),
+					serviceContext);
 			}
 		}
 	}
@@ -1130,7 +1345,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			"/site-initializer/resource-permissions.json", serviceContext);
 	}
 
-	private void _addRemoteAppEntries(
+	private Map<String, String> _addRemoteAppEntries(
 			Map<String, String> documentsStringUtilReplaceValues,
 			ServiceContext serviceContext)
 		throws Exception {
@@ -1138,8 +1353,13 @@ public class BundleSiteInitializer implements SiteInitializer {
 		String json = _read("/site-initializer/remote-app-entries.json");
 
 		if (json == null) {
-			return;
+			return Collections.emptyMap();
 		}
+
+		Map<String, String> remoteAppEntryIdsStringUtilReplaceValues =
+			new HashMap<>();
+
+		Group group = serviceContext.getScopeGroup();
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(json);
 
@@ -1160,25 +1380,40 @@ public class BundleSiteInitializer implements SiteInitializer {
 				}
 			}
 
-			_remoteAppEntryLocalService.addCustomElementRemoteAppEntry(
-				serviceContext.getUserId(),
+			RemoteAppEntry remoteAppEntry =
+				_remoteAppEntryLocalService.addCustomElementRemoteAppEntry(
+					serviceContext.getUserId(),
+					StringUtil.replace(
+						StringUtil.merge(
+							JSONUtil.toStringArray(
+								jsonObject.getJSONArray("cssURLs")),
+							StringPool.NEW_LINE),
+						"[$", "$]", documentsStringUtilReplaceValues),
+					jsonObject.getString("htmlElementName"),
+					StringUtil.replace(
+						StringUtil.merge(
+							JSONUtil.toStringArray(
+								jsonObject.getJSONArray("elementURLs")),
+							StringPool.NEW_LINE),
+						"[$", "$]", documentsStringUtilReplaceValues),
+					jsonObject.getBoolean("instanceable"),
+					_toMap(
+						group.getName(LocaleUtil.getSiteDefault()) + ": ",
+						jsonObject.getString("name_i18n")),
+					jsonObject.getString("portletCategoryName"), sb.toString());
+
+			remoteAppEntryIdsStringUtilReplaceValues.put(
+				"REMOTE_APP_ENTRY_ID:" +
+					jsonObject.getString("remoteAppEntryKey"),
 				StringUtil.replace(
-					StringUtil.merge(
-						JSONUtil.toStringArray(
-							jsonObject.getJSONArray("cssURLs")),
-						StringPool.NEW_LINE),
-					"[$", "$]", documentsStringUtilReplaceValues),
-				jsonObject.getString("htmlElementName"),
-				StringUtil.replace(
-					StringUtil.merge(
-						JSONUtil.toStringArray(
-							jsonObject.getJSONArray("elementURLs")),
-						StringPool.NEW_LINE),
-					"[$", "$]", documentsStringUtilReplaceValues),
-				jsonObject.getBoolean("instanceable"),
-				_toMap(jsonObject.getString("name_i18n")),
-				jsonObject.getString("portletCategoryName"), sb.toString());
+					jsonObject.getString("widgetName"),
+					StringBundler.concat(
+						"[$REMOTE_APP_ENTRY_ID:",
+						jsonObject.getString("remoteAppEntryKey"), "$]"),
+					String.valueOf(remoteAppEntry.getRemoteAppEntryId())));
 		}
+
+		return remoteAppEntryIdsStringUtilReplaceValues;
 	}
 
 	private void _addResourcePermissions(
@@ -1216,15 +1451,119 @@ public class BundleSiteInitializer implements SiteInitializer {
 		}
 	}
 
+	private void _addRole(JSONObject jsonObject, ServiceContext serviceContext)
+		throws Exception {
+
+		String name = jsonObject.getString("name");
+
+		Role role = _roleLocalService.fetchRole(
+			serviceContext.getCompanyId(), name);
+
+		if (role == null) {
+			role = _roleLocalService.addRole(
+				serviceContext.getUserId(), null, 0, name,
+				Collections.singletonMap(serviceContext.getLocale(), name),
+				null, jsonObject.getInt("type"), null, serviceContext);
+		}
+
+		JSONArray jsonArray = jsonObject.getJSONArray("actions");
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject actionsJSONObject = jsonArray.getJSONObject(i);
+
+			String resource = actionsJSONObject.getString("resource");
+			int scope = actionsJSONObject.getInt("scope");
+			String actionId = actionsJSONObject.getString("actionId");
+
+			if (scope == ResourceConstants.SCOPE_COMPANY) {
+				_resourcePermissionLocalService.addResourcePermission(
+					serviceContext.getCompanyId(), resource, scope,
+					String.valueOf(role.getCompanyId()), role.getRoleId(),
+					actionId);
+			}
+			else if (scope == ResourceConstants.SCOPE_GROUP) {
+				_resourcePermissionLocalService.removeResourcePermissions(
+					serviceContext.getCompanyId(), resource,
+					ResourceConstants.SCOPE_GROUP, role.getRoleId(), actionId);
+
+				_resourcePermissionLocalService.addResourcePermission(
+					serviceContext.getCompanyId(), resource,
+					ResourceConstants.SCOPE_GROUP,
+					String.valueOf(serviceContext.getScopeGroupId()),
+					role.getRoleId(), actionId);
+			}
+			else if (scope == ResourceConstants.SCOPE_GROUP_TEMPLATE) {
+				_resourcePermissionLocalService.addResourcePermission(
+					serviceContext.getCompanyId(), resource,
+					ResourceConstants.SCOPE_GROUP_TEMPLATE,
+					String.valueOf(GroupConstants.DEFAULT_PARENT_GROUP_ID),
+					role.getRoleId(), actionId);
+			}
+		}
+	}
+
 	private void _addRoles(ServiceContext serviceContext) throws Exception {
+		if (_commerceReferencesHolder == null) {
+			return;
+		}
+
 		String json = _read("/site-initializer/roles.json");
 
 		if (json == null) {
 			return;
 		}
 
-		_cpFileImporter.createRoles(
-			_jsonFactory.createJSONArray(json), serviceContext);
+		JSONArray jsonArray = _jsonFactory.createJSONArray(json);
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			_addRole(jsonArray.getJSONObject(i), serviceContext);
+		}
+	}
+
+	private void _addSAPEntries(ServiceContext serviceContext)
+		throws Exception {
+
+		String json = _read("/site-initializer/sap-entries.json");
+
+		if (json == null) {
+			return;
+		}
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(json);
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+			SAPEntry sapEntry = _sapEntryLocalService.fetchSAPEntry(
+				serviceContext.getCompanyId(), jsonObject.getString("name"));
+
+			if (sapEntry == null) {
+				_sapEntryLocalService.addSAPEntry(
+					serviceContext.getUserId(),
+					StringUtil.merge(
+						JSONUtil.toStringArray(
+							jsonObject.getJSONArray(
+								"allowedServiceSignatures")),
+						StringPool.NEW_LINE),
+					jsonObject.getBoolean("defaultSAPEntry", true),
+					jsonObject.getBoolean("enabled", true),
+					jsonObject.getString("name"),
+					_toMap(jsonObject.getString("title_i18n")), serviceContext);
+			}
+			else {
+				_sapEntryLocalService.updateSAPEntry(
+					sapEntry.getSapEntryId(),
+					StringUtil.merge(
+						JSONUtil.toStringArray(
+							jsonObject.getJSONArray(
+								"allowedServiceSignatures")),
+						StringPool.NEW_LINE),
+					jsonObject.getBoolean("defaultSAPEntry", true),
+					jsonObject.getBoolean("enabled", true),
+					jsonObject.getString("name"),
+					_toMap(jsonObject.getString("title_i18n")), serviceContext);
+			}
+		}
 	}
 
 	private void _addSiteNavigationMenuItems(
@@ -1244,6 +1583,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 			Layout layout = _layoutLocalService.fetchLayoutByFriendlyURL(
 				serviceContext.getScopeGroupId(), privateLayout, friendlyURL);
+
+			if (layout == null) {
+				continue;
+			}
 
 			_siteNavigationMenuItemLocalService.addSiteNavigationMenuItem(
 				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
@@ -1295,7 +1638,13 @@ public class BundleSiteInitializer implements SiteInitializer {
 				serviceContext.fetchUser()
 			).build();
 
-		String json = _read(parentResourcePath + "._si.json");
+		String json = _read(parentResourcePath + ".metadata.json");
+
+		if (json == null) {
+			json = JSONUtil.put(
+				"name", FileUtil.getShortFileName(parentResourcePath)
+			).toString();
+		}
 
 		StructuredContentFolder structuredContentFolder =
 			StructuredContentFolder.toDTO(json);
@@ -1529,6 +1878,62 @@ public class BundleSiteInitializer implements SiteInitializer {
 		return taxonomyCategory;
 	}
 
+	private String _getThemeId(
+		long companyId, String defaultThemeId, String themeName) {
+
+		List<Theme> themes = ListUtil.filter(
+			_themeLocalService.getThemes(companyId),
+			theme -> Objects.equals(theme.getName(), themeName));
+
+		if (ListUtil.isNotEmpty(themes)) {
+			Theme theme = themes.get(0);
+
+			return theme.getThemeId();
+		}
+
+		return defaultThemeId;
+	}
+
+	private void _invoke(UnsafeRunnable<Exception> unsafeRunnable)
+		throws Exception {
+
+		long startTime = System.currentTimeMillis();
+
+		unsafeRunnable.run();
+
+		if (_log.isInfoEnabled()) {
+			Thread thread = Thread.currentThread();
+
+			StackTraceElement stackTraceElement = thread.getStackTrace()[2];
+
+			_log.info(
+				StringBundler.concat(
+					"Invoking line ", stackTraceElement.getLineNumber(),
+					" took ", System.currentTimeMillis() - startTime, " ms"));
+		}
+	}
+
+	private <T> T _invoke(UnsafeSupplier<T, Exception> unsafeSupplier)
+		throws Exception {
+
+		long startTime = System.currentTimeMillis();
+
+		T t = unsafeSupplier.get();
+
+		if (_log.isInfoEnabled()) {
+			Thread thread = Thread.currentThread();
+
+			StackTraceElement stackTraceElement = thread.getStackTrace()[2];
+
+			_log.info(
+				StringBundler.concat(
+					"Invoking line ", stackTraceElement.getLineNumber(), " in ",
+					System.currentTimeMillis() - startTime, " ms"));
+		}
+
+		return t;
+	}
+
 	private String _read(String resourcePath) throws Exception {
 		InputStream inputStream = _servletContext.getResourceAsStream(
 			resourcePath);
@@ -1550,6 +1955,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 	}
 
 	private Map<Locale, String> _toMap(String values) {
+		return _toMap(StringPool.BLANK, values);
+	}
+
+	private Map<Locale, String> _toMap(String prefix, String values) {
 		if (Validator.isBlank(values)) {
 			return Collections.emptyMap();
 		}
@@ -1561,7 +1970,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 		for (Map.Entry<String, String> entry : valuesMap.entrySet()) {
 			map.put(
-				LocaleUtil.fromLanguageId(entry.getKey()), entry.getValue());
+				LocaleUtil.fromLanguageId(entry.getKey()),
+				prefix + entry.getValue());
 		}
 
 		return map;
@@ -1595,25 +2005,12 @@ public class BundleSiteInitializer implements SiteInitializer {
 			draftLayout.setTypeSettingsProperties(unicodeProperties);
 		}
 
-		String themeId = draftLayout.getThemeId();
-
-		String themeName = settingsJSONObject.getString("themeName");
-
-		if (Validator.isNotNull(themeName)) {
-			List<Theme> themes = ListUtil.filter(
-				_themeLocalService.getThemes(draftLayout.getCompanyId()),
-				theme -> Objects.equals(theme.getName(), themeName));
-
-			if (ListUtil.isNotEmpty(themes)) {
-				Theme theme = themes.get(0);
-
-				themeId = theme.getThemeId();
-			}
-		}
-
 		draftLayout = _layoutLocalService.updateLookAndFeel(
 			draftLayout.getGroupId(), draftLayout.isPrivateLayout(),
-			draftLayout.getLayoutId(), themeId,
+			draftLayout.getLayoutId(),
+			_getThemeId(
+				draftLayout.getCompanyId(), draftLayout.getThemeId(),
+				settingsJSONObject.getString("themeName")),
 			settingsJSONObject.getString(
 				"colorSchemeName", draftLayout.getColorSchemeId()),
 			settingsJSONObject.getString("css", draftLayout.getCss()));
@@ -1655,13 +2052,19 @@ public class BundleSiteInitializer implements SiteInitializer {
 			resourcePath += "/public";
 		}
 
-		String css = _read(resourcePath + "/css.css");
+		String metadataJSON = _read(resourcePath + "/metadata.json");
 
-		if (css != null) {
-			_layoutSetLocalService.updateLookAndFeel(
-				serviceContext.getScopeGroupId(), privateLayout,
-				layoutSet.getThemeId(), layoutSet.getColorSchemeId(), css);
-		}
+		JSONObject metadataJSONObject = JSONFactoryUtil.createJSONObject(
+			(metadataJSON == null) ? "{}" : metadataJSON);
+
+		String css = GetterUtil.getString(_read(resourcePath + "/css.css"));
+
+		_layoutSetLocalService.updateLookAndFeel(
+			serviceContext.getScopeGroupId(), privateLayout,
+			_getThemeId(
+				serviceContext.getCompanyId(), StringPool.BLANK,
+				metadataJSONObject.getString("themeName")),
+			layoutSet.getColorSchemeId(), css);
 
 		URL url = _servletContext.getResource(resourcePath + "/logo.png");
 
@@ -1671,19 +2074,22 @@ public class BundleSiteInitializer implements SiteInitializer {
 				FileUtil.getBytes(url.openStream()));
 		}
 
-		String settingsPropertiesString = _read(
-			resourcePath + "/settings.properties");
+		JSONObject settingsJSONObject = metadataJSONObject.getJSONObject(
+			"settings");
 
-		if (settingsPropertiesString != null) {
-			UnicodeProperties unicodeProperties =
-				layoutSet.getSettingsProperties();
-
-			unicodeProperties.fastLoad(settingsPropertiesString);
-
-			_layoutSetLocalService.updateSettings(
-				serviceContext.getScopeGroupId(), privateLayout,
-				unicodeProperties.toString());
+		if (settingsJSONObject == null) {
+			return;
 		}
+
+		UnicodeProperties unicodeProperties = layoutSet.getSettingsProperties();
+
+		for (String key : settingsJSONObject.keySet()) {
+			unicodeProperties.put(key, settingsJSONObject.getString(key));
+		}
+
+		_layoutSetLocalService.updateSettings(
+			serviceContext.getScopeGroupId(), privateLayout,
+			unicodeProperties.toString());
 	}
 
 	private void _updateLayoutSets(ServiceContext serviceContext)
@@ -1700,13 +2106,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 
 	private final AssetListEntryLocalService _assetListEntryLocalService;
 	private final Bundle _bundle;
-	private final CatalogResource.Factory _catalogResourceFactory;
-	private final ChannelResource.Factory _channelResourceFactory;
 	private final ClassLoader _classLoader;
-	private final CommerceAccountRoleHelper _commerceAccountRoleHelper;
-	private final CommerceCurrencyLocalService _commerceCurrencyLocalService;
-	private final CPFileImporter _cpFileImporter;
-	private final CPMeasurementUnitLocalService _cpMeasurementUnitLocalService;
+	private CommerceReferencesHolder _commerceReferencesHolder;
 	private final DDMStructureLocalService _ddmStructureLocalService;
 	private final DDMTemplateLocalService _ddmTemplateLocalService;
 	private final DefaultDDMStructureHelper _defaultDDMStructureHelper;
@@ -1727,11 +2128,13 @@ public class BundleSiteInitializer implements SiteInitializer {
 	private final LayoutSetLocalService _layoutSetLocalService;
 	private final ObjectDefinitionResource.Factory
 		_objectDefinitionResourceFactory;
+	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final Portal _portal;
 	private final RemoteAppEntryLocalService _remoteAppEntryLocalService;
 	private final ResourcePermissionLocalService
 		_resourcePermissionLocalService;
 	private final RoleLocalService _roleLocalService;
+	private final SAPEntryLocalService _sapEntryLocalService;
 	private final ServletContext _servletContext;
 	private final SettingsFactory _settingsFactory;
 	private final SiteNavigationMenuItemLocalService

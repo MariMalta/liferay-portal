@@ -63,16 +63,34 @@ renderResponse.setTitle((accountEntryAddressId == 0) ? LanguageUtil.get(request,
 				types = new String[] {AccountListTypeConstants.ACCOUNT_ENTRY_ADDRESS_TYPE_BILLING_AND_SHIPPING, AccountListTypeConstants.ACCOUNT_ENTRY_ADDRESS_TYPE_BILLING, AccountListTypeConstants.ACCOUNT_ENTRY_ADDRESS_TYPE_SHIPPING};
 			}
 
+			ListType addressListType = null;
+
+			if (address != null) {
+				addressListType = address.getType();
+			}
+
 			for (String type : types) {
 				ListType listType = ListTypeLocalServiceUtil.getListType(type, AccountEntry.class.getName() + ListTypeConstants.ADDRESS);
 			%>
 
-				<aui:option label="<%= LanguageUtil.get(request, type) %>" value="<%= listType.getListTypeId() %>" />
+				<aui:option label="<%= LanguageUtil.get(request, type) %>" selected="<%= (address != null) ? Objects.equals(addressListType.getListTypeId(), listType.getListTypeId()) : false %>" value="<%= listType.getListTypeId() %>" />
 
 			<%
 			}
 			%>
 
+		</aui:select>
+
+		<aui:select label="country" name="addressCountryId" required="<%= true %>">
+			<aui:validator errorMessage='<%= LanguageUtil.get(request, "this-field-is-required") %>' name="custom">
+				function(val) {
+					if (Number(val) !== 0) {
+						return true;
+					}
+
+					return false;
+				}
+			</aui:validator>
 		</aui:select>
 
 		<aui:input name="street1" required="<%= true %>" />
@@ -87,7 +105,21 @@ renderResponse.setTitle((accountEntryAddressId == 0) ? LanguageUtil.get(request,
 			</div>
 
 			<div class="form-group-item">
-				<aui:select label="region" name="addressRegionId" />
+				<aui:select label="region" name="addressRegionId">
+					<aui:validator errorMessage='<%= LanguageUtil.get(request, "this-field-is-required") %>' name="custom">
+						function(val, fieldNode) {
+							if (fieldNode.length === 1) {
+								return true;
+							}
+
+							if (Number(val) !== 0) {
+								return true;
+							}
+
+							return false;
+						}
+					</aui:validator>
+				</aui:select>
 			</div>
 		</div>
 
@@ -97,11 +129,9 @@ renderResponse.setTitle((accountEntryAddressId == 0) ? LanguageUtil.get(request,
 			</div>
 
 			<div class="form-group-item">
-				<aui:select label="country" name="addressCountryId" required="<%= true %>" />
+				<aui:input maxlength='<%= ModelHintsUtil.getMaxLength(Phone.class.getName(), "number") %>' name="phoneNumber" type="text" />
 			</div>
 		</div>
-
-		<aui:input maxlength='<%= ModelHintsUtil.getMaxLength(Phone.class.getName(), "number") %>' name="phoneNumber" type="text" />
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
@@ -125,6 +155,7 @@ renderResponse.setTitle((accountEntryAddressId == 0) ? LanguageUtil.get(request,
 			select: '<portlet:namespace />addressRegionId',
 			selectData: Liferay.Address.getRegions,
 			selectDesc: 'name',
+			selectDisableOnEmpty: '<%= true %>',
 			selectId: 'regionId',
 			selectVal: '<%= (address == null) ? 0L : address.getRegionId() %>',
 		},

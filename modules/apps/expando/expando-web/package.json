@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@liferay/map-common": "*",
 		"frontend-js-web": "*"
 	},
 	"name": "expando-web",
@@ -8,5 +9,5 @@
 		"checkFormat": "liferay-npm-scripts check",
 		"format": "liferay-npm-scripts fix"
 	},
-	"version": "5.0.9"
+	"version": "5.0.11"
 }

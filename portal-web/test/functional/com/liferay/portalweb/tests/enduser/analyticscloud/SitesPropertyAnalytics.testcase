@@ -53,7 +53,7 @@ definition {
 		}
 
 		task ("View the site page as Test Test") {
-			Navigator.gotoSitePage(
+			ACUtils.navigateToSitePage(
 				pageName = "AC Page",
 				siteName = "Site Name");
 		}
@@ -164,14 +164,23 @@ definition {
 				interval = "W");
 		}
 
-		task ("View the format of recharts xAxis ticks is MMM d - d") {
+		task ("View the format of recharts xAxis ticks is MMM d - MMM d or MMM d - d") {
 			var date = ACCards.getAxisTick(
 				axis = "xAxis",
 				cardName = "${propertyName} Activities");
 
-			ACUtils.assertDatePattern(
-				date = "${date}",
-				format = "MMM d - d");
+			var dateLength = StringUtil.length("${date}");
+
+			if ("${dateLength}" == "10") {
+				ACUtils.assertDatePattern(
+					date = "${date}",
+					format = "MMM d - d");
+			}
+			else {
+				ACUtils.assertDatePattern(
+					date = "${date}",
+					format = "MMM d - MMM d");
+			}
 		}
 
 		task ("Select the M in interval selector") {

@@ -16,16 +16,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>PUBLICATIONS_INDICATOR_BUTTON</td>
-	<td>//button[contains(@class,'dropdown-toggle change-tracking-indicator-button')]</td>
-	<td></td>
-</tr>
-<tr>
-	<td>PUBLICATIONS_INDICATOR_TITLE</td>
-	<td>//button[contains(@class,'change-tracking-indicator-title')] and contains(.,'${key_publicationName}')</td>
-	<td></td>
-</tr>
-<tr>
 	<td>COLUMN_VALUE_IN_PRODUCTION</td>
 	<td>//td[contains(@class,'publications-key-td') and contains(.,'${key_columnName}')]//following-sibling::td[contains(.,'${key_columnValueInProduction}')]</td>
 	<td></td>
@@ -96,13 +86,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>KEYWORD_TEXTFIELD</td>
+	<td>//*[@class='form-control-inset']</td>
+	<td></td>
+</tr>
+<tr>
 	<td>LIST_OUT_OF_DATE_STATUS</td>
 	<td>//a[contains(.,'${key_publicationName}')]//span/span[contains(.,'Out of Date')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>LIST_PUBLICATION_ELLIPSIS</td>
-	<td>//li[@data-qa-id='row'][contains(.,'${key_publicationName}')]//*[contains(@class,'lexicon-icon lexicon-icon-ellipsis-v')]</td>
+	<td>//li[@data-qa-id='row'][contains(.,'${key_publicationName}')]//*[contains(@class,'lexicon-icon lexicon-icon-ellipsis-v')] | //tr[contains(.,'${key_publicationName}')]//following-sibling::div//*[contains(@class,'lexicon-icon lexicon-icon-ellipsis-v')]</td>
 	<td></td>
 </tr>
 <tr>
@@ -153,6 +148,31 @@
 <tr>
 	<td>PUBLICATION_ORDER_IN_HISTORY</td>
 	<td>//ul[contains(@class,'publications-table')]//li[${resultOrder}]/div/p/a</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PUBLICATION_ROLE_BUTTON</td>
+	<td>//button[strong[contains(.,'${key_publicationRole}')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PUBLICATIONS_ELLIPSIS</td>
+	<td>//div[contains(@class,'control-menu-icon')]//span[*[contains(@class,'lexicon-icon-ellipsis-v')]]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PUBLICATIONS_INDICATOR_BUTTON</td>
+	<td>//button[contains(@class,'dropdown-toggle change-tracking-indicator-button')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PUBLICATIONS_INDICATOR_TITLE</td>
+	<td>//button[contains(@class,'change-tracking-indicator-title')] and contains(.,'${key_publicationName}')</td>
+	<td></td>
+</tr>
+<tr>
+	<td>PUBLICATIONS_TOGGLE_SWITCH</td>
+	<td>//input[contains(@id,'enablePublications')]</td>
 	<td></td>
 </tr>
 <tr>

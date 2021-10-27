@@ -87,11 +87,13 @@ definition {
 
 		ClickNoError(locator1 = "PageAudit#LAUNCH_PAGE_AUDIT_BUTTON");
 
-		AssertElementPresent(locator1 = "PageAudit#PROGRESS_BAR");
+		if (IsElementNotPresent(locator1 = "PageAudit#ERROR_WARNING_BOX")) {
+			AssertElementPresent(locator1 = "PageAudit#PROGRESS_BAR");
+		}
 	}
 
 	macro openPanelBeforeConfiguration {
-		if ((IsElementNotPresent(locator1 = "PageAudit#CONNECT_TO_GOOGLE_PAGESPEED_BUTTON")) && (IsElementNotPresent(locator1 = "PageAudit#ERROR_WARNING_BOX")) ) {
+		if ((IsElementNotPresent(locator1 = "PageAudit#CONNECT_TO_GOOGLE_PAGESPEED_BUTTON")) && (IsElementNotPresent(locator1 = "PageAudit#ERROR_WARNING_TITLE")) ) {
 			Click(locator1 = "PageAudit#PAGE_AUDIT_BUTTON");
 		}
 	}

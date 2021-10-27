@@ -41,7 +41,7 @@ public class MapsSiteSettingsConfigurationScreenContributor
 
 	@Override
 	public String getCategoryKey() {
-		return "third-party-applications";
+		return "maps";
 	}
 
 	@Override
@@ -51,7 +51,7 @@ public class MapsSiteSettingsConfigurationScreenContributor
 
 	@Override
 	public String getKey() {
-		return "site-configuration-maps";
+		return "site-settings-maps";
 	}
 
 	@Override

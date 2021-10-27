@@ -21,31 +21,21 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
-		}
-		else {
-			Navigator.openURL();
-
-			if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-				User.logoutPG();
-			}
-
-			User.firstLoginPG();
-
-			CommerceConfiguration.commerceAdminTearDown(userScreenName = "buyer");
-
-			CommerceConfiguration.commerceInitializersTearDown();
-
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
 			User.logoutPG();
 		}
+
+		User.firstLoginPG();
+
+		CommerceConfiguration.commerceAdminTearDown(userScreenName = "buyer");
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	test AssertGuestCartIsTransferredToAccount {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#AssertGuestCartIsTransferredToAccount";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -144,7 +134,6 @@ definition {
 
 	test AssertGuestCartItemIsNotTransferredIfSkuIsAlreadyPresent {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#AssertGuestCartItemIsNotTransferredIfSkuIsAlreadyPresent";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -273,7 +262,6 @@ definition {
 
 	test AssertGuestCartItemIsTransferredToExistingCart {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#AssertGuestCartItemIsTransferredToExistingCart";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -402,7 +390,6 @@ definition {
 
 	test AssertGuestCheckoutAuthenticationPage {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#AssertGuestCheckoutAuthenticationPage";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -453,7 +440,6 @@ definition {
 
 	test AssertGuestsWithSameEmailHaveDifferentAccounts {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#AssertGuestsWithSameEmailHaveDifferentAccounts";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -549,7 +535,7 @@ definition {
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Accounts");
 
 		CommerceNavigator.gotoEntry(entryName = "Guest Account 1");
@@ -573,7 +559,6 @@ definition {
 
 	test AssertNewAccountIsCreatedAfterGuestCheckout {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#AssertNewAccountIsCreatedAfterGuestCheckout";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -638,19 +623,20 @@ definition {
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Accounts");
 
 		CommerceNavigator.gotoEntry(entryName = "Address Name");
 
-		AssertTextEquals(
-			locator1 = "TextInput#EMAIL",
-			value1 = "buyer@liferay.com");
+		var guestAccountEmail = CommerceJSONAccountsAPI._getCommerceAccountEmail(accountName = "Address Name", accountType = "Guest");
+
+		TestUtils.assertEquals(
+			actual = "${guestAccountEmail}",
+			expected = "buyer@liferay.com");
 	}
 
 	test GuestAccountIsNotCombinedWithExistingUserAccount {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#GuestAccountIsNotCombinedWithExistingUserAccount";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -790,7 +776,7 @@ definition {
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Accounts");
 
 		CommerceNavigator.gotoEntry(entryName = "Buyer User");
@@ -798,7 +784,7 @@ definition {
 		CommerceEntry.viewAccountsEntry(
 			accountEmail = "buyer@liferay.com",
 			accountName = "Buyer User",
-			accountType = "Personal",
+			accountType = "Person",
 			isAccountActive = "true");
 
 		Click(locator1 = "Icon#BACK");
@@ -814,7 +800,6 @@ definition {
 
 	test GuestCheckoutDisabled {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#GuestCheckoutDisabled";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -919,7 +904,6 @@ definition {
 
 	test GuestCheckoutEnabled {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#GuestCheckoutEnabled";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -987,7 +971,6 @@ definition {
 
 	test GuestCheckoutEnabledWithoutAuthenticationPage {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#GuestCheckoutEnabledWithoutAuthenticationPage";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -1038,7 +1021,6 @@ definition {
 
 	test GuestCheckoutWithNoShippableProduct {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#GuestCheckoutWithNoShippableProduct";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -1117,7 +1099,6 @@ definition {
 
 	test GuestCheckoutWithShippableProduct {
 		property portal.acceptance = "true";
-		property test.name.skip.portal.instance = "GuestCheckout#GuestCheckoutWithShippableProduct";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Speedwell");
 
@@ -1319,7 +1300,7 @@ definition {
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Accounts",
-			panel = "Applications",
+			panel = "Control Panel",
 			portlet = "Accounts");
 
 		CommerceNavigator.gotoEntry(entryName = "Guest Account");
@@ -1337,7 +1318,7 @@ definition {
 		CommerceEntry.viewAccountsEntry(
 			accountEmail = "buyer@liferay.com",
 			accountName = "Buyer User",
-			accountType = "Personal",
+			accountType = "Person",
 			isAccountActive = "true");
 	}
 

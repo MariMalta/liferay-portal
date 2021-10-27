@@ -16,6 +16,8 @@ package com.liferay.object.web.internal.info.item.renderer;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.info.item.renderer.InfoItemRenderer;
+import com.liferay.list.type.model.ListTypeEntry;
+import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -25,8 +27,9 @@ import com.liferay.object.web.internal.constants.ObjectWebKeys;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.io.Serializable;
 
@@ -35,8 +38,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -45,24 +48,33 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 /**
  * @author Jorge Ferrer
+ * @author Guilherme Camacho
  */
-@Component(
-	property = "service.ranking:Integer=100", service = InfoItemRenderer.class
-)
 public class ObjectEntryRowInfoItemRenderer
 	implements InfoItemRenderer<ObjectEntry> {
 
+	public ObjectEntryRowInfoItemRenderer(
+		AssetDisplayPageFriendlyURLProvider assetDisplayPageFriendlyURLProvider,
+		ListTypeEntryLocalService listTypeEntryLocalService,
+		ObjectDefinitionLocalService objectDefinitionLocalService,
+		ObjectEntryLocalService objectEntryLocalService,
+		ObjectFieldLocalService objectFieldLocalService,
+		ServletContext servletContext) {
+
+		_assetDisplayPageFriendlyURLProvider =
+			assetDisplayPageFriendlyURLProvider;
+		_listTypeEntryLocalService = listTypeEntryLocalService;
+		_objectDefinitionLocalService = objectDefinitionLocalService;
+		_objectEntryLocalService = objectEntryLocalService;
+		_objectFieldLocalService = objectFieldLocalService;
+		_servletContext = servletContext;
+	}
+
 	@Override
 	public String getLabel(Locale locale) {
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			locale, getClass());
-
-		return LanguageUtil.get(resourceBundle, "row");
+		return LanguageUtil.get(locale, "row");
 	}
 
 	@Override
@@ -94,13 +106,6 @@ public class ObjectEntryRowInfoItemRenderer
 		}
 	}
 
-	@Reference(
-		target = "(osgi.web.symbolicname=com.liferay.object.web)", unbind = "-"
-	)
-	public void setServletContext(ServletContext servletContext) {
-		_servletContext = servletContext;
-	}
-
 	private Map<String, Serializable> _getValues(ObjectEntry objectEntry)
 		throws PortalException {
 
@@ -112,40 +117,73 @@ public class ObjectEntryRowInfoItemRenderer
 		Stream<Map.Entry<String, Serializable>> entriesStream =
 			entries.stream();
 
-		List<String> objectFieldNames = ListUtil.toList(
+		List<ObjectField> objectFields =
 			_objectFieldLocalService.getObjectFields(
-				objectEntry.getObjectDefinitionId()),
-			ObjectField::getName);
+				objectEntry.getObjectDefinitionId());
+
+		Stream<ObjectField> objectFieldsStream = objectFields.stream();
+
+		Map<String, ObjectField> objectFieldsMap = objectFieldsStream.collect(
+			Collectors.toMap(ObjectField::getName, Function.identity()));
 
 		return entriesStream.filter(
-			entry -> objectFieldNames.contains(entry.getKey())
+			entry -> objectFieldsMap.containsKey(entry.getKey())
 		).sorted(
 			Map.Entry.comparingByKey()
 		).collect(
 			Collectors.toMap(
 				Map.Entry::getKey,
-				entry -> Optional.ofNullable(
-					entry.getValue()
-				).orElse(
-					StringPool.BLANK
-				),
+				entry -> {
+					ObjectField objectField = objectFieldsMap.get(
+						entry.getKey());
+
+					if (objectField.getListTypeDefinitionId() != 0) {
+						ServiceContext serviceContext =
+							ServiceContextThreadLocal.getServiceContext();
+
+						ListTypeEntry listTypeEntry =
+							_listTypeEntryLocalService.fetchListTypeEntry(
+								objectField.getListTypeDefinitionId(),
+								(String)entry.getValue());
+
+						return listTypeEntry.getName(
+							serviceContext.getLocale());
+					}
+					else if (Validator.isNull(
+								objectField.getRelationshipType())) {
+
+						return Optional.ofNullable(
+							entry.getValue()
+						).orElse(
+							StringPool.BLANK
+						);
+					}
+
+					ObjectEntry relatedObjectEntry =
+						_objectEntryLocalService.fetchObjectEntry(
+							(Long)values.get(objectField.getName()));
+
+					if (relatedObjectEntry == null) {
+						return StringPool.BLANK;
+					}
+
+					try {
+						return relatedObjectEntry.getTitleValue();
+					}
+					catch (PortalException portalException) {
+						throw new RuntimeException(portalException);
+					}
+				},
 				(oldValue, newValue) -> oldValue, LinkedHashMap::new)
 		);
 	}
 
-	@Reference
-	private AssetDisplayPageFriendlyURLProvider
+	private final AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
-
-	@Reference
-	private ObjectDefinitionLocalService _objectDefinitionLocalService;
-
-	@Reference
-	private ObjectEntryLocalService _objectEntryLocalService;
-
-	@Reference
-	private ObjectFieldLocalService _objectFieldLocalService;
-
-	private ServletContext _servletContext;
+	private final ListTypeEntryLocalService _listTypeEntryLocalService;
+	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
+	private final ObjectEntryLocalService _objectEntryLocalService;
+	private final ObjectFieldLocalService _objectFieldLocalService;
+	private final ServletContext _servletContext;
 
 }

@@ -676,8 +676,12 @@ public class AddContentPanelDisplayContext {
 		}
 
 		Set<String> layoutDecodedPortletNames = _getLayoutDecodedPortletNames();
+		LayoutTypePortlet layoutTypePortlet =
+			_themeDisplay.getLayoutTypePortlet();
 
-		if (layoutDecodedPortletNames.contains(portlet.getPortletId())) {
+		if (layoutDecodedPortletNames.contains(portlet.getPortletId()) ||
+			layoutTypePortlet.hasPortletId(portlet.getPortletId())) {
+
 			return true;
 		}
 

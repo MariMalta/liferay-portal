@@ -214,8 +214,9 @@ public class LayoutActionDropdownItemsProvider {
 									"discard-conversion-draft"));
 						}
 					).add(
-						() -> _layoutsAdminDisplayContext.isShowDraftActions(
-							layout),
+						() ->
+							_layoutsAdminDisplayContext.
+								isShowPreviewDraftActions(layout),
 						dropdownItem -> {
 							dropdownItem.put("symbolRight", "shortcut");
 							dropdownItem.setHref(
@@ -227,8 +228,9 @@ public class LayoutActionDropdownItemsProvider {
 							dropdownItem.setTarget("_blank");
 						}
 					).add(
-						() -> _layoutsAdminDisplayContext.isShowDraftActions(
-							layout),
+						() ->
+							_layoutsAdminDisplayContext.
+								isShowDiscardDraftActions(layout),
 						dropdownItem -> {
 							dropdownItem.putData("action", "discardDraft");
 							dropdownItem.putData(
@@ -278,13 +280,29 @@ public class LayoutActionDropdownItemsProvider {
 					).add(
 						() -> _isShowExportTranslationAction(layout),
 						dropdownItem -> {
-							dropdownItem.putData("action", "exportTranslation");
-							dropdownItem.putData(
-								"plid",
-								String.valueOf(
-									BeanPropertiesUtil.getLong(
-										draftLayout, "plid",
-										layout.getPlid())));
+							dropdownItem.setHref(
+								PortletURLBuilder.create(
+									_translationURLProvider.
+										getExportTranslationURL(
+											layout.getGroupId(),
+											PortalUtil.getClassNameId(
+												Layout.class.getName()),
+											BeanPropertiesUtil.getLong(
+												draftLayout, "plid",
+												layout.getPlid()),
+											RequestBackedPortletURLFactoryUtil.
+												create(_httpServletRequest))
+								).setRedirect(
+									PortalUtil.getCurrentURL(
+										_httpServletRequest)
+								).setPortletResource(
+									() -> {
+										PortletDisplay portletDisplay =
+											_themeDisplay.getPortletDisplay();
+
+										return portletDisplay.getId();
+									}
+								).buildString());
 							dropdownItem.setLabel(
 								LanguageUtil.get(
 									_httpServletRequest,

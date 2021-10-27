@@ -25,14 +25,17 @@ import com.liferay.portal.kernel.dao.orm.Projection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.BaseLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.transaction.Isolation;
 import com.liferay.portal.kernel.transaction.Propagation;
 import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 
 import java.io.Serializable;
 
@@ -63,6 +66,12 @@ public interface ObjectActionLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectActionLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the object action local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ObjectActionLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectAction addObjectAction(
+			long userId, long objectDefinitionId, boolean active, String name,
+			String objectActionExecutorKey, String objectActionTriggerKey,
+			UnicodeProperties parametersUnicodeProperties)
+		throws PortalException;
 
 	/**
 	 * Adds the object action to the database. Also notifies the appropriate model listeners.
@@ -118,6 +127,7 @@ public interface ObjectActionLocalService
 	 * @return the object action that was removed
 	 */
 	@Indexable(type = IndexableType.DELETE)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ObjectAction deleteObjectAction(ObjectAction objectAction);
 
 	/**
@@ -286,6 +296,12 @@ public interface ObjectActionLocalService
 	@Override
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectAction updateObjectAction(
+			long objectActionId, boolean active, String name,
+			UnicodeProperties parametersUnicodeProperties)
 		throws PortalException;
 
 	/**

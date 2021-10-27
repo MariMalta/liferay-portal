@@ -105,12 +105,11 @@ public class ObjectEntryKeywordQueryContributor
 						new TermQueryImpl(Field.ENTRY_CLASS_PK, token),
 						BooleanClauseOccur.SHOULD);
 
-					String titleField =
-						"objectEntryTitle_" +
-							LocaleUtil.toLanguageId(searchContext.getLocale());
+					String titleField = "objectEntryTitle";
 
 					booleanQuery.add(
-						new MatchQuery(titleField, token),
+						new WildcardQueryImpl(
+							titleField, token + StringPool.STAR),
 						BooleanClauseOccur.SHOULD);
 
 					QueryConfig queryConfig = searchContext.getQueryConfig();

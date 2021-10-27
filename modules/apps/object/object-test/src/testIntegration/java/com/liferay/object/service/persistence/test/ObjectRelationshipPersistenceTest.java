@@ -145,11 +145,15 @@ public class ObjectRelationshipPersistenceTest {
 
 		newObjectRelationship.setObjectFieldId2(RandomTestUtil.nextLong());
 
+		newObjectRelationship.setDeletionType(RandomTestUtil.randomString());
+
 		newObjectRelationship.setDBTableName(RandomTestUtil.randomString());
 
 		newObjectRelationship.setLabel(RandomTestUtil.randomString());
 
 		newObjectRelationship.setName(RandomTestUtil.randomString());
+
+		newObjectRelationship.setReverse(RandomTestUtil.randomBoolean());
 
 		newObjectRelationship.setType(RandomTestUtil.randomString());
 
@@ -194,6 +198,9 @@ public class ObjectRelationshipPersistenceTest {
 			existingObjectRelationship.getObjectFieldId2(),
 			newObjectRelationship.getObjectFieldId2());
 		Assert.assertEquals(
+			existingObjectRelationship.getDeletionType(),
+			newObjectRelationship.getDeletionType());
+		Assert.assertEquals(
 			existingObjectRelationship.getDBTableName(),
 			newObjectRelationship.getDBTableName());
 		Assert.assertEquals(
@@ -202,6 +209,9 @@ public class ObjectRelationshipPersistenceTest {
 		Assert.assertEquals(
 			existingObjectRelationship.getName(),
 			newObjectRelationship.getName());
+		Assert.assertEquals(
+			existingObjectRelationship.isReverse(),
+			newObjectRelationship.isReverse());
 		Assert.assertEquals(
 			existingObjectRelationship.getType(),
 			newObjectRelationship.getType());
@@ -266,6 +276,19 @@ public class ObjectRelationshipPersistenceTest {
 	}
 
 	@Test
+	public void testCountByODI1_ODI2_N_R_T() throws Exception {
+		_persistence.countByODI1_ODI2_N_R_T(
+			RandomTestUtil.nextLong(), RandomTestUtil.nextLong(), "",
+			RandomTestUtil.randomBoolean(), "");
+
+		_persistence.countByODI1_ODI2_N_R_T(
+			0L, 0L, "null", RandomTestUtil.randomBoolean(), "null");
+
+		_persistence.countByODI1_ODI2_N_R_T(
+			0L, 0L, (String)null, RandomTestUtil.randomBoolean(), (String)null);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		ObjectRelationship newObjectRelationship = addObjectRelationship();
 
@@ -295,8 +318,8 @@ public class ObjectRelationshipPersistenceTest {
 			"objectRelationshipId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
 			"objectDefinitionId1", true, "objectDefinitionId2", true,
-			"objectFieldId2", true, "dbTableName", true, "label", true, "name",
-			true, "type", true);
+			"objectFieldId2", true, "deletionType", true, "dbTableName", true,
+			"label", true, "name", true, "reverse", true, "type", true);
 	}
 
 	@Test
@@ -591,6 +614,32 @@ public class ObjectRelationshipPersistenceTest {
 			ReflectionTestUtil.invoke(
 				objectRelationship, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "name"));
+
+		Assert.assertEquals(
+			Long.valueOf(objectRelationship.getObjectDefinitionId1()),
+			ReflectionTestUtil.<Long>invoke(
+				objectRelationship, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "objectDefinitionId1"));
+		Assert.assertEquals(
+			Long.valueOf(objectRelationship.getObjectDefinitionId2()),
+			ReflectionTestUtil.<Long>invoke(
+				objectRelationship, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "objectDefinitionId2"));
+		Assert.assertEquals(
+			objectRelationship.getName(),
+			ReflectionTestUtil.invoke(
+				objectRelationship, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "name"));
+		Assert.assertEquals(
+			Boolean.valueOf(objectRelationship.getReverse()),
+			ReflectionTestUtil.<Boolean>invoke(
+				objectRelationship, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "reverse"));
+		Assert.assertEquals(
+			objectRelationship.getType(),
+			ReflectionTestUtil.invoke(
+				objectRelationship, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "type_"));
 	}
 
 	protected ObjectRelationship addObjectRelationship() throws Exception {
@@ -618,11 +667,15 @@ public class ObjectRelationshipPersistenceTest {
 
 		objectRelationship.setObjectFieldId2(RandomTestUtil.nextLong());
 
+		objectRelationship.setDeletionType(RandomTestUtil.randomString());
+
 		objectRelationship.setDBTableName(RandomTestUtil.randomString());
 
 		objectRelationship.setLabel(RandomTestUtil.randomString());
 
 		objectRelationship.setName(RandomTestUtil.randomString());
+
+		objectRelationship.setReverse(RandomTestUtil.randomBoolean());
 
 		objectRelationship.setType(RandomTestUtil.randomString());
 

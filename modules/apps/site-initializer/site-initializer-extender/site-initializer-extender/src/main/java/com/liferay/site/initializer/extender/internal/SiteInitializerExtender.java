@@ -15,10 +15,6 @@
 package com.liferay.site.initializer.extender.internal;
 
 import com.liferay.asset.list.service.AssetListEntryLocalService;
-import com.liferay.commerce.account.util.CommerceAccountRoleHelper;
-import com.liferay.commerce.currency.service.CommerceCurrencyLocalService;
-import com.liferay.commerce.product.importer.CPFileImporter;
-import com.liferay.commerce.product.service.CPMeasurementUnitLocalService;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMTemplateLocalService;
@@ -26,8 +22,6 @@ import com.liferay.dynamic.data.mapping.util.DefaultDDMStructureHelper;
 import com.liferay.fragment.importer.FragmentsImporter;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyCategoryResource;
 import com.liferay.headless.admin.taxonomy.resource.v1_0.TaxonomyVocabularyResource;
-import com.liferay.headless.commerce.admin.catalog.resource.v1_0.CatalogResource;
-import com.liferay.headless.commerce.admin.channel.resource.v1_0.ChannelResource;
 import com.liferay.headless.delivery.resource.v1_0.DocumentFolderResource;
 import com.liferay.headless.delivery.resource.v1_0.DocumentResource;
 import com.liferay.headless.delivery.resource.v1_0.StructuredContentFolderResource;
@@ -37,6 +31,7 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalServ
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.util.LayoutCopyHelper;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
+import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
@@ -48,6 +43,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.settings.SettingsFactory;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.security.service.access.policy.service.SAPEntryLocalService;
 import com.liferay.remote.app.service.RemoteAppEntryLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuItemLocalService;
 import com.liferay.site.navigation.service.SiteNavigationMenuLocalService;
@@ -65,6 +61,8 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 import org.osgi.util.tracker.BundleTracker;
 import org.osgi.util.tracker.BundleTrackerCustomizer;
 
@@ -91,21 +89,20 @@ public class SiteInitializerExtender
 		SiteInitializerExtension siteInitializerExtension =
 			new SiteInitializerExtension(
 				_assetListEntryLocalService, bundle, _bundleContext,
-				_catalogResourceFactory, _channelResourceFactory,
-				_commerceAccountRoleHelper, _commerceCurrencyLocalService,
-				_cpFileImporter, _cpMeasurementUnitLocalService,
-				_ddmStructureLocalService, _ddmTemplateLocalService,
-				_defaultDDMStructureHelper, _dlURLHelper,
-				_documentFolderResourceFactory, _documentResourceFactory,
-				_fragmentsImporter, _groupLocalService,
-				_journalArticleLocalService, _jsonFactory, _layoutCopyHelper,
-				_layoutLocalService, _layoutPageTemplateEntryLocalService,
+				_commerceReferencesHolder, _ddmStructureLocalService,
+				_ddmTemplateLocalService, _defaultDDMStructureHelper,
+				_dlURLHelper, _documentFolderResourceFactory,
+				_documentResourceFactory, _fragmentsImporter,
+				_groupLocalService, _journalArticleLocalService, _jsonFactory,
+				_layoutCopyHelper, _layoutLocalService,
+				_layoutPageTemplateEntryLocalService,
 				_layoutPageTemplatesImporter,
 				_layoutPageTemplateStructureLocalService,
 				_layoutSetLocalService, _objectDefinitionResourceFactory,
-				_portal, _remoteAppEntryLocalService,
+				_objectEntryLocalService, _portal, _remoteAppEntryLocalService,
 				_resourcePermissionLocalService, _roleLocalService,
-				_settingsFactory, _siteNavigationMenuItemLocalService,
+				_sapEntryLocalService, _settingsFactory,
+				_siteNavigationMenuItemLocalService,
 				_siteNavigationMenuItemTypeRegistry,
 				_siteNavigationMenuLocalService,
 				_structuredContentFolderResourceFactory,
@@ -153,23 +150,11 @@ public class SiteInitializerExtender
 	private BundleContext _bundleContext;
 	private BundleTracker<?> _bundleTracker;
 
-	@Reference
-	private CatalogResource.Factory _catalogResourceFactory;
-
-	@Reference
-	private ChannelResource.Factory _channelResourceFactory;
-
-	@Reference
-	private CommerceAccountRoleHelper _commerceAccountRoleHelper;
-
-	@Reference
-	private CommerceCurrencyLocalService _commerceCurrencyLocalService;
-
-	@Reference
-	private CPFileImporter _cpFileImporter;
-
-	@Reference
-	private CPMeasurementUnitLocalService _cpMeasurementUnitLocalService;
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private CommerceReferencesHolder _commerceReferencesHolder;
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
@@ -225,6 +210,9 @@ public class SiteInitializerExtender
 	private ObjectDefinitionResource.Factory _objectDefinitionResourceFactory;
 
 	@Reference
+	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Reference
 	private Portal _portal;
 
 	@Reference
@@ -235,6 +223,9 @@ public class SiteInitializerExtender
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private SAPEntryLocalService _sapEntryLocalService;
 
 	@Reference
 	private SettingsFactory _settingsFactory;

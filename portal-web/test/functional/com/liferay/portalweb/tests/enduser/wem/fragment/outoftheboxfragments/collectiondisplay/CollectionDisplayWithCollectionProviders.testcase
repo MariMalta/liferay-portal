@@ -40,10 +40,10 @@ definition {
 				groupName = "Test Site Name",
 				title = "Web Content Title");
 
-			JSONBlog.addEntry(
-				entryContent = "Blogs Entry Content",
-				entryTitle = "Blogs Entry Title",
-				groupName = "Test Site Name");
+			HeadlessBlog.addBlogEntry(
+				content = "Blogs Entry Content",
+				groupName = "Test Site Name",
+				title = "Blogs Entry Title");
 
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
@@ -190,10 +190,10 @@ definition {
 				groupName = "Test Site Name",
 				title = "Web Content Title");
 
-			JSONBlog.addEntry(
-				entryContent = "Blogs Entry Content",
-				entryTitle = "Blogs Entry Title",
-				groupName = "Test Site Name");
+			HeadlessBlog.addBlogEntry(
+				content = "Blogs Entry Content",
+				groupName = "Test Site Name",
+				title = "Blogs Entry Title");
 
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
@@ -990,7 +990,7 @@ definition {
 			PageEditor.editContentDisplay(
 				fragmentName = "Content Display",
 				inCollectionDisplay = "true",
-				templateOption = "Abstract");
+				template = "Abstract");
 
 			var n = "1";
 
@@ -1141,7 +1141,7 @@ definition {
 		}
 
 		task ("Select the Bulleted List as List Style and Abstract as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1205,7 +1205,7 @@ definition {
 		}
 
 		task ("Select the Inline List as List Style and Abstract as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1269,7 +1269,7 @@ definition {
 		}
 
 		task ("Select the Numbered List as List Style and Abstract as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1333,7 +1333,7 @@ definition {
 		}
 
 		task ("Select the Unstyled List as List Style and Abstract as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1408,10 +1408,10 @@ definition {
 				groupName = "Test Site Name",
 				title = "Web Content Title");
 
-			JSONBlog.addEntry(
-				entryContent = "Blogs Entry Content",
-				entryTitle = "Blogs Entry Title",
-				groupName = "Test Site Name");
+			HeadlessBlog.addBlogEntry(
+				content = "Blogs Entry Content",
+				groupName = "Test Site Name",
+				title = "Blogs Entry Title");
 
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
@@ -1485,10 +1485,10 @@ definition {
 				groupName = "Test Site Name",
 				title = "Web Content Title");
 
-			JSONBlog.addEntry(
-				entryContent = "Blogs Entry Content",
-				entryTitle = "Blogs Entry Title",
-				groupName = "Test Site Name");
+			HeadlessBlog.addBlogEntry(
+				content = "Blogs Entry Content",
+				groupName = "Test Site Name",
+				title = "Blogs Entry Title");
 
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentDescription = "DM Document Description",
@@ -1511,7 +1511,7 @@ definition {
 		task ("Assert assets' title are displayed in Collection Display with Content Display") {
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
-				infoListProviderName = "Most Viewed Asset");
+				infoListProviderName = "Most Viewed Assets");
 
 			PageEditor.addFragmentToCollectionDisplay(
 				collectionName = "Content Display",
@@ -1521,7 +1521,7 @@ definition {
 			PageEditor.editContentDisplay(
 				fragmentName = "Content Display",
 				inCollectionDisplay = "true",
-				templateOption = "Full Content");
+				template = "Full Content");
 
 			AssertVisible(
 				key_colPosition = "1",
@@ -1677,7 +1677,7 @@ definition {
 		}
 
 		task ("Select the Bulleted List as List Style and Full Content as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1741,7 +1741,7 @@ definition {
 		}
 
 		task ("Select the Inline List as List Style and Full Content as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1805,7 +1805,7 @@ definition {
 		}
 
 		task ("Select the Numbered List as List Style and Full Content as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1869,7 +1869,7 @@ definition {
 		}
 
 		task ("Select the Unstyled List as List Style and Full Content as List Item Style") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.editCollectionDisplay(
 				fragmentName = "Collection Display",
@@ -1996,15 +1996,14 @@ definition {
 				targetFragmentName = "Heading");
 
 			for (var i : list "1,2,3") {
-				AssertVisible(
-					key_colPosition = "1",
-					key_rowPosition = "${i}",
-					locator1 = "PageEditor#COLLECTION_ITEM_RATING_STAR_EMPTY");
+				AssertTextEquals(
+					index = "${i}",
+					locator1 = "Fragment#CONTENT_RATINGS_YOUR_RATING_STAR_RESULT",
+					value1 = "-");
 
 				AssertVisible(
-					key_colPosition = "1",
-					key_rowPosition = "${i}",
-					locator1 = "PageEditor#COLLECTION_ITEM_AVERAGE_STAR");
+					index = "${i}",
+					locator1 = "Fragment#CONTENT_RATINGS_AVERAGE_STAR");
 			}
 		}
 
@@ -2016,19 +2015,16 @@ definition {
 				siteName = "Test Site Name");
 
 			Ratings.rateStarCollectionItem(
-				colPosition = "1",
-				ratingStarCount = "1 star",
-				rowPosition = "1");
+				position = "1",
+				ratingStarCount = "1");
 
 			Ratings.rateStarCollectionItem(
-				colPosition = "1",
-				ratingStarCount = "3 stars",
-				rowPosition = "2");
+				position = "2",
+				ratingStarCount = "3");
 
 			Ratings.rateStarCollectionItem(
-				colPosition = "1",
-				ratingStarCount = "5 stars",
-				rowPosition = "3");
+				position = "3",
+				ratingStarCount = "5");
 		}
 
 		task ("Assert the display order of collection items") {
@@ -2053,12 +2049,11 @@ definition {
 		task ("Assert ratings of collection items") {
 			var n = "1";
 
-			for (var ratingStarCount : list "5 stars,3 stars,1 star") {
-				AssertElementPresent(
-					key_colPosition = "1",
-					key_ratingStarCount = "${ratingStarCount}",
-					key_rowPosition = "${n}",
-					locator1 = "PageEditor#COLLECTION_ITEM_YOUR_RATING_STAR_RESULT");
+			for (var ratingStarCount : list "5,3,1") {
+				AssertTextEquals(
+					index = "${n}",
+					locator1 = "Fragment#CONTENT_RATINGS_YOUR_RATING_STAR_RESULT",
+					value1 = "${ratingStarCount}");
 
 				var n = ${n} + 1;
 			}
@@ -2067,9 +2062,8 @@ definition {
 
 			for (var averageStarCount : list "5.0,3.0,1.0") {
 				AssertTextEquals.assertPartialText(
-					key_colPosition = "1",
-					key_rowPosition = "${n}",
-					locator1 = "PageEditor#COLLECTION_ITEM_AVERAGE_STAR_RESULT",
+					index = "${n}",
+					locator1 = "Fragment#CONTENT_RATINGS_AVERAGE_STAR_RESULT",
 					value1 = "${averageStarCount}");
 
 				var n = ${n} + 1;
@@ -2088,10 +2082,10 @@ definition {
 				groupName = "Test Site Name",
 				title = "Web Content Title");
 
-			JSONBlog.addEntry(
-				entryContent = "Blogs Entry Content",
-				entryTitle = "Blogs Entry Title",
-				groupName = "Test Site Name");
+			HeadlessBlog.addBlogEntry(
+				content = "Blogs Entry Content",
+				groupName = "Test Site Name",
+				title = "Blogs Entry Title");
 
 			JSONDocument.addFileWithUploadedFile(
 				dmDocumentTitle = "Document Title",

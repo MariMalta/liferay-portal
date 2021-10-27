@@ -206,8 +206,7 @@ public class ContentDashboardItemSubtypeItemSelectorView
 				}
 
 				return LanguageUtil.format(
-					ResourceBundleUtil.getBundle(locale, getClass()),
-					"x-group-x",
+					locale, "x-group-x",
 					new String[] {
 						labelInfoLocalizedValue.getValue(locale),
 						_getGroupName(group, locale)
@@ -242,9 +241,6 @@ public class ContentDashboardItemSubtypeItemSelectorView
 				_getGroupIds(themeDisplay.getCompanyId()));
 
 		JSONArray itemSubtypesJSONArray = JSONFactoryUtil.createJSONArray();
-
-		InfoLocalizedValue<String> infoItemClassDetailsLabelInfoLocalizedValue =
-			infoItemClassDetails.getLabelInfoLocalizedValue();
 
 		for (InfoItemFormVariation infoItemFormVariation :
 				infoItemFormVariations) {
@@ -285,8 +281,14 @@ public class ContentDashboardItemSubtypeItemSelectorView
 				"itemSubtypes", itemSubtypesJSONArray
 			).put(
 				"label",
-				infoItemClassDetailsLabelInfoLocalizedValue.getValue(
-					themeDisplay.getLocale())
+				() -> {
+					InfoLocalizedValue<String>
+						infoItemClassDetailsLabelInfoLocalizedValue =
+							infoItemClassDetails.getLabelInfoLocalizedValue();
+
+					return infoItemClassDetailsLabelInfoLocalizedValue.getValue(
+						themeDisplay.getLocale());
+				}
 			));
 	}
 

@@ -304,6 +304,15 @@ public class ObjectDefinitionLocalServiceWrapper
 			companyId, name);
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectDefinition
+			fetchObjectDefinitionByClassName(long companyId, String className)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectDefinitionLocalService.fetchObjectDefinitionByClassName(
+			companyId, className);
+	}
+
 	/**
 	 * Returns the object definition with the matching UUID and company.
 	 *
@@ -365,15 +374,6 @@ public class ObjectDefinitionLocalServiceWrapper
 
 		return _objectDefinitionLocalService.getObjectDefinition(
 			objectDefinitionId);
-	}
-
-	@Override
-	public com.liferay.object.model.ObjectDefinition
-			getObjectDefinitionByClassName(long companyId, String className)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		return _objectDefinitionLocalService.getObjectDefinitionByClassName(
-			companyId, className);
 	}
 
 	/**
@@ -486,7 +486,8 @@ public class ObjectDefinitionLocalServiceWrapper
 	@Override
 	public com.liferay.object.model.ObjectDefinition
 			updateCustomObjectDefinition(
-				Long objectDefinitionId, boolean active,
+				Long objectDefinitionId, long descriptionObjectFieldId,
+				long titleObjectFieldId, boolean active,
 				java.util.Map<java.util.Locale, String> labelMap, String name,
 				String panelAppOrder, String panelCategoryKey,
 				java.util.Map<java.util.Locale, String> pluralLabelMap,
@@ -494,8 +495,9 @@ public class ObjectDefinitionLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectDefinitionLocalService.updateCustomObjectDefinition(
-			objectDefinitionId, active, labelMap, name, panelAppOrder,
-			panelCategoryKey, pluralLabelMap, scope);
+			objectDefinitionId, descriptionObjectFieldId, titleObjectFieldId,
+			active, labelMap, name, panelAppOrder, panelCategoryKey,
+			pluralLabelMap, scope);
 	}
 
 	/**

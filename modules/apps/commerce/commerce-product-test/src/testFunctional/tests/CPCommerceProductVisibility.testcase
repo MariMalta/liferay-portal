@@ -14,20 +14,17 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
-		}
-		else {
-			Navigator.openURL();
-
-			CommerceConfiguration.commerceAdminTearDown();
-
-			CommerceConfiguration.commerceInitializersTearDown();
-
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
 			User.logoutPG();
 		}
+
+		User.firstLoginPG();
+
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6088. AddAccountGroupFilter"
@@ -98,10 +95,7 @@ definition {
 
 		// TODO Review
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Account Groups");
+		AccountGroups.openAccountGroupsAdmin();
 
 		Click(locator1 = "Button#PLUS");
 
@@ -160,17 +154,6 @@ definition {
 		property test.name.skip.portal.instance = "CPCommerceProductVisibility#RemoveAChannelFilter";
 
 		CommerceNavigator.gotoPortlet(
-			category = "Store Management",
-			portlet = "Channels");
-
-		Click(locator1 = "Button#PLUS");
-
-		CommerceEntry.addNewChannelsEntry(
-			channelCurrency = "US Dollar",
-			channelName = "Test Channel",
-			channelType = "Site");
-
-		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
 			portlet = "Products");
 
@@ -198,6 +181,10 @@ definition {
 		Button.click(button = "Add");
 
 		Alert.viewSuccessMessage();
+
+		WaitForElementPresent(
+			key_productName = "Test Channel",
+			locator1 = "CommerceOrders#ORDER_DETAILS_PRODUCT_NAME");
 
 		Button.click(button = "Delete");
 

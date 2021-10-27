@@ -11,6 +11,11 @@
 
 <tbody>
 	<tr>
+		<td>ANY_SEARCHABLE_SECTION_TITLE</td>
+		<td>//*[contains (text(), 'Searchable')]</td>
+		<td></td>
+	</tr>
+	<tr>
 		<td>OPEN_FORM_SETTINGS</td>
 		<td>//button[@class='btn btn-monospaced btn-outline-borderless btn-outline-secondary btn-sm lfr-ddm-button lfr-ddm-settings-button']</td>
 		<td></td>
@@ -113,6 +118,16 @@
 	<tr>
 		<td>GO_TO_FORM_FIELD</td>
 		<td>//label[contains(.,'${key_formFieldName}')]</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>REPEATABLE_TOGGLE_SWITCH</td>
+		<td>//div[@data-field-name = 'repeatable']</td>
+		<td></td>
+	</tr>
+	<tr>
+		<td>REQUIRED_FIELD_OPTION_DISABLED</td>
+		<td>//label[@class = 'toggle-switch' and contains(text(),'Required Field')]//label[@class = 'toggle-switch simple-toggle-switch disabled']</td>
 		<td></td>
 	</tr>
 </tbody>

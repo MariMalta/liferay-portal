@@ -23,7 +23,7 @@ definition {
 
 			Type(
 				locator1 = "SiteSettingsStaging#REMOTE_STAGING_SITE_ID",
-				value1 = "${depotID}");
+				value1 = "${groupID}");
 		}
 		else {
 			Check.checkHiddenToggleSwitch(locator1 = "SiteSettingsStaging#STAGING_LOCAL_LIVE");
@@ -350,7 +350,9 @@ definition {
 
 			AssertConfirm(value1 = "Disabling the Recycle Bin prevents the restoring of content that has been moved to the Recycle Bin.");
 
-			AssertNotChecked.assertNotCheckedNotVisible(locator1 = "Checkbox#ENABLE_RECYCLE_BIN");
+			Depot.viewDepotConfiguration(
+				configuration = "disabled",
+				toggleSwitchLabel = "Enable Recycle Bin");
 		}
 
 		PortletEntry.save();
@@ -443,6 +445,17 @@ definition {
 	}
 
 	macro deleteContentViaBulkEditing {
+		if (isSet(webContentTitle)) {
+			Check(
+				key_webContentTitle = "${webContentTitle}",
+				locator1 = "WC#ENTRY_LIST_CHECKBOX");
+		}
+		else if (isSet(dmDocumentTitle)) {
+			LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+			DMDocument.selectDocuments(dmDocumentTitle = "${dmDocumentTitle}");
+		}
+
 		if (isSet(recycleBinDisabled)) {
 			ClickNoError(locator1 = "Icon#DELETE");
 
@@ -573,7 +586,7 @@ definition {
 		}
 	}
 
-	macro getDepotID {
+	macro getGroupID {
 		ApplicationsMenu.gotoPortlet(
 			category = "Content",
 			panel = "Applications",
@@ -583,9 +596,9 @@ definition {
 			depotName = "${depotName}",
 			portlet = "Asset Library Settings");
 
-		var depotID = selenium.getElementValue("//input[contains(@id,'assetLibraryId')]");
+		var groupID = selenium.getElementValue("//input[contains(@id,'groupId')]");
 
-		return "${depotID}";
+		return "${groupID}";
 	}
 
 	macro moveLanguage {
@@ -626,7 +639,7 @@ definition {
 
 		Depot.addDepot(depotName = "Remote Depot");
 
-		var depotID = Depot.getDepotID(depotName = "Remote Depot");
+		var groupID = Depot.getGroupID(depotName = "Remote Depot");
 
 		if (isSet(remotePort)) {
 			User.loginPG(
@@ -642,8 +655,8 @@ definition {
 		DepotNavigator.gotoPortlet(portlet = "Staging");
 
 		Depot.activateStaging(
-			depotID = "${depotID}",
 			depotName = "${depotName}",
+			groupID = "${groupID}",
 			remotePort = "${remotePort}",
 			remoteStaging = "true");
 	}
@@ -933,6 +946,19 @@ definition {
 		AssertElementPresent(locator1 = "Button#SAVE");
 	}
 
+	macro viewDepotConfiguration {
+		if ("${configuration}" == "enabled") {
+			AssertChecked.assertCheckedNotVisible(
+				key_toggleSwitchLabel = "${toggleSwitchLabel}",
+				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+		}
+		else if ("${configuration}" == "disabled") {
+			AssertNotChecked.assertNotCheckedNotVisible(
+				key_toggleSwitchLabel = "${toggleSwitchLabel}",
+				locator1 = "ToggleSwitch#ANY_TOGGLE_SWITCH");
+		}
+	}
+
 	macro viewDMWorkflowPresent {
 		DMFolder.gotoEditCP(folderName = "${dmFolderName}");
 
@@ -1112,6 +1138,12 @@ definition {
 		AssertElementNotPresent(
 			key_text = "${dmDocumentTitle}",
 			locator1 = "Link#ANY");
+	}
+
+	macro viewNoPanel {
+		AssertElementNotPresent(
+			key_panel = "${panelName}",
+			locator1 = "Panel#PANEL");
 	}
 
 	macro viewNoWorkflowResource {

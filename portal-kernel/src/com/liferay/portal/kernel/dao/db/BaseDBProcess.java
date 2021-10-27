@@ -15,6 +15,7 @@
 package com.liferay.portal.kernel.dao.db;
 
 import com.liferay.petra.function.UnsafeConsumer;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.reflect.ReflectionUtil;
@@ -30,16 +31,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -245,27 +242,9 @@ public abstract class BaseDBProcess implements DBProcess {
 	}
 
 	protected void processConcurrently(
-			PreparedStatement preparedStatement,
-			UnsafeConsumer<ResultRow, Exception> unsafeConsumer,
-			String exceptionMessage)
-		throws Exception {
-
-		try (ResultSet resultSet = preparedStatement.executeQuery()) {
-			_processConcurrently(
-				() -> {
-					if (resultSet.next()) {
-						return new ResultRow(resultSet);
-					}
-
-					return null;
-				},
-				unsafeConsumer, exceptionMessage);
-		}
-	}
-
-	protected void processConcurrently(
 			String sqlQuery,
-			UnsafeConsumer<ResultRow, Exception> unsafeConsumer,
+			UnsafeFunction<ResultSet, Object[], Exception> unsafeFunction,
+			UnsafeConsumer<Object[], Exception> unsafeConsumer,
 			String exceptionMessage)
 		throws Exception {
 
@@ -275,7 +254,7 @@ public abstract class BaseDBProcess implements DBProcess {
 			_processConcurrently(
 				() -> {
 					if (resultSet.next()) {
-						return new ResultRow(resultSet);
+						return unsafeFunction.apply(resultSet);
 					}
 
 					return null;
@@ -305,48 +284,6 @@ public abstract class BaseDBProcess implements DBProcess {
 	}
 
 	protected Connection connection;
-
-	protected class ResultRow {
-
-		public ResultRow(ResultSet resultSet) throws SQLException {
-			ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
-			int columnCount = resultSetMetaData.getColumnCount();
-
-			_columns = new LinkedHashMap<>(columnCount);
-
-			for (int i = 1; i <= columnCount; i++) {
-				_columns.put(
-					StringUtil.toLowerCase(resultSetMetaData.getColumnLabel(i)),
-					resultSet.getObject(i));
-			}
-		}
-
-		public <T> T get(int columnIndex) throws SQLException {
-			int i = 1;
-
-			for (Map.Entry<Object, Object> entry : _columns.entrySet()) {
-				if (i++ == columnIndex) {
-					return (T)entry.getValue();
-				}
-			}
-
-			throw new SQLException("Invalid column index");
-		}
-
-		public <T> T get(String columnLabel) throws SQLException {
-			T value = (T)_columns.get(StringUtil.toLowerCase(columnLabel));
-
-			if (value == null) {
-				throw new SQLException("Invalid column name");
-			}
-
-			return value;
-		}
-
-		private final Map<Object, Object> _columns;
-
-	}
 
 	private <T> void _processConcurrently(
 			UnsafeSupplier<T, Exception> unsafeSupplier,

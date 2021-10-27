@@ -55,6 +55,10 @@ public class ObjectRelationship implements Serializable {
 		return ObjectMapperUtil.readValue(ObjectRelationship.class, json);
 	}
 
+	public static ObjectRelationship unsafeToDTO(String json) {
+		return ObjectMapperUtil.unsafeReadValue(ObjectRelationship.class, json);
+	}
+
 	@Schema
 	@Valid
 	public Map<String, Map<String, String>> getActions() {
@@ -84,6 +88,44 @@ public class ObjectRelationship implements Serializable {
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected Map<String, Map<String, String>> actions;
+
+	@Schema
+	@Valid
+	public DeletionType getDeletionType() {
+		return deletionType;
+	}
+
+	@JsonIgnore
+	public String getDeletionTypeAsString() {
+		if (deletionType == null) {
+			return null;
+		}
+
+		return deletionType.toString();
+	}
+
+	public void setDeletionType(DeletionType deletionType) {
+		this.deletionType = deletionType;
+	}
+
+	@JsonIgnore
+	public void setDeletionType(
+		UnsafeSupplier<DeletionType, Exception> deletionTypeUnsafeSupplier) {
+
+		try {
+			deletionType = deletionTypeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected DeletionType deletionType;
 
 	@Schema
 	public Long getId() {
@@ -223,6 +265,34 @@ public class ObjectRelationship implements Serializable {
 	protected Long objectDefinitionId2;
 
 	@Schema
+	public String getObjectDefinitionName2() {
+		return objectDefinitionName2;
+	}
+
+	public void setObjectDefinitionName2(String objectDefinitionName2) {
+		this.objectDefinitionName2 = objectDefinitionName2;
+	}
+
+	@JsonIgnore
+	public void setObjectDefinitionName2(
+		UnsafeSupplier<String, Exception> objectDefinitionName2UnsafeSupplier) {
+
+		try {
+			objectDefinitionName2 = objectDefinitionName2UnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String objectDefinitionName2;
+
+	@Schema
 	@Valid
 	public Type getType() {
 		return type;
@@ -295,6 +365,20 @@ public class ObjectRelationship implements Serializable {
 			sb.append(_toJSON(actions));
 		}
 
+		if (deletionType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deletionType\": ");
+
+			sb.append("\"");
+
+			sb.append(deletionType);
+
+			sb.append("\"");
+		}
+
 		if (id != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -349,6 +433,20 @@ public class ObjectRelationship implements Serializable {
 			sb.append(objectDefinitionId2);
 		}
 
+		if (objectDefinitionName2 != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionName2\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectDefinitionName2));
+
+			sb.append("\"");
+		}
+
 		if (type != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -375,11 +473,48 @@ public class ObjectRelationship implements Serializable {
 	)
 	public String xClassName;
 
+	@GraphQLName("DeletionType")
+	public static enum DeletionType {
+
+		CASCADE("cascade"), DISASSOCIATE("disassociate"), PREVENT("prevent");
+
+		@JsonCreator
+		public static DeletionType create(String value) {
+			if ((value == null) || value.equals("")) {
+				return null;
+			}
+
+			for (DeletionType deletionType : values()) {
+				if (Objects.equals(deletionType.getValue(), value)) {
+					return deletionType;
+				}
+			}
+
+			throw new IllegalArgumentException("Invalid enum value: " + value);
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private DeletionType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
+
 	@GraphQLName("Type")
 	public static enum Type {
 
-		ONE_TO_MANY("one_to_many"), ONE_TO_ONE("one_to_one"),
-		MANY_TO_MANY("many_to_many");
+		ONE_TO_MANY("oneToMany"), MANY_TO_MANY("manyToMany");
 
 		@JsonCreator
 		public static Type create(String value) {

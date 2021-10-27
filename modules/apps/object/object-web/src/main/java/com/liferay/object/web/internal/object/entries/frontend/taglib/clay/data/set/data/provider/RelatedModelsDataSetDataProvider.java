@@ -83,8 +83,7 @@ public class RelatedModelsDataSetDataProvider
 				objectRelationshipId, objectEntryId,
 				pagination.getStartPosition(), pagination.getEndPosition()),
 			objectEntry -> new RelatedModel(
-				objectEntry.getObjectEntryId(),
-				String.valueOf(objectEntry.getObjectEntryId())));
+				objectEntry.getObjectEntryId(), objectEntry.getTitleValue()));
 	}
 
 	@Override

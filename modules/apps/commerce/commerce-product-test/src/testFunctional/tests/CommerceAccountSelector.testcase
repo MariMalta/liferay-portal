@@ -12,34 +12,29 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "COMMERCE-5937. As a buyer, I want open Account Selector to close if I open the Global Search"
 	@priority = "3"
 	test AssertAccountSelectorIsClosedAfterGlobalSearchIsOpened {
-		property test.name.skip.portal.instance = "CommerceAccountSelector#AssertAccountSelectorIsClosedAfterGlobalSearchIsOpened";
-
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -65,9 +60,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -84,7 +77,6 @@ definition {
 	@priority = "3"
 	test AssertActiveAccountIsVisibleOnAccountSelectorBar {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceAccountSelector#AssertActiveAccountIsVisibleOnAccountSelectorBar";
 
 		// TODO Review
 
@@ -94,9 +86,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -118,9 +108,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -133,7 +121,6 @@ definition {
 	@priority = "3"
 	test ChangeActiveAccountFromAccountsList {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceAccountSelector#ChangeActiveAccountFromAccountsList";
 
 		// TODO Review
 
@@ -143,15 +130,11 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
-		Click(locator1 = "Link#BACK");
+		Navigator.gotoBack();
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 2",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 2");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -191,9 +174,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "test");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -247,7 +228,6 @@ definition {
 	@priority = "3"
 	test CreateNewOrderFromAccountSelectorDropdown {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CommerceAccountSelector#CreateNewOrderFromAccountSelectorDropdown";
 
 		// TODO Review
 
@@ -257,9 +237,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
@@ -293,15 +271,11 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "First Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "First Account");
 
-		Click(locator1 = "Link#BACK");
+		Navigator.gotoBack();
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Second Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Second Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -341,9 +315,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		Navigator.openWithAppendToBaseURL(urlAppend = "web/minium");
 
@@ -389,21 +361,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
-		Click(locator1 = "Link#BACK");
+		Navigator.gotoBack();
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 2",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 2");
 
-		Click(locator1 = "Link#BACK");
+		Navigator.gotoBack();
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 3",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 3");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -428,7 +394,6 @@ definition {
 	@priority = "3"
 	test ViewAccountSelectorDropdownOrdersList {
 		property portal.acceptance = "Intern Test";
-		property test.name.skip.portal.instance = "CommerceAccountSelector#ViewAccountSelectorDropdownOrdersList";
 
 		// TODO Review
 
@@ -438,9 +403,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Pending Orders");
 

@@ -14,10 +14,7 @@
 
 package com.liferay.search.experiences.internal.blueprint.search.request.body.contributor;
 
-import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -25,11 +22,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.geolocation.DistanceUnit;
 import com.liferay.portal.search.geolocation.GeoBuilders;
 import com.liferay.portal.search.geolocation.GeoDistanceType;
-import com.liferay.portal.search.query.Queries;
-import com.liferay.portal.search.script.Script;
-import com.liferay.portal.search.script.ScriptBuilder;
-import com.liferay.portal.search.script.ScriptType;
-import com.liferay.portal.search.script.Scripts;
 import com.liferay.portal.search.searcher.SearchRequest;
 import com.liferay.portal.search.searcher.SearchRequestBuilder;
 import com.liferay.portal.search.sort.FieldSort;
@@ -41,7 +33,8 @@ import com.liferay.portal.search.sort.SortMode;
 import com.liferay.portal.search.sort.SortOrder;
 import com.liferay.portal.search.sort.Sorts;
 import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterData;
-import com.liferay.search.experiences.internal.blueprint.parameter.SXPParameterParser;
+import com.liferay.search.experiences.internal.blueprint.query.QueryConverter;
+import com.liferay.search.experiences.internal.blueprint.script.ScriptConverter;
 import com.liferay.search.experiences.rest.dto.v1_0.Configuration;
 import com.liferay.search.experiences.rest.dto.v1_0.SXPBlueprint;
 import com.liferay.search.experiences.rest.dto.v1_0.SortConfiguration;
@@ -56,13 +49,12 @@ public class SortSXPSearchRequestBodyContributor
 	implements SXPSearchRequestBodyContributor {
 
 	public SortSXPSearchRequestBodyContributor(
-		GeoBuilders geoBuilders, JSONFactory jsonFactory, Queries queries,
-		Scripts scripts, Sorts sorts) {
+		GeoBuilders geoBuilders, QueryConverter queryConverter,
+		ScriptConverter scriptConverter, Sorts sorts) {
 
 		_geoBuilders = geoBuilders;
-		_jsonFactory = jsonFactory;
-		_queries = queries;
-		_scripts = scripts;
+		_queryConverter = queryConverter;
+		_scriptConverter = scriptConverter;
 		_sorts = sorts;
 	}
 
@@ -84,12 +76,10 @@ public class SortSXPSearchRequestBodyContributor
 			return;
 		}
 
-		JSONArray jsonArray = _createJSONArray(
-			sortConfiguration.getSortsJSONArrayString());
+		JSONArray jsonArray = (JSONArray)sortConfiguration.getSorts();
 
 		for (int i = 0; i < jsonArray.length(); i++) {
-			searchRequestBuilder.addSort(
-				_toSort(jsonArray.get(i), sxpParameterData));
+			searchRequestBuilder.addSort(_toSort(jsonArray.get(i)));
 		}
 	}
 
@@ -104,28 +94,6 @@ public class SortSXPSearchRequestBodyContributor
 		geoDistanceSort.addGeoLocationPoints(
 			_geoBuilders.geoLocationPoint(
 				jsonArray.getDouble(0), jsonArray.getDouble(1)));
-	}
-
-	private JSONArray _createJSONArray(String sortsJSONArrayString) {
-		try {
-			return _jsonFactory.createJSONArray(sortsJSONArrayString);
-		}
-		catch (JSONException jsonException) {
-			return ReflectionUtil.throwException(jsonException);
-		}
-	}
-
-	private Script _getScript(JSONObject jsonObject) {
-		Object object = jsonObject.get("script");
-
-		if (object instanceof JSONObject) {
-			return _toScript((JSONObject)object);
-		}
-		else if (object instanceof String) {
-			return _toScript((String)object);
-		}
-
-		throw new IllegalArgumentException();
 	}
 
 	private boolean _hasSorts(SearchRequestBuilder searchRequestBuilder) {
@@ -153,19 +121,9 @@ public class SortSXPSearchRequestBodyContributor
 	private void _processGeoDistanceUnit(
 		GeoDistanceSort geoDistanceSort, JSONObject jsonObject) {
 
-		if (!jsonObject.has("unit")) {
-			return;
-		}
-
-		String unit = StringUtil.toLowerCase(jsonObject.getString("unit"));
-
-		for (DistanceUnit distanceUnit : DistanceUnit.values()) {
-			if (Objects.equals(distanceUnit.getUnit(), unit)) {
-				geoDistanceSort.setDistanceUnit(distanceUnit);
-
-				return;
-			}
-		}
+		geoDistanceSort.setDistanceUnit(
+			DistanceUnit.create(
+				StringUtil.toLowerCase(jsonObject.getString("unit"))));
 	}
 
 	private void _processGeoLocationPoints(
@@ -213,26 +171,6 @@ public class SortSXPSearchRequestBodyContributor
 		}
 	}
 
-	private void _processScriptOptions(
-		JSONObject jsonObject, ScriptBuilder scriptBuilder) {
-
-		if (jsonObject != null) {
-			for (String key : jsonObject.keySet()) {
-				scriptBuilder.putOption(key, jsonObject.getString(key));
-			}
-		}
-	}
-
-	private void _processScriptParams(
-		JSONObject jsonObject, ScriptBuilder scriptBuilder) {
-
-		if (jsonObject != null) {
-			for (String key : jsonObject.keySet()) {
-				scriptBuilder.putParameter(key, jsonObject.get(key));
-			}
-		}
-	}
-
 	private void _processSortOrder(JSONObject jsonObject, Sort sort) {
 		if (jsonObject.has("order")) {
 			sort.setSortOrder(_toSortOrder(jsonObject.getString("order")));
@@ -254,15 +192,15 @@ public class SortSXPSearchRequestBodyContributor
 			fieldSort.setMissing(jsonObject.getString("missing"));
 		}
 
+		if (jsonObject.has("nested")) {
+			fieldSort.setNestedSort(
+				_toNestedSort(jsonObject.getJSONObject("nested")));
+		}
+
 		if (jsonObject.has("mode")) {
 			fieldSort.setSortMode(
 				SortMode.valueOf(
 					StringUtil.toUpperCase(jsonObject.getString("mode"))));
-		}
-
-		if (jsonObject.has("nested")) {
-			fieldSort.setNestedSort(
-				_toNestedSort(jsonObject.getJSONObject("nested")));
 		}
 
 		_processSortOrder(jsonObject, fieldSort);
@@ -298,9 +236,7 @@ public class SortSXPSearchRequestBodyContributor
 		NestedSort nestedSort = _sorts.nested(jsonObject.getString("path"));
 
 		if (jsonObject.has("filter")) {
-			nestedSort.setFilterQuery(
-				_queries.wrapper(
-					String.valueOf(jsonObject.getJSONObject("filter"))));
+			nestedSort.setFilterQuery(_queryConverter.toQuery(jsonObject));
 		}
 
 		if (jsonObject.has("nested")) {
@@ -311,49 +247,9 @@ public class SortSXPSearchRequestBodyContributor
 		return nestedSort;
 	}
 
-	private Script _toScript(JSONObject jsonObject) {
-		ScriptBuilder scriptBuilder = _scripts.builder();
-
-		if (jsonObject.has("id")) {
-			scriptBuilder.idOrCode(
-				jsonObject.getString("id")
-			).scriptType(
-				ScriptType.STORED
-			);
-		}
-		else if (jsonObject.has("source")) {
-			scriptBuilder.idOrCode(
-				jsonObject.getString("source")
-			).scriptType(
-				ScriptType.INLINE
-			);
-		}
-
-		if (jsonObject.has("lang")) {
-			scriptBuilder.language(jsonObject.getString("lang"));
-		}
-
-		_processScriptOptions(
-			jsonObject.getJSONObject("options"), scriptBuilder);
-		_processScriptParams(jsonObject.getJSONObject("params"), scriptBuilder);
-
-		return scriptBuilder.build();
-	}
-
-	private Script _toScript(String string) {
-		return _scripts.builder(
-		).idOrCode(
-			string
-		).language(
-			"painless"
-		).scriptType(
-			ScriptType.INLINE
-		).build();
-	}
-
 	private Sort _toScriptSort(JSONObject jsonObject) {
 		ScriptSort scriptSort = _sorts.script(
-			_getScript(jsonObject),
+			_scriptConverter.toScript(jsonObject.get("script")),
 			ScriptSort.ScriptSortType.valueOf(
 				StringUtil.toUpperCase(jsonObject.getString("type"))));
 
@@ -385,10 +281,9 @@ public class SortSXPSearchRequestBodyContributor
 		throw new IllegalArgumentException();
 	}
 
-	private Sort _toSort(Object object, SXPParameterData sxpParameterData) {
+	private Sort _toSort(Object object) {
 		if (object instanceof JSONObject) {
-			return _toSort(
-				SXPParameterParser.parse((JSONObject)object, sxpParameterData));
+			return _toSort((JSONObject)object);
 		}
 		else if (object instanceof String) {
 			return _toFieldSort((String)object);
@@ -402,9 +297,8 @@ public class SortSXPSearchRequestBodyContributor
 	}
 
 	private final GeoBuilders _geoBuilders;
-	private final JSONFactory _jsonFactory;
-	private final Queries _queries;
-	private final Scripts _scripts;
+	private final QueryConverter _queryConverter;
+	private final ScriptConverter _scriptConverter;
 	private final Sorts _sorts;
 
 }

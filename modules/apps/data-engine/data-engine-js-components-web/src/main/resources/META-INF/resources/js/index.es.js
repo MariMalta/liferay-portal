@@ -15,6 +15,7 @@
 // Utils
 
 export {default as compose} from './utils/compose.es';
+export * as DRAG_TYPES from './utils/dragTypes';
 export {convertToFormData, makeFetch} from './utils/fetch.es';
 export {normalizeFieldName} from './utils/fields.es';
 export * as FieldSetUtil from './utils/fieldSets';
@@ -26,6 +27,7 @@ export {getConnectedReactComponentAdapter} from './utils/ReactComponentAdapter.e
 export {generateName, getRepeatedIndex, parseName} from './utils/repeatable.es';
 export * as RulesSupport from './utils/rulesSupport';
 export {default as setDataRecord} from './utils/setDataRecord.es';
+export * as SettingsContext from './utils/settingsContext';
 export * as StringUtils from './utils/strings';
 export {PagesVisitor} from './utils/visitors.es';
 

@@ -503,9 +503,10 @@ definition {
 		task ("View the edited title shown in Item field") {
 			PageEditor.gotoConfiguration(fragmentName = "Content Display");
 
-			AssertVisible(
-				key_contentName = "Web Content Title Edit",
-				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT");
+			AssertTextEquals(
+				key_fieldLabel = "Item",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
+				value1 = "Web Content Title Edit");
 		}
 
 		task ("Define the permissions of web content via General panel") {
@@ -572,16 +573,13 @@ definition {
 
 			AssertAttributeValue(
 				attribute1 = "placeholder",
-				key_contentName = "",
+				key_fieldLabel = "Item",
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
 				value1 = "Select Item");
 		}
 
 		task ("View the default empty message is shown in Content Display") {
-			AssertVisible(
-				key_fragmentName = "Content Display",
-				key_messageIfo = "The selected content will be shown here.",
-				locator1 = "Fragment#MESSAGE_INFO");
+			PageEditor.viewFragmentMessageInfo(fragmentName = "Content Display");
 		}
 	}
 
@@ -610,10 +608,10 @@ definition {
 		}
 
 		task ("Add a blogs entry") {
-			JSONBlog.addEntry(
-				entryContent = "Blogs Entry Content",
-				entryTitle = "Blogs Entry Title",
-				groupName = "Test Site Name");
+			HeadlessBlog.addBlogEntry(
+				content = "Blogs Entry Content",
+				groupName = "Test Site Name",
+				title = "Blogs Entry Title");
 		}
 
 		task ("Add a document") {
@@ -793,16 +791,13 @@ definition {
 
 			AssertAttributeValue(
 				attribute1 = "placeholder",
-				key_contentName = "",
+				key_fieldLabel = "Collection",
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
 				value1 = "Select Collection");
 		}
 
 		task ("View the default empty message is shown in Collection Display") {
-			AssertVisible(
-				key_fragmentName = "Collection Display",
-				key_message = "No Collection Selected Yet",
-				locator1 = "Fragment#NOT_COLLECTION_SELECTED_MESSAGE");
+			PageEditor.viewFragmentMessageInfo(fragmentName = "Collection Display");
 		}
 	}
 
@@ -880,9 +875,10 @@ definition {
 				fragmentName = "Heading",
 				id = "element-text");
 
-			AssertVisible(
-				key_contentName = "Web Content Title Edit",
-				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT");
+			AssertTextEquals(
+				key_fieldLabel = "Item",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
+				value1 = "Web Content Title Edit");
 		}
 
 		task ("Define the permissions of web content via Mapping panel") {
@@ -949,7 +945,7 @@ definition {
 
 			AssertAttributeValue(
 				attribute1 = "placeholder",
-				key_contentName = "",
+				key_fieldLabel = "Item",
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
 				value1 = "Select Item");
 		}
@@ -1169,11 +1165,11 @@ definition {
 
 		task ("View the details of mapped web content in Mapping panel") {
 			AssertTextEquals(
-				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TYPE_LABEL",
+				locator1 = "PageEditor#MAPPING_PANEL_TYPE_LABEL",
 				value1 = "Type:Web Content Article");
 
 			AssertTextEquals(
-				locator1 = "PageEditor#FRAGMENT_SIDEBAR_SUB_TYPE_LABEL",
+				locator1 = "PageEditor#MAPPING_PANEL_SUB_TYPE_LABEL",
 				value1 = "Subtype:Basic Web Content");
 		}
 
@@ -1203,7 +1199,7 @@ definition {
 				id = "element-text");
 
 			AssertTextEquals(
-				locator1 = "PageEditor#FRAGMENT_SIDEBAR_TYPE_LABEL",
+				locator1 = "PageEditor#MAPPING_PANEL_TYPE_LABEL",
 				value1 = "Type:Asset");
 		}
 	}

@@ -48,7 +48,6 @@ import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 
 import java.text.DateFormat;
@@ -193,6 +192,68 @@ public abstract class BaseChannelResourceTestCase {
 		Assert.assertEquals(regex, channel.getExternalReferenceCode());
 		Assert.assertEquals(regex, channel.getName());
 		Assert.assertEquals(regex, channel.getType());
+	}
+
+	@Test
+	public void testGetOrderRuleChannelChannel() throws Exception {
+		Channel postChannel = testGetOrderRuleChannelChannel_addChannel();
+
+		Channel getChannel = channelResource.getOrderRuleChannelChannel(null);
+
+		assertEquals(postChannel, getChannel);
+		assertValid(getChannel);
+	}
+
+	protected Channel testGetOrderRuleChannelChannel_addChannel()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGraphQLGetOrderRuleChannelChannel() throws Exception {
+		Channel channel = testGraphQLChannel_addChannel();
+
+		Assert.assertTrue(
+			equals(
+				channel,
+				ChannelSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"orderRuleChannelChannel",
+								new HashMap<String, Object>() {
+									{
+										put("orderRuleChannelId", null);
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data", "Object/orderRuleChannelChannel"))));
+	}
+
+	@Test
+	public void testGraphQLGetOrderRuleChannelChannelNotFound()
+		throws Exception {
+
+		Long irrelevantOrderRuleChannelId = RandomTestUtil.randomLong();
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"orderRuleChannelChannel",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"orderRuleChannelId",
+									irrelevantOrderRuleChannelId);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
 	}
 
 	@Test
@@ -531,7 +592,7 @@ public abstract class BaseChannelResourceTestCase {
 	protected List<GraphQLField> getGraphQLFields() throws Exception {
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field :
+		for (java.lang.reflect.Field field :
 				getDeclaredFields(
 					com.liferay.headless.commerce.admin.order.dto.v1_0.Channel.
 						class)) {
@@ -548,12 +609,13 @@ public abstract class BaseChannelResourceTestCase {
 		return graphQLFields;
 	}
 
-	protected List<GraphQLField> getGraphQLFields(Field... fields)
+	protected List<GraphQLField> getGraphQLFields(
+			java.lang.reflect.Field... fields)
 		throws Exception {
 
 		List<GraphQLField> graphQLFields = new ArrayList<>();
 
-		for (Field field : fields) {
+		for (java.lang.reflect.Field field : fields) {
 			com.liferay.portal.vulcan.graphql.annotation.GraphQLField
 				vulcanGraphQLField = field.getAnnotation(
 					com.liferay.portal.vulcan.graphql.annotation.GraphQLField.
@@ -675,14 +737,16 @@ public abstract class BaseChannelResourceTestCase {
 		return false;
 	}
 
-	protected Field[] getDeclaredFields(Class clazz) throws Exception {
-		Stream<Field> stream = Stream.of(
+	protected java.lang.reflect.Field[] getDeclaredFields(Class clazz)
+		throws Exception {
+
+		Stream<java.lang.reflect.Field> stream = Stream.of(
 			ReflectionUtil.getDeclaredFields(clazz));
 
 		return stream.filter(
 			field -> !field.isSynthetic()
 		).toArray(
-			Field[]::new
+			java.lang.reflect.Field[]::new
 		);
 	}
 

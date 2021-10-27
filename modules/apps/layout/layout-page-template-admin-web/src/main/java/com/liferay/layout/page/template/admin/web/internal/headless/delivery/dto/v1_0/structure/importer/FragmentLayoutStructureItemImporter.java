@@ -58,7 +58,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -68,7 +67,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -246,19 +244,23 @@ public class FragmentLayoutStructureItemImporter
 			"com.liferay.fragment.entry.processor.background.image." +
 				"BackgroundImageFragmentEntryProcessor",
 			_toBackgroundImageFragmentEntryProcessorJSONObject(
-				(List<Object>)definitionMap.get("fragmentFields")));
+				(List<Object>)definitionMap.get("fragmentFields"))
+		).put(
+			"com.liferay.fragment.entry.processor.editable." +
+				"EditableFragmentEntryProcessor",
+			() -> {
+				JSONObject editableFragmentEntryProcessorJSONObject =
+					_toEditableFragmentEntryProcessorJSONObject(
+						editableTypes,
+						(List<Object>)definitionMap.get("fragmentFields"));
 
-		JSONObject editableFragmentEntryProcessorJSONObject =
-			_toEditableFragmentEntryProcessorJSONObject(
-				editableTypes,
-				(List<Object>)definitionMap.get("fragmentFields"));
+				if (editableFragmentEntryProcessorJSONObject.length() > 0) {
+					return editableFragmentEntryProcessorJSONObject;
+				}
 
-		if (editableFragmentEntryProcessorJSONObject.length() > 0) {
-			fragmentEntryProcessorValuesJSONObject.put(
-				"com.liferay.fragment.entry.processor.editable." +
-					"EditableFragmentEntryProcessor",
-				editableFragmentEntryProcessorJSONObject);
-		}
+				return null;
+			}
+		);
 
 		Map<String, String> configurationTypes = _getConfigurationTypes(
 			configuration);
@@ -681,12 +683,8 @@ public class FragmentLayoutStructureItemImporter
 			locale = _portal.getSiteDefaultLocale(groupId);
 		}
 
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			locale, getClass());
-
 		return _language.format(
-			resourceBundle,
-			"fragment-with-key-x-was-ignored-because-it-does-not-exist",
+			locale, "fragment-with-key-x-was-ignored-because-it-does-not-exist",
 			new String[] {fragmentKey});
 	}
 

@@ -1030,7 +1030,14 @@ definition {
 	macro removeOrganizationAsAssignee {
 		var key_assigneeName = "${assigneeName}";
 
-		Search.searchCP(searchTerm = "${assigneeName}");
+		if (isSet(accountName)) {
+			Search.searchPG(
+				portletName = "${accountName}",
+				searchTerm = "${assigneeName}");
+		}
+		else {
+			Search.searchCP(searchTerm = "${assigneeName}");
+		}
 
 		ClickNoError(
 			locator1 = "Icon#REMOVE_ASSIGNEE",
@@ -1067,6 +1074,58 @@ definition {
 		AssertTextEquals(
 			locator1 = "LexiconTable#TABLE_ENTRY_INFO",
 			value1 = "${accountId}");
+	}
+
+	macro setAddAccountEntryPermissions {
+		JSONRole.addRegularRole(roleTitle = "${roleTitle}");
+
+		Permissions.definePermissionViaJSONAPI(
+			resourceAction = "ADD_ACCOUNT_ENTRY",
+			resourceName = "90",
+			roleTitle = "${roleTitle}");
+
+		JSONRole.assignRoleToUser(
+			roleTitle = "${roleTitle}",
+			userEmailAddress = "${userEmailAddress}");
+	}
+
+	macro setAllowedAccountTypeInSiteSettings {
+		ProductMenu.gotoPortlet(
+			category = "Configuration",
+			portlet = "Site Settings");
+
+		SystemSettings.gotoConfiguration(
+			configurationCategory = "Accounts",
+			configurationName = "Accounts",
+			configurationScope = "Site Scope");
+
+		AssertElementPresent(locator1 = "FormFields#FIELD_ADD_REMOVE");
+
+		Click(locator1 = "FormFields#FIELD_ADD_REMOVE");
+
+		AssertElementNotPresent(locator1 = "FormFields#FIELD_ADD_REMOVE");
+
+		Click(
+			key_fieldName = "Allowed Account Types",
+			locator1 = "FormFields#SELECT_FIELD");
+
+		AssertClick(
+			key_selectOption = "${allowedType}",
+			locator1 = "FormFields#SELECT_FIELD_OPTIONS_LIST",
+			value1 = "${allowedType}");
+
+		if (IsElementPresent(locator1 = "Button#SAVE")) {
+			AssertClick(
+				locator1 = "Button#SAVE",
+				value1 = "Save");
+		}
+		else if (IsElementPresent(locator1 = "Button#UPDATE")) {
+			AssertClick(
+				locator1 = "Button#UPDATE",
+				value1 = "Update");
+		}
+
+		Alert.viewSuccessMessage();
 	}
 
 	macro setDefaultBillingAddress {
@@ -1126,16 +1185,29 @@ definition {
 	}
 
 	macro tearDownCP {
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		PortletEntry.selectAll();
 
 		ClickNoError(locator1 = "Icon#DELETE");
 
 		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
+
+		Alert.viewSuccessMessage();
+	}
+
+	macro unassignMultipleOrganizations {
+		Accounts.gotoAssigneeTab(assigneeTab = "Organizations");
+
+		for (var organizationNumber : list "${organizationNumber}") {
+			LexiconEntry.selectEntry(rowEntry = "Organization ${organizationNumber}");
+		}
+
+		ClickNoError(
+			key_text = "times-circle",
+			locator1 = "Icon#ANY");
+
+		AssertConfirm.waitForConfirmation(value1 = "Are you sure you want to remove the selected organizations?");
 
 		Alert.viewSuccessMessage();
 	}
@@ -1156,13 +1228,13 @@ definition {
 		if (isSet(accountType)) {
 			AssertTextEquals(
 				key_typeName = "${accountType}",
-				locator1 = "Select#TYPE_SELECTED",
+				locator1 = "TextInput#TYPE",
 				value1 = "${accountType}");
 		}
 
 		AssertElementPresent(
 			key_selectFieldLabel = "Type",
-			locator1 = "Select#ANY_DISABLED");
+			locator1 = "TextInput#ANY_DISABLED");
 
 		if (isSet(accountTaxID)) {
 			AssertTextEquals(
@@ -1338,7 +1410,7 @@ definition {
 	macro viewSelectedAccount {
 		Search.searchPG(
 			portletName = "Account Management",
-			searchTerm = "${selectedAccount}");
+			searchTerm = "${selectedAccountSearchTerm}");
 
 		LexiconEntry.viewEntryName(rowEntry = "${selectedAccount}");
 
@@ -1350,7 +1422,7 @@ definition {
 
 		Search.searchPG(
 			portletName = "Account Management",
-			searchTerm = "${previousAccount}");
+			searchTerm = "${previousAccountSearchTerm}");
 
 		LexiconEntry.viewEntryName(rowEntry = "${previousAccount}");
 

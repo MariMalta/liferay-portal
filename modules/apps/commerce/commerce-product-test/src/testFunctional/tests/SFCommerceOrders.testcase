@@ -12,25 +12,23 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "COMMERCE-6374. As a buyer, I want to be able to create a new order by clicking on 'Add Order' button"
 	@priority = "3"
 	test CreateNewOrderFromPendingOrdersPage {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#CreateNewOrderFromPendingOrdersPage";
 
 		// TODO Review
 
@@ -40,9 +38,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Test");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -63,7 +59,6 @@ definition {
 	@priority = "3"
 	test DeleteOrderFromPendingOrderDetailsPage {
 		property portal.acceptance = "Intern Test";
-		property test.name.skip.portal.instance = "SFCommerceOrders#DeleteOrderFromPendingOrderDetailsPage";
 
 		// TODO Review
 
@@ -73,9 +68,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -106,7 +99,6 @@ definition {
 	@priority = "3"
 	test EditOrderFromPendingOrderDetailsPage {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#EditOrderFromPendingOrderDetailsPage";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
@@ -114,14 +106,9 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Test");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		CommerceNavigator.gotoEntry(entryName = "Test Test");
 
@@ -227,7 +214,6 @@ definition {
 	@priority = "3"
 	test ReorderFromPlacedOrdersDetailsPage {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#ReorderFromPlacedOrdersDetailsPage";
 
 		// TODO Review
 
@@ -237,9 +223,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -294,7 +278,6 @@ definition {
 	@priority = "3"
 	test SearchOrderInPendingOrdersPage {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#SearchOrderInPendingOrdersPage";
 
 		// TODO Review
 
@@ -304,9 +287,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Test",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Test");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Pending Orders");
 
@@ -345,7 +326,6 @@ definition {
 	@priority = "3"
 	test SearchOrderInPlacedOrdersPage {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#SearchOrderInPlacedOrdersPage";
 
 		// TODO Review
 
@@ -355,9 +335,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Pending Orders");
 
@@ -446,19 +424,26 @@ definition {
 	@priority = "3"
 	test UseADTInPendingOrdersWidget {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#UseADTInPendingOrdersWidget";
-
-		// TODO Review
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
+		ProductMenu.gotoPortlet(
+			category = "Design",
+			portlet = "Templates");
+
+		Navigator.gotoNavTab(navTab = "Widget Templates");
+
+		CommerceAcceleratorsInitializer.addADT(
+			adtType = "Open Carts",
+			fieldNameList = "Commerce Orders*");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
@@ -466,96 +451,50 @@ definition {
 			productName = "U-Joint",
 			productQuantity = "1");
 
-		Pause(locator1 = "5000");
-
 		var orderId = selenium.getText("CommerceEntry#ACTIVE_ORDER_ID");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Pending Orders");
 
-		MouseOver(locator1 = "CommerceEntry#PAGINATION_BAR");
+		ApplicationDisplayTemplates.selectPortletADT(
+			portletName = "Open Carts",
+			templateName = "Open Carts Test ADT");
 
-		Click.clickNoWaitForVisible(
-			key_text = "qfkd",
-			locator1 = "Icon#SVG_ELLIPSIS_BY_ID");
-
-		MenuItem.click(menuItem = "Configuration");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		Click(
-			key_text = "Manage Templates",
-			locator1 = "Link#ANY");
-
-		SelectFrameTop();
-
-		SelectFrame(
-			key_title = "Widget Templates",
-			locator1 = "IFrame#MODAL_ANY");
-
-		Click(locator1 = "Button#PLUS");
-
-		Type(
-			key_fieldLabel = "Name",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Pending Orders Template");
-
-		Click(
-			key_fieldName = "Commerce Orders",
-			locator1 = "DDMEditTemplate#SCRIPT_FIELD");
-
-		Button.clickSave();
-
-		SelectFrameTop();
-
-		Click(
-			key_modalTitle = "Widget Templates",
-			locator1 = "Button#CLOSE_MODAL");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		Select(
-			key_selectFieldLabel = "Display Template",
-			locator1 = "Select#ANY",
-			value1 = "Pending Orders Template");
-
-		Button.clickSave();
-
-		SelectFrameTop();
-
-		Click(
-			key_modalTitle = "Open Carts",
-			locator1 = "Button#CLOSE_MODAL");
-
-		AssertElementPresent(
-			key_portletName = "${orderId}",
-			locator1 = "Portlet#BODY");
+		AssertTextEquals.assertPartialText(
+			key_portletName = "Open Carts",
+			locator1 = "Portlet#BODY",
+			value1 = "${orderId}");
 	}
 
 	@description = "COMMERCE-6666. I want to be able to select a Display Template in Placed Orders widget and see it applied to the widget"
 	@priority = "3"
 	test UseADTInPlacedOrdersWidget {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#UseADTInPlacedOrdersWidget";
-
-		// TODO Review
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
 		ApplicationsMenu.gotoSite(site = "Minium");
 
+		ProductMenu.gotoPortlet(
+			category = "Design",
+			portlet = "Templates");
+
+		Navigator.gotoNavTab(navTab = "Widget Templates");
+
+		CommerceAcceleratorsInitializer.addADT(
+			adtType = "Placed Orders",
+			fieldNameList = "Commerce Orders*");
+
+		ApplicationsMenu.gotoSite(site = "Minium");
+
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 
 		FrontStore.addInitializerProductToCart(
 			productName = "U-Joint",
 			productQuantity = "1");
-
-		Pause(locator1 = "5000");
 
 		var orderId = selenium.getText("CommerceEntry#ACTIVE_ORDER_ID");
 
@@ -578,68 +517,20 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Placed Orders");
 
-		MouseOver(locator1 = "CommerceEntry#PAGINATION_BAR");
+		ApplicationDisplayTemplates.selectPortletADT(
+			portletName = "Placed Orders",
+			templateName = "Placed Orders Test ADT");
 
-		Click.clickNoWaitForVisible(
-			key_text = "qfkd",
-			locator1 = "Icon#SVG_ELLIPSIS_BY_ID");
-
-		MenuItem.click(menuItem = "Configuration");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		Click(
-			key_text = "Manage Templates",
-			locator1 = "Link#ANY");
-
-		SelectFrameTop();
-
-		SelectFrame(
-			key_title = "Widget Templates",
-			locator1 = "IFrame#MODAL_ANY");
-
-		Click(locator1 = "Button#PLUS");
-
-		Type(
-			key_fieldLabel = "Name",
-			locator1 = "TextInput#GENERIC_TEXT_INPUT",
-			value1 = "Placed Orders Template");
-
-		Click(
-			key_fieldName = "Commerce Orders",
-			locator1 = "DDMEditTemplate#SCRIPT_FIELD");
-
-		Button.clickSave();
-
-		SelectFrameTop();
-
-		Click(
-			key_modalTitle = "Widget Templates",
-			locator1 = "Button#CLOSE_MODAL");
-
-		SelectFrame(locator1 = "IFrame#MODAL_BODY");
-
-		Select(
-			key_selectFieldLabel = "Display Template",
-			locator1 = "Select#ANY",
-			value1 = "Placed Orders Template");
-
-		Button.clickSave();
-
-		SelectFrameTop();
-
-		Click(locator1 = "CommerceEntry#MODAL_CLOSE");
-
-		AssertElementPresent(
-			key_portletName = "${orderId}",
-			locator1 = "Portlet#BODY");
+		AssertTextEquals.assertPartialText(
+			key_portletName = "Placed Orders",
+			locator1 = "Portlet#BODY",
+			value1 = "${orderId}");
 	}
 
 	@description = "COMMERCE-6382. As a buyer, I want to be able to see the list of shipments for an order item by clicking on 'Shipments'"
 	@priority = "3"
 	test ViewListOfShipmentsInPlacedOrdersDetailsPage {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "SFCommerceOrders#ViewListOfShipmentsInPlacedOrdersDetailsPage";
 
 		// TODO Review
 
@@ -649,9 +540,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Test Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Test Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 

@@ -101,11 +101,17 @@ const normalizeObjectRelationships: TNormalizeObjectRelationships = ({
 };
 
 const Layout: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
-	const [{objectLayout, objectLayoutId}, dispatch] = useContext(
+	const [{objectFields, objectLayout, objectLayoutId}, dispatch] = useContext(
 		LayoutContext
 	);
 	const [activeIndex, setActiveIndex] = useState<number>(0);
 	const [loading, setLoading] = useState<boolean>(true);
+
+	const onCloseSidePanel = () => {
+		const parentWindow = Liferay.Util.getOpener();
+
+		parentWindow.Liferay.fire('close-side-panel');
+	};
 
 	useEffect(() => {
 		const makeFetch = async () => {
@@ -190,6 +196,19 @@ const Layout: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 	}, [objectLayoutId, dispatch]);
 
 	const saveObjectLayout = async () => {
+		const hasFieldsInLayout = objectFields.some(
+			(objectField) => objectField.inLayout
+		);
+
+		if (!hasFieldsInLayout) {
+			Liferay.Util.openToast({
+				message: Liferay.Language.get('please-add-at-least-one-field'),
+				type: 'danger',
+			});
+
+			return;
+		}
+
 		const response = await Liferay.Util.fetch(
 			`/o/object-admin/v1.0/object-layouts/${objectLayoutId}`,
 			{
@@ -241,7 +260,7 @@ const Layout: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 				))}
 			</ClayTabs>
 
-			<SidePanelContent>
+			<SidePanelContent className="side-panel-content--layout">
 				<SidePanelContent.Body>
 					<ClayTabs.Content activeIndex={activeIndex} fade>
 						{TABS.map(({Component}, index) => (
@@ -256,8 +275,8 @@ const Layout: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 					<SidePanelContent.Footer>
 						<ClayButton.Group spaced>
 							<ClayButton
-								className="btn-cancel"
 								displayType="secondary"
+								onClick={onCloseSidePanel}
 							>
 								{Liferay.Language.get('cancel')}
 							</ClayButton>

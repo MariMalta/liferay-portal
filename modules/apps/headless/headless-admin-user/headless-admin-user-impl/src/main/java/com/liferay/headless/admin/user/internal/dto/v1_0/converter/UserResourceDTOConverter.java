@@ -142,6 +142,7 @@ public class UserResourceDTOConverter
 					_assetTagLocalService.getTags(
 						User.class.getName(), user.getUserId()),
 					AssetTag.NAME_ACCESSOR);
+				lastLoginDate = user.getLastLoginDate();
 				name = user.getFullName();
 				organizationBriefs = TransformUtil.transformToArray(
 					user.getOrganizations(),
@@ -247,6 +248,7 @@ public class UserResourceDTOConverter
 
 		return new AccountBrief() {
 			{
+				externalReferenceCode = accountEntry.getExternalReferenceCode();
 				id = accountEntry.getAccountEntryId();
 				name = accountEntry.getName();
 				roleBriefs = TransformUtil.transformToArray(

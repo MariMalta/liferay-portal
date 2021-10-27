@@ -17,6 +17,7 @@ package com.liferay.object.service.impl;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.DuplicateObjectRelationshipException;
 import com.liferay.object.exception.ObjectRelationshipNameException;
+import com.liferay.object.exception.ObjectRelationshipReverseException;
 import com.liferay.object.exception.ObjectRelationshipTypeException;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTable;
 import com.liferay.object.model.ObjectDefinition;
@@ -30,9 +31,11 @@ import com.liferay.object.service.persistence.ObjectFieldPersistence;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -64,61 +67,9 @@ public class ObjectRelationshipLocalServiceImpl
 			Map<Locale, String> labelMap, String name, String type)
 		throws PortalException {
 
-		_validate(objectDefinitionId1, objectDefinitionId2, name, type);
-
-		ObjectRelationship objectRelationship =
-			objectRelationshipPersistence.create(
-				counterLocalService.increment());
-
-		User user = _userLocalService.getUser(userId);
-
-		objectRelationship.setCompanyId(user.getCompanyId());
-		objectRelationship.setUserId(user.getUserId());
-		objectRelationship.setUserName(user.getFullName());
-
-		objectRelationship.setObjectDefinitionId1(objectDefinitionId1);
-		objectRelationship.setObjectDefinitionId2(objectDefinitionId2);
-		objectRelationship.setLabelMap(labelMap);
-		objectRelationship.setName(name);
-		objectRelationship.setType(type);
-
-		if (Objects.equals(type, ObjectRelationshipConstants.TYPE_ONE_TO_ONE) ||
-			Objects.equals(
-				type, ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
-
-			ObjectField objectField = _addObjectField(
-				user, name, objectDefinitionId1, objectDefinitionId2, type);
-
-			objectRelationship.setObjectFieldId2(
-				objectField.getObjectFieldId());
-		}
-		else if (Objects.equals(
-					type, ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
-
-			ObjectDefinition objectDefinition1 =
-				_objectDefinitionPersistence.findByPrimaryKey(
-					objectDefinitionId1);
-			ObjectDefinition objectDefinition2 =
-				_objectDefinitionPersistence.findByPrimaryKey(
-					objectDefinitionId2);
-
-			objectRelationship.setDBTableName(
-				StringBundler.concat(
-					"R_", user.getCompanyId(), objectDefinition1.getShortName(),
-					"_", objectDefinition2.getShortName(), "_", name));
-
-			runSQL(
-				StringBundler.concat(
-					"create table ", objectRelationship.getDBTableName(), " (",
-					objectDefinition1.getPKObjectFieldDBColumnName(),
-					" LONG not null,",
-					objectDefinition2.getPKObjectFieldDBColumnName(),
-					" LONG not null, primary key (",
-					objectDefinition1.getPKObjectFieldDBColumnName(), ", ",
-					objectDefinition2.getPKObjectFieldDBColumnName(), "))"));
-		}
-
-		return objectRelationshipPersistence.update(objectRelationship);
+		return _addObjectRelationship(
+			userId, objectDefinitionId1, objectDefinitionId2, labelMap, name,
+			false, type);
 	}
 
 	@Override
@@ -186,11 +137,17 @@ public class ObjectRelationshipLocalServiceImpl
 	}
 
 	@Override
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public ObjectRelationship deleteObjectRelationship(
 			ObjectRelationship objectRelationship)
 		throws PortalException {
 
 		// TODO When should we allow an object relationship to be deleted?
+
+		if (objectRelationship.isReverse()) {
+			throw new ObjectRelationshipReverseException(
+				"Reverse object relationships cannot be deleted");
+		}
 
 		objectRelationship = objectRelationshipPersistence.remove(
 			objectRelationship);
@@ -202,22 +159,78 @@ public class ObjectRelationshipLocalServiceImpl
 				objectRelationship.getType(),
 				ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
 
-			ObjectField objectField = _objectFieldPersistence.remove(
+			_objectFieldLocalService.deleteObjectField(
 				objectRelationship.getObjectFieldId2());
-
-			runSQL(
-				DynamicObjectDefinitionTable.getAlterTableDropColumnSQL(
-					objectField.getDBTableName(),
-					objectField.getDBColumnName()));
 		}
 		else if (Objects.equals(
 					objectRelationship.getType(),
 					ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
 
 			runSQL("drop table " + objectRelationship.getDBTableName());
+
+			ObjectRelationship reverseObjectRelationship =
+				fetchReverseObjectRelationship(objectRelationship, true);
+
+			objectRelationshipPersistence.remove(
+				reverseObjectRelationship.getObjectRelationshipId());
 		}
 
 		return objectRelationship;
+	}
+
+	@Override
+	public void deleteObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1)
+		throws PortalException {
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipLocalService.getObjectRelationship(
+				objectRelationshipId);
+
+		if (Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
+
+			ObjectDefinition objectDefinition1 =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectRelationship.getObjectDefinitionId1());
+
+			runSQL(
+				StringBundler.concat(
+					"delete from ", objectRelationship.getDBTableName(),
+					" where ", objectDefinition1.getPKObjectFieldDBColumnName(),
+					" = ", primaryKey1));
+		}
+	}
+
+	@Override
+	public void deleteObjectRelationshipMappingTableValues(
+			long objectRelationshipId, long primaryKey1, long primaryKey2)
+		throws PortalException {
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipLocalService.getObjectRelationship(
+				objectRelationshipId);
+
+		if (Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
+
+			ObjectDefinition objectDefinition1 =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectRelationship.getObjectDefinitionId1());
+			ObjectDefinition objectDefinition2 =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectRelationship.getObjectDefinitionId2());
+
+			runSQL(
+				StringBundler.concat(
+					"delete from ", objectRelationship.getDBTableName(),
+					" where ", objectDefinition1.getPKObjectFieldDBColumnName(),
+					" = ", primaryKey1, " and ",
+					objectDefinition2.getPKObjectFieldDBColumnName(), " = ",
+					primaryKey2));
+		}
 	}
 
 	@Override
@@ -226,6 +239,17 @@ public class ObjectRelationshipLocalServiceImpl
 
 		return objectRelationshipPersistence.fetchByObjectFieldId2(
 			objectFieldId2);
+	}
+
+	@Override
+	public ObjectRelationship fetchReverseObjectRelationship(
+		ObjectRelationship objectRelationship, boolean reverse) {
+
+		return objectRelationshipPersistence.fetchByODI1_ODI2_N_R_T(
+			objectRelationship.getObjectDefinitionId2(),
+			objectRelationship.getObjectDefinitionId1(),
+			objectRelationship.getName(), reverse,
+			objectRelationship.getType());
 	}
 
 	@Override
@@ -238,13 +262,24 @@ public class ObjectRelationshipLocalServiceImpl
 
 	@Override
 	public ObjectRelationship updateObjectRelationship(
-			long objectRelationshipId, Map<Locale, String> labelMap)
+			long objectRelationshipId, String deletionType,
+			Map<Locale, String> labelMap)
 		throws PortalException {
+
+		if (Validator.isNull(deletionType)) {
+			deletionType = ObjectRelationshipConstants.DELETION_TYPE_PREVENT;
+		}
 
 		ObjectRelationship objectRelationship =
 			objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
+		if (objectRelationship.isReverse()) {
+			throw new ObjectRelationshipReverseException(
+				"Reverse object relationships cannot be updated");
+		}
+
+		objectRelationship.setDeletionType(deletionType);
 		objectRelationship.setLabelMap(labelMap);
 
 		return objectRelationshipPersistence.update(objectRelationship);
@@ -304,6 +339,83 @@ public class ObjectRelationshipLocalServiceImpl
 		return objectField;
 	}
 
+	private ObjectRelationship _addObjectRelationship(
+			long userId, long objectDefinitionId1, long objectDefinitionId2,
+			Map<Locale, String> labelMap, String name, boolean reverse,
+			String type)
+		throws PortalException {
+
+		_validate(objectDefinitionId1, objectDefinitionId2, name, type);
+
+		ObjectRelationship objectRelationship =
+			objectRelationshipPersistence.create(
+				counterLocalService.increment());
+
+		User user = _userLocalService.getUser(userId);
+
+		objectRelationship.setCompanyId(user.getCompanyId());
+		objectRelationship.setUserId(user.getUserId());
+		objectRelationship.setUserName(user.getFullName());
+
+		objectRelationship.setObjectDefinitionId1(objectDefinitionId1);
+		objectRelationship.setObjectDefinitionId2(objectDefinitionId2);
+		objectRelationship.setDeletionType(
+			ObjectRelationshipConstants.DELETION_TYPE_PREVENT);
+		objectRelationship.setLabelMap(labelMap);
+		objectRelationship.setName(name);
+		objectRelationship.setReverse(reverse);
+		objectRelationship.setType(type);
+
+		if (Objects.equals(type, ObjectRelationshipConstants.TYPE_ONE_TO_ONE) ||
+			Objects.equals(
+				type, ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+
+			ObjectField objectField = _addObjectField(
+				user, name, objectDefinitionId1, objectDefinitionId2, type);
+
+			objectRelationship.setObjectFieldId2(
+				objectField.getObjectFieldId());
+		}
+		else if (Objects.equals(
+					type, ObjectRelationshipConstants.TYPE_MANY_TO_MANY) &&
+				 !reverse) {
+
+			ObjectDefinition objectDefinition1 =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectDefinitionId1);
+			ObjectDefinition objectDefinition2 =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectDefinitionId2);
+
+			objectRelationship.setDBTableName(
+				StringBundler.concat(
+					"R_", user.getCompanyId(), objectDefinition1.getShortName(),
+					"_", objectDefinition2.getShortName(), "_", name));
+
+			runSQL(
+				StringBundler.concat(
+					"create table ", objectRelationship.getDBTableName(), " (",
+					objectDefinition1.getPKObjectFieldDBColumnName(),
+					" LONG not null,",
+					objectDefinition2.getPKObjectFieldDBColumnName(),
+					" LONG not null, primary key (",
+					objectDefinition1.getPKObjectFieldDBColumnName(), ", ",
+					objectDefinition2.getPKObjectFieldDBColumnName(), "))"));
+
+			ObjectRelationship reverseObjectRelationship =
+				_addObjectRelationship(
+					userId, objectDefinitionId2, objectDefinitionId1, labelMap,
+					name, true, type);
+
+			reverseObjectRelationship.setDBTableName(
+				objectRelationship.getDBTableName());
+
+			objectRelationshipPersistence.update(reverseObjectRelationship);
+		}
+
+		return objectRelationshipPersistence.update(objectRelationship);
+	}
+
 	private void _validate(
 			long objectDefinitionId1, long objectDefinitionId2, String name,
 			String type)
@@ -344,9 +456,9 @@ public class ObjectRelationshipLocalServiceImpl
 		if (!Objects.equals(
 				type, ObjectRelationshipConstants.TYPE_MANY_TO_MANY) &&
 			!Objects.equals(
-				type, ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+				type, ObjectRelationshipConstants.TYPE_ONE_TO_MANY)/* &&
 			!Objects.equals(
-				type, ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+				type, ObjectRelationshipConstants.TYPE_ONE_TO_ONE)*/) {
 
 			throw new ObjectRelationshipTypeException("Invalid type " + type);
 		}

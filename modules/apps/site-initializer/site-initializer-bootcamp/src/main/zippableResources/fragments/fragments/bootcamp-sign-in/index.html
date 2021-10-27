@@ -1,15 +1,27 @@
+[#assign
+	navUserClass = ""
+	privateUserFriendlyURL = themeDisplay.getPathFriendlyURLPrivateUser() + "/" + themeDisplay.getUser().getFirstName()
+	publicFriendlyURL = themeDisplay.getPathFriendlyURLPublic() + themeDisplay.getSiteGroup().getFriendlyURL()
+	publicSiteNavbarClass =""
+	userName = themeDisplay.getUser().getFirstName()
+/]
+
+[#if !themeDisplay.isSignedIn()]
+	[#assign publicSiteNavbarClass = "logged-in" /]
+[/#if]
+
 <div class="sign-in vh-100">
 	<div class="form-box">
-		<a href="http://localhost:8080/web/bootcamp">
+		<a href="${publicFriendlyURL}">
 			<img alt="" class="sign-in-logo" src="[resources:bootcamp_logo.svg]" />
 		</a>
 
 		<form class="sign-in-form">
-			<p class="sign-in-text mb-5 h3 font-weight-normal">
-				Organically grow the holistic world view of disruptive innovation via workplace diversity.
-			</p>
+			<h1 class="font-weight-normal sign-in-text">
+				Take charge of your future with Bootcamp online.
+			</h1>
 
-			<div class="form-group mb-3">
+			<div class="form-group mb-2">
 				<label class="form-label" for="exampleInputEmail1">
 					Email address
 				</label>
@@ -23,7 +35,7 @@
 				<input class="form-control" id="exampleInputPassword1" type="password" />
 			</div>
 
-			<div class="mb-5 form-check">
+			<div class="form-check">
 				<input class="form-check-input" id="exampleCheck1" type="checkbox" />
 
 				<label class="form-check-label" for="exampleCheck1">
@@ -31,11 +43,13 @@
 				</label>
 			</div>
 
-			<button class="btn btn-lg btn-primary" type="submit">
-				Sign In<span class="link-arrow ml-3">&#10230;</span>
+			<button class="bootcamp-btn btn btn-lg btn-primary" type="submit">
+				Sign In<svg class="link-arrow" width="37" height="9" viewBox="0 0 37 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M32.5607 0.146447L36.3536 3.93932C36.5488 4.13458 36.5488 4.45117 36.3536 4.64643L32.3536 8.64636C32.1583 8.84162 31.8417 8.84162 31.6465 8.64636C31.4512 8.4511 31.4512 8.13452 31.6465 7.93926L34.7929 4.79288H0.5V3.79288H34.7929L31.8536 0.853553C31.6583 0.658291 31.6583 0.341709 31.8536 0.146447C32.0488 -0.0488155 32.3654 -0.0488155 32.5607 0.146447Z" fill="var(--white)" fill-rule="evenodd" />
+</svg>
 			</button>
 
-			<p class="membership mt-6 small">
+			<p class="mb-0 membership small">
 				Not a member yet?
 				<a class="create-account font-weight-bold ml-2" href="">
 					Create an Account

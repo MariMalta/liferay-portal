@@ -52,13 +52,13 @@ const ObjectLayoutBox: React.FC<IObjectLayoutBoxProps> = ({
 					contentRight={
 						<>
 							<ClayToggle
-								aria-label={Liferay.Language.get('collapsable')}
-								label={Liferay.Language.get('collapsable')}
+								aria-label={Liferay.Language.get('collapsible')}
+								label={Liferay.Language.get('collapsible')}
 								onToggle={(value) => {
 									dispatch({
 										payload: {
 											attribute: {
-												collapsable,
+												key: 'collapsable',
 												value,
 											},
 											boxIndex,

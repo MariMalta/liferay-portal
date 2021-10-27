@@ -91,11 +91,18 @@ public class TextDDMFormFieldTemplateContextContributor
 		}
 
 		return HashMapBuilder.<String, Object>put(
+			"invalidCharacters",
+			GetterUtil.getString(ddmFormField.getProperty("invalidCharacters"))
+		).put(
+			"normalizeField",
+			GetterUtil.getBoolean(ddmFormField.getProperty("normalizeField"))
+		).put(
 			"options", getOptions(ddmFormField, ddmFormFieldRenderingContext)
 		).put(
 			"predefinedValue",
-			DDMFormFieldTypeUtil.getPredefinedValue(
-				ddmFormField, ddmFormFieldRenderingContext)
+			DDMFormFieldTypeUtil.getPropertyValue(
+				ddmFormField, ddmFormFieldRenderingContext.getLocale(),
+				"predefinedValue")
 		).putAll(
 			parameters
 		).build();

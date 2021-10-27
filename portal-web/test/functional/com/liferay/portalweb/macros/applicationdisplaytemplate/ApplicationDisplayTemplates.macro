@@ -76,9 +76,9 @@ definition {
 
 		PortletEntry.save();
 
-		AssertTextEquals(
-			locator1 = "ApplicationDisplayTemplates#ADT_TABLE_NAME_1",
-			value1 = "${adtType} Test ADT");
+		AssertVisible(
+			key_tableEntry = "${adtType} Test ADT",
+			locator1 = "LexiconTable#TABLE_ENTRY_TITLE");
 	}
 
 	macro editADTScript {
@@ -122,15 +122,15 @@ definition {
 	}
 
 	macro openWidgetTemplatesAdmin {
-		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_template_web_internal_portlet_TemplatePortlet");
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_template_web_internal_portlet_TemplatePortlet&p_p_lifecycle=0&p_p_state=maximized&p_p_mode=view&_com_liferay_template_web_internal_portlet_TemplatePortlet_tabs1=widget-templates");
 	}
 
 	macro searchGlobalADT {
 		Search.searchCP(searchTerm = "${templateName}");
 
-		AssertTextEquals(
-			locator1 = "ApplicationDisplayTemplates#ADT_TABLE_NAME_1",
-			value1 = "${templateName}");
+		AssertVisible(
+			key_tableEntry = "${templateName}",
+			locator1 = "LexiconTable#TABLE_ENTRY_TITLE");
 	}
 
 	macro selectPortletADT {
@@ -156,9 +156,9 @@ definition {
 	}
 
 	macro viewTemplate {
-		AssertTextEquals(
-			locator1 = "ApplicationDisplayTemplates#ADT_TABLE_NAME_1",
-			value1 = "${adtType} Test ADT");
+		AssertVisible(
+			key_tableEntry = "${adtType} Test ADT",
+			locator1 = "LexiconTable#TABLE_ENTRY_TITLE");
 	}
 
 }

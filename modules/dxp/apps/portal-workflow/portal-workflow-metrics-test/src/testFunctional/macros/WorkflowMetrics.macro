@@ -317,6 +317,16 @@ definition {
 			value1 = "Current Assignee");
 	}
 
+	macro assertSLAMetricsCalculated {
+		while (IsElementNotPresent(
+				locator1 = "WorkflowMetricsSLA#SLA_PROCESS_DATE_MESSAGE")) {
+			Pause(locator1 = "10000");
+			Refresh();
+		}
+
+		AssertElementPresent(locator1 = "WorkflowMetricsSLA#SLA_PROCESS_DATE_MESSAGE");
+	}
+
 	macro assertSlaPosition {
 		AssertElementPresent(
 			key_slaPosition = "${slaPosition}",
@@ -668,7 +678,9 @@ definition {
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
-		var scriptContent = TestCase.getFileContent(fileName = "addUsersWithRoles.groovy");
+		var projectDir = PropsUtil.get("project.dir");
+
+		var scriptContent = FileUtil.read("${projectDir}/modules/dxp/apps/portal-workflow/portal-workflow-metrics-test/src/testFunctional/tests/dependencies/addUsersWithRoles.groovy");
 
 		var scriptContent = StringUtil.regexReplaceFirst("${scriptContent}","numberOfUsers = 0","numberOfUsers = ${numberOfUsers}");
 
@@ -724,7 +736,9 @@ definition {
 			panel = "Control Panel",
 			portlet = "Server Administration");
 
-		var scriptContent = TestCase.getFileContent(fileName = "${key_scriptName}");
+		var projectDir = PropsUtil.get("project.dir");
+
+		var scriptContent = FileUtil.read("${projectDir}/modules/dxp/apps/portal-workflow/portal-workflow-metrics-test/src/testFunctional/tests/dependencies/${key_scriptName}");
 
 		ServerAdministration.executeScript(
 			language = "Groovy",
@@ -927,6 +941,16 @@ definition {
 		}
 
 		Click(locator1 = "WorkflowMetrics#METRICS_WORKFLOW_PROCESS_NAME");
+	}
+
+	macro goToWorkflowProcessMetricsAndTotalCompleted {
+		var key_workflowProcessName = "${workflowProcessName}";
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "${workflowProcessName}");
+
+		Click(locator1 = "WorkflowMetrics#METRICS_PERFORMANCE_TAB");
+
+		Click(locator1 = "WorkflowMetrics#DASHBOARD_TOTAL_COMPLETED_ITEMS_TITLE");
 	}
 
 	macro goToWorkflowSLASettings {
@@ -1640,6 +1664,17 @@ definition {
 
 	macro viewSLASuccessMessage {
 		WaitForElementPresent(locator1 = "WorkflowMetricsSLA#SLA_SUCCESS_MESSAGE");
+	}
+
+	macro viewTableSizeInTheAllItems {
+		var itemTable = "${itemTable}";
+		var itemTableSize = "${itemTableSize}";
+
+		AssertCssValue(
+			key_stepName = "${itemTable}",
+			locator1 = "WorkflowMetricsPerformanceByStep#METRICS_PERFORMANCE_BY_STEP_PAGE_TABLE_STEP_NAME",
+			locator2 = "max-width",
+			value1 = "${itemTableSize}");
 	}
 
 	macro viewTaskFilterOnReassignTasks {

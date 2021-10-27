@@ -12,18 +12,17 @@ definition {
 	}
 
 	tearDown {
-		var testPortalInstance = PropsUtil.get("test.portal.instance");
+		Navigator.openURL();
 
-		if ("${testPortalInstance}" == "true") {
-			PortalInstances.tearDownCP();
+		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
+			User.logoutPG();
 		}
-		else {
-			Navigator.openURL();
 
-			CommerceConfiguration.commerceAdminTearDown();
+		User.firstLoginPG();
 
-			CommerceConfiguration.commerceInitializersTearDown();
-		}
+		CommerceConfiguration.commerceAdminTearDown();
+
+		CommerceConfiguration.commerceInitializersTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6226. Price Entry lifecycle"
@@ -130,7 +129,6 @@ definition {
 	@priority = "3"
 	test AddEditAndDeletePriceModifier {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "AddEditAndDeletePriceModifier";
 
 		// TODO Review
 
@@ -623,10 +621,7 @@ definition {
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Accounts");
+		Accounts.openAccountsAdmin();
 
 		Accounts.addBusinessAccount(
 			accountDescription = "This is an Account added for Account Group.",
@@ -638,10 +633,7 @@ definition {
 			accountDescription = "This is an Account added for Account Group.",
 			accountName = "Account2");
 
-		ApplicationsMenu.gotoPortlet(
-			category = "Accounts",
-			panel = "Applications",
-			portlet = "Account Groups");
+		AccountGroups.openAccountGroupsAdmin();
 
 		Click(locator1 = "Button#PLUS");
 
@@ -758,7 +750,6 @@ definition {
 	@priority = "3"
 	test AddEditAndRemoveProductGroupFromPL {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AddEditAndRemoveProductGroupFromPL";
 
 		// TODO Review
 
@@ -831,7 +822,6 @@ definition {
 	@priority = "3"
 	test AddPriceListQualifier {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AddPriceListQualifier";
 
 		// TODO Review
 
@@ -851,17 +841,13 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Account1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Account1");
 
 		ApplicationsMenu.gotoSite(site = "Site1");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Account2",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Account2");
 
 		CommerceNavigator.gotoPortlet(
 			category = "Pricing",
@@ -1111,7 +1097,6 @@ definition {
 	test AssertPriceEntriesAreProductsInTheSameCatalogAsPriceList {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AssertPriceEntriesAreProductsInTheSameCatalogAsPriceList";
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -1202,37 +1187,29 @@ definition {
 	}
 
 	test AssertPriceListCanBeAssociatedWithAccountAndAccountGroup {
-		property portal.acceptance = "quarantine";
-		property portal.upstream = "quarantine";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AssertPriceListCanBeAssociatedWithAccountAndAccountGroup";
+		property portal.acceptance = "true";
+		property portal.upstream = "true";
 
-		CommerceNavigator.gotoPortlet(
-			category = "Product Management",
-			panel = "Commerce",
-			portlet = "Catalogs");
+		for (var entryNumber : list "1,2") {
+			JSONAccountEntry.addAccountEntry(
+				accountEntryName = "Test Account ${entryNumber}",
+				accountEntryType = "Business");
 
-		Click(locator1 = "Button#PLUS");
+			AccountGroups.openAccountGroupsAdmin();
 
-		CommerceEntry.addNewCatalogsEntry(
-			catalogCurrency = "US Dollar",
-			catalogLanguage = "English (United States)",
-			catalogName = "Test Catalog");
+			AccountGroups.addCP(accountGroupName = "Test Account Group ${entryNumber}");
 
-		Button.click(button = "Submit");
+			Navigator.gotoBack();
 
-		Refresh();
+			LexiconEntry.gotoEntry(rowEntry = "Test Account Group ${entryNumber}");
 
-		CommerceEntry.createNewAccountGroup(
-			accountCriteriaType = "Guest",
-			accountGroupsEntryName = "Test Account Group 1",
-			accountsEntryName = "Test Account 1",
-			user = "Test Test");
+			AccountGroups.viewDefault(tabName = "Accounts");
 
-		CommerceEntry.createNewAccountGroup(
-			accountCriteriaType = "Guest",
-			accountGroupsEntryName = "Test Account Group 2",
-			accountsEntryName = "Test Account 2",
-			user = "Test Test");
+			AccountGroups.addAssignee(
+				accountGroupName = "Test Account Group ${entryNumber}",
+				assigneeNames = "Test Account ${entryNumber}",
+				assigneeType = "Accounts");
+		}
 
 		Navigator.openURL();
 
@@ -1244,11 +1221,13 @@ definition {
 		Click(locator1 = "Button#PLUS");
 
 		CommerceEntry.addNewPriceListsEntry(
-			priceListCatalog = "Test Catalog",
+			priceListCatalog = "Master",
 			priceListCurrency = "USD",
 			priceListName = "Test Price List");
 
 		Button.click(button = "Submit");
+
+		Refresh();
 
 		CommerceNavigator.gotoEntry(entryName = "Test Price List");
 
@@ -1278,7 +1257,6 @@ definition {
 	test AssertPriceListCannotBeMovedToADifferentCatalog {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AssertPriceListCannotBeMovedToADifferentCatalog";
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -1322,7 +1300,6 @@ definition {
 	test AssertPriceListHaveRequiredNameAndCurrency {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AssertPriceListHaveRequiredNameAndCurrency";
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -1388,7 +1365,6 @@ definition {
 	test AssertPriceListIsAppliedToAllAssociatedAccounts {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#AssertPriceListIsAppliedToAllAssociatedAccounts";
 
 		CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
 
@@ -1396,21 +1372,15 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 1",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 1");
 
-		Click(locator1 = "Link#BACK");
+		Navigator.gotoBack();
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 2",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 2");
 
-		Click(locator1 = "Link#BACK");
+		Navigator.gotoBack();
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account 3",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account 3");
 
 		CommerceNavigator.gotoPortlet(
 			category = "Pricing",
@@ -1488,7 +1458,6 @@ definition {
 	@priority = "3"
 	test CheckPLProductGroupUsageInfo {
 		property portal.acceptance = "false";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#CheckPLProductGroupUsageInfo";
 
 		// TODO Review
 
@@ -1600,7 +1569,6 @@ definition {
 	test CreateNewPriceList {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#CreateNewPriceList";
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -1649,7 +1617,6 @@ definition {
 	test PriceListExistsOnlyInOneCatalog {
 		property portal.acceptance = "true";
 		property portal.upstream = "true";
-		property test.name.skip.portal.instance = "CPCommercePriceLists#PriceListExistsOnlyInOneCatalog";
 
 		CommerceNavigator.gotoPortlet(
 			category = "Product Management",
@@ -2153,9 +2120,7 @@ definition {
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Account Management");
 
-		CommerceAcceleratorsInitializer.createNewAccountViaFront(
-			accountName = "Commerce Account",
-			adminEmailAddress = "test@liferay.com");
+		CommerceAcceleratorsInitializer.createNewAccountViaFront(accountName = "Commerce Account");
 
 		CommerceNavigator.gotoMiniumSidebarItem(menuItem = "Catalog");
 

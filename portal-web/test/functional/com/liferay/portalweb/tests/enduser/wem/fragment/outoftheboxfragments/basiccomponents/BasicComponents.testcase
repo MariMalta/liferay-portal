@@ -111,9 +111,10 @@ definition {
 		}
 
 		task ("View the selected page is shown in Page field") {
-			AssertVisible(
-				key_contentName = "Test Widget Page Name",
-				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT");
+			AssertTextEquals(
+				key_fieldLabel = "Page",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
+				value1 = "Test Widget Page Name");
 		}
 
 		task ("Link the content page to Button fragment") {
@@ -131,9 +132,10 @@ definition {
 		}
 
 		task ("View the selected page is shown in Page field") {
-			AssertVisible(
-				key_contentName = "Test Content Page Name",
-				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT");
+			AssertTextEquals(
+				key_fieldLabel = "Page",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
+				value1 = "Test Content Page Name");
 		}
 
 		task ("Clear the selection") {
@@ -152,7 +154,7 @@ definition {
 		task ("View the text placeholder is shown in Page field") {
 			AssertAttributeValue(
 				attribute1 = "placeholder",
-				key_contentName = "",
+				key_fieldLabel = "Page",
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
 				value1 = "Select Page");
 		}
@@ -274,7 +276,7 @@ definition {
 		}
 
 		task ("Remove the Heading") {
-			ContentPages.clickPencil();
+			ContentPages.gotoPageEditor();
 
 			PageEditor.removeFragment(fragmentName = "Heading");
 		}
@@ -380,7 +382,7 @@ definition {
 		task ("View the text placeholder is shown in Image field") {
 			AssertAttributeValue(
 				attribute1 = "placeholder",
-				key_contentName = "",
+				key_fieldLabel = "Image",
 				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
 				value1 = "Select Image");
 		}
@@ -442,8 +444,10 @@ definition {
 
 		task ("View the Text Color of Paragraph") {
 			AssertCssValue(
-				key_fragmentName = "paragraph",
-				locator1 = "Fragment#FRAGMENT_BASIC_COMPONENT",
+				fragmentName = "paragraph",
+				id = "element-text",
+				index = "1",
+				locator1 = "Fragment#CONTRIBUTED_FRAGMENT_TEXT",
 				locator2 = "color",
 				value1 = "rgba(39, 40, 51, 1)");
 		}
