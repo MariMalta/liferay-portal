@@ -382,7 +382,10 @@ String successMessageKey = KaleoDesignerPortletKeys.KALEO_DESIGNER + "requestPro
 											content.value = <portlet:namespace />kaleoDesigner.editor.get('value');
 										}
 										else {
-											content.value = <portlet:namespace />kaleoDesigner.getContent();
+											var draftVersionInput = document.getElementById('<portlet:namespace />draftVersion');
+											console.log('lalalalalalalalalala');
+											console.log('draftVersionInput: ' + draftVersionInput.value);
+											content.value = <portlet:namespace />kaleoDesigner.getContent(draftVersionInput.value);
 										}
 									};
 

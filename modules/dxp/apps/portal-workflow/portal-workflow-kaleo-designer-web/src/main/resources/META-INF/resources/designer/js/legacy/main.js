@@ -336,6 +336,8 @@ AUI.add(
 				_setDefinition(val) {
 					var instance = this;
 
+					console.log(instance);
+
 					instance.definitionController = new DefinitionDiagramController(
 						encodeURIComponent(val),
 						instance.canvas
@@ -441,13 +443,16 @@ AUI.add(
 					instance._fixTableWidth();
 				},
 
-				getContent() {
+				getContent(draftVersion) {
 					var instance = this;
 
 					var json = instance.toJSON();
 
+					console.log('lalalalalalala2');
+					console.log('dVersion: ' + draftVersion);
+
 					return instance.definitionController.serializeDefinition(
-						json
+						json, draftVersion
 					);
 				},
 
@@ -544,9 +549,8 @@ AUI.add(
 					var content = instance.get('definition');
 
 					if (!content || XMLUtil.validateDefinition(content)) {
-						content = instance.getContent();
+						content = instance.getContent(12);
 					}
-
 					editor.set('value', content);
 
 					if (instance.get('readOnly')) {

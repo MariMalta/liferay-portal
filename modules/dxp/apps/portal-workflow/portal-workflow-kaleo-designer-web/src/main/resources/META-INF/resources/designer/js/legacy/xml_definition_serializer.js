@@ -36,7 +36,9 @@ AUI.add(
 		var serializeDefinition = function (xmlNamespace, metadata, json) {
 			var description = metadata.description;
 			var name = metadata.name;
-			var version = metadata.version;
+			var version = parseInt(metadata.version);
+
+			console.log('version Int ' + version);
 
 			var buffer = [];
 
@@ -59,8 +61,8 @@ AUI.add(
 				buffer.push(XMLUtil.create('description', description));
 			}
 
-			if (version) {
-				buffer.push(XMLUtil.create('version', version));
+			if (metadata.version) {
+				buffer.push(XMLUtil.create('version', parseInt(metadata.version)));
 			}
 
 			json.nodes.forEach((item) => {
