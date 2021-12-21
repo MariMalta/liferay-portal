@@ -247,6 +247,8 @@ if (recurrence != null) {
 	);
 	var repeatCheckboxNode = document.getElementById('<portlet:namespace />repeat');
 	var summaryNode = A.one('#<portlet:namespace />summary');
+	var limitDateRadioButton = '[name=<portlet:namespace />ends][value=on]';
+
 
 	var recurrenceDialogController = new Liferay.RecurrenceDialogController({
 		container: '#<portlet:namespace />recurrenceContainer',
@@ -279,6 +281,7 @@ if (recurrence != null) {
 	});
 
 	recurrenceDialogController.saveState();
+	console.log('limitDateRadioButton' + limitDateRadioButton); 
 
 	var getRecurrenceDialogTitle = function () {
 		var summary = recurrenceDialogController.get('summary');
