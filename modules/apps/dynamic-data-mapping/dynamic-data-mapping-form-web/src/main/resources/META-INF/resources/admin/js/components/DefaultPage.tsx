@@ -23,10 +23,10 @@ const DefaultPage: React.FC<IProps> = ({
 	formDescription,
 	formReportDataURL,
 	formTitle,
-	limitToOneSubmissionPerUser,
 	pageDescription,
 	pageTitle,
 	showPartialResultsToRespondents,
+	showSubmitAgainButton,
 }) => {
 	const [showReport, setShowReport] = useState(false);
 
@@ -39,6 +39,7 @@ const DefaultPage: React.FC<IProps> = ({
 
 			{showReport ? (
 				<PartialResults
+					hasDescription={!!formDescription}
 					onShow={() => setShowReport(false)}
 					reportDataURL={formReportDataURL as string}
 				/>
@@ -51,7 +52,7 @@ const DefaultPage: React.FC<IProps> = ({
 					</p>
 
 					<div className="lfr-ddm__default-page-buttons">
-						{!limitToOneSubmissionPerUser && (
+						{showSubmitAgainButton && (
 							<ClayButton
 								displayType="secondary"
 								onClick={() => window.location.reload()}
@@ -83,8 +84,8 @@ interface IProps {
 	formDescription?: string;
 	formReportDataURL?: string;
 	formTitle: string;
-	limitToOneSubmissionPerUser?: boolean;
 	pageDescription: string;
 	pageTitle: string;
 	showPartialResultsToRespondents?: boolean;
+	showSubmitAgainButton?: boolean;
 }

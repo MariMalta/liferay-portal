@@ -151,6 +151,31 @@ definition {
 			value1 = "${siteName}");
 	}
 
+	macro addLocalizedName {
+		Click(
+			key_itemName = "Site Configuration",
+			locator1 = "ListGroupItem#ITEM_TEXT");
+
+		var list1 = ListUtil.newListFromString("${localeList}");
+		var list2 = ListUtil.newListFromString("${localizedNameList}");
+		var size = ListUtil.size("${list1}");
+		var i = "0";
+
+		while ("${i}" != "${size}") {
+			var locale = ListUtil.get("${list1}", "${i}");
+			var localizedName = ListUtil.get("${list2}", "${i}");
+
+			PortletEntry.inputLocalizedName(
+				language = "${locale}",
+				localizedName = "${localizedName}");
+
+			var i = ${i} + 1;
+			var i = StringUtil.valueOf("${i}");
+		}
+
+		PortletEntry.save();
+	}
+
 	macro addSiteTemplateCP {
 		Site.addCP(
 			membershipType = "${membershipType}",
@@ -469,20 +494,6 @@ definition {
 		Click(locator1 = "SitesSelectSite#SITES_TABLE_CHOOSE_SITE_LINK");
 
 		SelectFrame(value1 = "relative=top");
-
-		PortletEntry.save();
-	}
-
-	macro changeCurrentTheme {
-		PagesAdmin.togglePrivacy(privacy = "${privacy}");
-
-		Click(
-			key_pageName = "${privacy}",
-			locator1 = "Icon#COG_PAGE");
-
-		Navigator.gotoNavTab(navTab = "Look and Feel");
-
-		Theme.changeCurrentTheme(themeName = "${themeName}");
 
 		PortletEntry.save();
 	}

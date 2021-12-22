@@ -122,9 +122,9 @@ definition {
 		}
 
 		task ("View pending status is shown") {
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");
@@ -181,7 +181,7 @@ definition {
 		}
 
 		task ("View pending status is not shown") {
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
 			AssertElementNotPresent(
 				index = "2",
@@ -238,9 +238,9 @@ definition {
 		}
 
 		task ("View pending status is shown") {
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");
@@ -262,9 +262,9 @@ definition {
 		}
 
 		task ("View page author can preview the modification") {
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");
@@ -293,9 +293,9 @@ definition {
 		task ("View reviewer can preview the modification") {
 			User.logoutAndLoginPG(userLoginEmailAddress = "test@liferay.com");
 
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");
@@ -329,7 +329,7 @@ definition {
 		task ("View peding status is not shown as page author") {
 			User.logoutAndLoginPG(userLoginEmailAddress = "userea@liferay.com");
 
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
 			AssertElementNotPresent(
 				index = "2",
@@ -376,9 +376,9 @@ definition {
 		task ("View reviewer can preview modification of content page") {
 			User.logoutAndLoginPG(userLoginEmailAddress = "test@liferay.com");
 
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");
@@ -398,7 +398,7 @@ definition {
 		task ("View reviewer can edit after submit") {
 			AssertVisible(locator1 = "Icon#EDIT_PENCIL");
 
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
 			PagesAdmin.openPageEllipsisMenu(pageName = "Test Page Name");
 
@@ -411,9 +411,9 @@ definition {
 				id = "text",
 				text = "Modified text");
 
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");
@@ -448,9 +448,9 @@ definition {
 		task ("View page author can not edit again after submit") {
 			AssertElementNotPresent(locator1 = "Icon#EDIT_PENCIL");
 
-			SitePages.openPagesAdmin(siteURLKey = "Test Site Name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "Test Site Name");
 
-			SitePages.viewPageStatus(
+			PagesAdmin.viewPageStatus(
 				index = "2",
 				pageName = "Test Page Name",
 				status = "Pending");

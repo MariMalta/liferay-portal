@@ -22,7 +22,7 @@ definition {
 				userLoginEmailAddress = "test@liferay.com",
 				userLoginFullName = "Test Test");
 
-			Page.tearDownCP();
+			PagesAdmin.tearDownCP();
 
 			Site.tearDownCP();
 		}
@@ -1217,11 +1217,11 @@ definition {
 	test ExportImportThemeSettings {
 		JSONGroup.addGroup(groupName = "Site Name");
 
-		SitePages.openPagesAdmin(siteURLKey = "Site Name");
+		PagesAdmin.openPagesAdmin(siteURLKey = "Site Name");
 
 		PagesAdmin.addPublicPage(pageName = "Test Page");
 
-		SitePages.openPagesAdmin(siteURLKey = "Site Name");
+		PagesAdmin.openPagesAdmin(siteURLKey = "Site Name");
 
 		PagesAdmin.gotoPageEllipsisMenuItem(
 			menuItem = "Configure",
@@ -1265,7 +1265,7 @@ definition {
 			pageName = "Test Page",
 			siteName = "Site Name 2");
 
-		Page.viewCurrentThemeSettings(
+		PagesAdmin.viewWidgetPageCurrentTheme(
 			checkThemeSettingList = "Show Maximize/Minimize Application Links",
 			pageName = "Test Page",
 			uncheckThemeSettingList = "Show Header Search");

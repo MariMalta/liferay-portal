@@ -17,7 +17,7 @@ definition {
 		}
 
 		task ("Go to Pages Admin") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 		}
 	}
 
@@ -79,7 +79,7 @@ definition {
 		}
 
 		task ("Add a child page") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			PagesAdmin.addPublicChildPage(
 				childPageName = "Test Child Page",
@@ -87,7 +87,7 @@ definition {
 		}
 
 		task ("View child page in Pages admin") {
-			Page.view(
+			PagesAdmin.viewPageItemPresent(
 				depth = "2",
 				pageName = "Test Child Page",
 				privacy = "Public Pages");
@@ -106,7 +106,7 @@ definition {
 
 		task ("View pages in Pages admin") {
 			for (var i : list "1,2,3") {
-				Page.view(
+				PagesAdmin.viewPageItemPresent(
 					pageName = "Test Page Name ${i}",
 					privacy = "Public Pages");
 			}
@@ -122,7 +122,7 @@ definition {
 		}
 
 		task ("View private page in Pages admin") {
-			Page.view(
+			PagesAdmin.viewPageItemPresent(
 				pageName = "Test Private Page",
 				privacy = "Private Pages");
 		}
@@ -138,7 +138,7 @@ definition {
 		}
 
 		task ("View order of the page actions") {
-			SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+			PagesAdmin.openPagesAdmin(siteURLKey = "test-site-name");
 
 			PagesAdmin.openPageEllipsisMenu(pageName = "Test Page Name");
 

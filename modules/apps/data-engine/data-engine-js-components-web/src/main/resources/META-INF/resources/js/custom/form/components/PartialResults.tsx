@@ -20,15 +20,15 @@ import React, {useEffect} from 'react';
 
 // @ts-ignore
 
-import {useConfig} from '../../../core/hooks/useConfig.es';
-
-// @ts-ignore
-
 import FormReport from '../../form-report/index';
 
 import './PartialResults.scss';
 
-const PartialResults: React.FC<IProps> = ({onShow, reportDataURL}) => {
+const PartialResults: React.FC<IProps> = ({
+	hasDescription,
+	onShow,
+	reportDataURL,
+}) => {
 	const {
 		data,
 		fields = [],
@@ -39,17 +39,21 @@ const PartialResults: React.FC<IProps> = ({onShow, reportDataURL}) => {
 	} =
 		(useResource({fetch, link: reportDataURL})
 			.resource as IReportDataResponse | null) ?? {};
-	const {hasDescription} = useConfig();
 
 	useEffect(() => {
 		const formsPortlet = document.querySelector('.portlet-forms');
 
-		formsPortlet?.classList.add('lfr-de__partial-results--background');
+		const localeActions = document.querySelector('.locale-actions');
 
-		return () =>
+		formsPortlet?.classList.add('lfr-de__partial-results--background');
+		localeActions?.classList.add('hide');
+
+		return () => {
 			formsPortlet?.classList.remove(
 				'lfr-de__partial-results--background'
 			);
+			localeActions?.classList.remove('hide');
+		};
 	}, []);
 
 	return (
@@ -105,12 +109,13 @@ const PartialResults: React.FC<IProps> = ({onShow, reportDataURL}) => {
 export default PartialResults;
 
 interface IProps {
+	hasDescription?: boolean;
 	onShow: () => void;
 	reportDataURL: string;
 }
 
 interface IReportDataResponse {
-	data: unknown;
+	data?: string;
 	fields: unknown[];
 	formReportRecordsFieldValuesURL: unknown;
 	lastModifiedDate: string;
