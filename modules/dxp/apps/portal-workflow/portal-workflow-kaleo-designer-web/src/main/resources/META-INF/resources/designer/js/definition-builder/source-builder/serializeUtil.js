@@ -497,6 +497,8 @@ function serializeDefinition(
 		xmlNamespace
 	);
 
+	console.log('publish dentro serialize ', publishing);
+
 	buffer.push(
 		'<?xml version="1.0"?>',
 		STR_CHAR_CRLF,
@@ -527,6 +529,8 @@ function serializeDefinition(
 		}
 
 		const xmlNode = XMLUtil.createObj(xmlType);
+
+		console.log(publishing);
 
 		const tagNodeNameId = publishing ? 'name' : 'id';
 
