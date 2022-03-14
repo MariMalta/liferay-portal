@@ -10,7 +10,7 @@
  *
  */
 
-import {isObject} from '../util/utils';
+import { isObject } from '../util/utils';
 
 function parse(value, field) {
 	if (field.parser) {
@@ -87,10 +87,19 @@ function getLocationValue(field, context) {
 					} else {
 						for (const item of child.children) {
 							if (item.children.length) {
+								let childNodesAttributes = [];
 								for (const itemChild of item.children) {
-									const childNodesAttributes = getChildAttributes(
+									childNodesAttributes = getChildAttributes(
 										itemChild.childNodes
 									);
+
+									for (const item of itemChild.childNodes) {
+										if (item.children) {
+											for (const item2 of item.children) {
+												childContent[item2.tagName] = item2.textContent;
+											}
+										}
+									}
 
 									const itemChildNodesAttributes = getChildAttributes(
 										item.childNodes
@@ -126,9 +135,11 @@ function getLocationValue(field, context) {
 										childContent[itemChild.tagName] = [];
 									}
 
-									childContent[itemChild.tagName].push(
-										itemContent
-									);
+									
+										childContent[itemChild.tagName].push(
+											itemContent
+										);
+									
 								}
 							} else {
 								const childNodesAttributes = getChildAttributes(
@@ -237,7 +248,7 @@ function parseResults(schema, xmldoc_in, data_out) {
 const XMLSchemaUtil = {
 	applySchema(schema, data) {
 		const xmlDoc = data;
-		let data_out = {meta: {}, results: []};
+		let data_out = { meta: {}, results: [] };
 
 		if (
 			xmlDoc &&
