@@ -10,7 +10,7 @@
  *
  */
 
-import {isObject} from '../util/utils';
+import { isObject } from '../util/utils';
 
 function parse(value, field) {
 	if (field.parser) {
@@ -64,8 +64,7 @@ function getLocationValue(field, context) {
 
 			if (resNodesAttributes.length) {
 				value.content = resNodesAttributes;
-			}
-			else if (res.children.length) {
+			} else if (res.children.length) {
 				const content = [];
 
 				for (const child of res.children) {
@@ -80,20 +79,34 @@ function getLocationValue(field, context) {
 
 						if (childNodesAttributes.length) {
 							itemContent = childNodesAttributes;
-						}
-						else {
+						} else {
 							itemContent = child.textContent;
 						}
 
 						childContent[child.tagName] = itemContent;
-					}
-					else {
+					} else {
 						for (const item of child.children) {
 							if (item.children.length) {
+								let childNodesAttributes = [];
 								for (const itemChild of item.children) {
-									const childNodesAttributes = getChildAttributes(
+									childNodesAttributes = getChildAttributes(
 										itemChild.childNodes
 									);
+
+									for (const item of itemChild.childNodes) {
+										if (item.children) {
+											for (const item2 of item.children) {
+												let tagName = item2.tagName === 'name' ? `${item.tagName}-name` : item2.tagName;
+												if (!childContent[tagName]) {
+													childContent[tagName] = [];
+												}
+	
+												childContent[
+													tagName
+												].push(item2.textContent);
+											}
+										}
+									}
 
 									const itemChildNodesAttributes = getChildAttributes(
 										item.childNodes
@@ -129,12 +142,13 @@ function getLocationValue(field, context) {
 										childContent[itemChild.tagName] = [];
 									}
 
-									childContent[itemChild.tagName].push(
-										itemContent
-									);
+									
+										childContent[itemChild.tagName].push(
+											itemContent
+										);
+									
 								}
-							}
-							else {
+							} else {
 								const childNodesAttributes = getChildAttributes(
 									item.childNodes
 								);
@@ -143,8 +157,7 @@ function getLocationValue(field, context) {
 
 								if (childNodesAttributes.length) {
 									itemContent = childNodesAttributes;
-								}
-								else {
+								} else {
 									itemContent = item.textContent;
 								}
 
@@ -153,8 +166,7 @@ function getLocationValue(field, context) {
 										childContent[item.tagName],
 										itemContent,
 									];
-								}
-								else {
+								} else {
 									childContent[item.tagName] = itemContent;
 								}
 							}
@@ -165,8 +177,7 @@ function getLocationValue(field, context) {
 				}
 
 				value.content = content;
-			}
-			else {
+			} else {
 				value.content = res.textContent;
 			}
 		}
@@ -207,7 +218,6 @@ function parseResults(schema, xmldoc_in, data_out) {
 		let j;
 
 		if (nodeList.length) {
-
 			// Loop through each result node
 
 			for (i = nodeList.length - 1; i >= 0; i--) {
@@ -232,8 +242,7 @@ function parseResults(schema, xmldoc_in, data_out) {
 			}
 
 			data_out.results = results;
-		}
-		else {
+		} else {
 			data_out.error = new Error(
 				'XML schema result nodes retrieval failure'
 			);
@@ -246,7 +255,7 @@ function parseResults(schema, xmldoc_in, data_out) {
 const XMLSchemaUtil = {
 	applySchema(schema, data) {
 		const xmlDoc = data;
-		let data_out = {meta: {}, results: []};
+		let data_out = { meta: {}, results: [] };
 
 		if (
 			xmlDoc &&
@@ -259,8 +268,7 @@ const XMLSchemaUtil = {
 			data_out = parseResults(schema, xmlDoc, data_out);
 
 			data_out = parseMeta(schema.metaFields, xmlDoc, data_out);
-		}
-		else {
+		} else {
 			data_out.error = new Error('XML schema parse failure');
 		}
 

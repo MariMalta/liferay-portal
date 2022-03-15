@@ -37,17 +37,15 @@ let executionTypeOptions = [
 const getRecipientType = (assignmentType) => {
 	if (assignmentType === 'roleId') {
 		return 'role';
-	}
-	else if (assignmentType === 'scriptedRecipient') {
+	} else if (assignmentType === 'roleType') {
+		return 'roleType';
+	} else if (assignmentType === 'scriptedRecipient') {
 		return 'scriptedRecipient';
-	}
-	else if (assignmentType === 'taskAssignees') {
+	} else if (assignmentType === 'taskAssignees') {
 		return 'taskAssignees';
-	}
-	else if (assignmentType === 'user') {
+	} else if (assignmentType === 'user') {
 		return 'assetCreator';
-	}
-	else {
+	} else {
 		return null;
 	}
 };
@@ -257,8 +255,7 @@ const NotificationsInfo = ({
 
 				if (recipientType === 'assetCreator') {
 					recipientDetails = {assignmentType: ['user']};
-				}
-				else if (recipientType === 'taskAssignees') {
+				} else if (recipientType === 'taskAssignees') {
 					recipientDetails = {assignmentType: ['taskAssignees']};
 				}
 
@@ -279,8 +276,7 @@ const NotificationsInfo = ({
 						],
 						...currentRecipient,
 					};
-				}
-				else {
+				} else {
 					previousItem.data.notifications.recipients[
 						notificationIndex
 					] = currentRecipient;
@@ -292,6 +288,27 @@ const NotificationsInfo = ({
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [notificationIndex, recipientType, setSelectedItem]);
+
+	useEffect(() => {
+		if (recipientType === 'roleType') {
+			const sectionsData = [];
+
+			const recipients =
+				selectedItem.data.notifications.recipients[notificationIndex];
+
+			for (let i = 0; i < recipients.roleName.length; i++) {
+				sectionsData.push({
+					autoCreate: recipients.autoCreate?.[i],
+					identifier: `${Date.now()}-${i}`,
+					roleName: recipients.roleName[i],
+					roleType: recipients.roleType[i],
+				});
+			}
+
+			setInternalSections(sectionsData);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
 
 	const deleteSection = () => {
 		setSections((prevSections) => {
@@ -306,7 +323,7 @@ const NotificationsInfo = ({
 	};
 
 	const updateNotificationInfo = (item) => {
-		if (item.name && item.template) {
+		if (item.name && item.template && item.notificationTypes.length) {
 			setSections((prev) => {
 				prev[notificationIndex] = {
 					...prev[notificationIndex],
@@ -342,8 +359,7 @@ const NotificationsInfo = ({
 				value: 'onAssignment',
 			});
 		}
-	}
-	else if (selectedItem.type !== 'task') {
+	} else if (selectedItem.type !== 'task') {
 		recipientTypeOptions = recipientTypeOptions.filter(({value}) => {
 			return value !== 'taskAssignees';
 		});
@@ -530,6 +546,8 @@ const NotificationsInfo = ({
 			<ClayForm.Group>
 				<label htmlFor="notification-types">
 					{Liferay.Language.get('notification-types')}
+
+					<span className="ml-1 mr-1 text-warning">*</span>
 				</label>
 
 				<ClayDropDownWithItems
@@ -590,6 +608,12 @@ const NotificationsInfo = ({
 
 				<ClaySelect
 					aria-label="Select"
+					disabled={
+						notificationName.trim() === '' ||
+						template.trim() === '' ||
+						(!notificationTypeEmail &&
+							!notificationTypeUserNotification)
+					}
 					id="recipient-type"
 					onChange={({target}) => {
 						setRecipientType(target.value);
@@ -632,22 +656,22 @@ const NotificationsInfo = ({
 				recipientType !== 'taskAssignees' && (
 					<SidebarPanel panelTitle={Liferay.Language.get('type')}>
 						<ClayForm.Group className="recipient-type-form-group">
-							{internalSections.map(({identifier}, index) => (
+							{internalSections.map((props, index) => (
 								<RecipientTypeComponent
-									identifier={identifier}
 									index={index}
 									inputValue={
 										selectedItem.data.notifications
 											?.recipients[notificationIndex]
 											?.script?.[0]
 									}
-									key={`section-${identifier}`}
+									key={`section-${props.identifier}`}
 									notificationIndex={notificationIndex}
 									sectionsLength={internalSections.length}
 									setSections={setInternalSections}
 									updateSelectedItem={
 										scriptedRecipientUpdateSelectedItem
 									}
+									{...props}
 									{...restProps}
 								/>
 							))}
@@ -661,7 +685,10 @@ const NotificationsInfo = ({
 				<ClayButton
 					className="mr-3"
 					disabled={
-						notificationName.trim() === '' || template.trim() === ''
+						notificationName.trim() === '' ||
+						template.trim() === '' ||
+						(!notificationTypeEmail &&
+							!notificationTypeUserNotification)
 					}
 					displayType="secondary"
 					onClick={() =>
