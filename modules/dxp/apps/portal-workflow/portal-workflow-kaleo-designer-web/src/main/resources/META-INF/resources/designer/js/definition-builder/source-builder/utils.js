@@ -125,11 +125,12 @@ export function parseNotifications(node) {
 				assignmentType: ['taskAssignees'],
 			};
 		}
-		else if (item['users']) {
+		else if (item['user']) {
 			notifications.recipients[index] = {
 				assignmentType: ['user'],
-				emailAddress: item['email'],
+				emailAddress:[replaceTabSpaces(removeNewLine(item['user'][0]))],
 			};
+			
 		}
 		else if (item['role-type']) {
 			notifications.recipients[index] = {
@@ -158,11 +159,6 @@ export function parseNotifications(node) {
 				assignmentType: ['scriptedRecipient'],
 				script: [script],
 				scriptLanguage: [DEFAULT_LANGUAGE],
-			};
-		}
-		else if (item.user) {
-			notifications.recipients[index] = {
-				assignmentType: ['user'],
 			};
 		}
 	});

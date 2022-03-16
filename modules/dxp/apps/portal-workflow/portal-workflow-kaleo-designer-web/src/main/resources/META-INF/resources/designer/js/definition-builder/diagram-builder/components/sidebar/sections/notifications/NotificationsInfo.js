@@ -48,7 +48,7 @@ const getRecipientType = (assignmentType) => {
 		return 'taskAssignees';
 	}
 	else if (assignmentType === 'user') {
-		return 'assetCreator';
+		return 'user';
 	}
 	else {
 		return null;
