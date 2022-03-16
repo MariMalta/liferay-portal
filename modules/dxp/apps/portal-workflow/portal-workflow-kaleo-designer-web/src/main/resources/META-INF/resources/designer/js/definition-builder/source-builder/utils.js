@@ -125,10 +125,10 @@ export function parseNotifications(node) {
 				assignmentType: ['taskAssignees'],
 			};
 		}
-		else if (!item['role-type']) {
+		else if (item['users']) {
 			notifications.recipients[index] = {
-				assignmentType: ['roleId'],
-				roleId: replaceTabSpaces(removeNewLine(item.roles[0])),
+				assignmentType: ['user'],
+				emailAddress: item['email'],
 			};
 		}
 		else if (item['role-type']) {
@@ -139,6 +139,14 @@ export function parseNotifications(node) {
 				roleType: item['role-type'],
 			};
 		}
+
+		else if (item['role-id']) {
+			notifications.recipients[index] = {
+				assignmentType: ['roleId'],
+				roleId: replaceTabSpaces(removeNewLine(item.roles[0])),
+			};
+		}
+
 		else if (item['scripted-recipient']) {
 			let script = item['scripted-recipient'][0];
 
