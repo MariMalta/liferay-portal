@@ -124,11 +124,15 @@ export function parseNotifications(node) {
 			notifications.recipients[index] = {
 				assignmentType: ['taskAssignees'],
 			};
-		}
+		}	
 		else if (item['user']) {
+			const emailAddress = [];
+
+			item['user'].forEach(item => emailAddress.push(replaceTabSpaces(removeNewLine(item))));
+			
 			notifications.recipients[index] = {
 				assignmentType: ['user'],
-				emailAddress:[replaceTabSpaces(removeNewLine(item['user'][0]))],
+				emailAddress,
 			};
 			
 		}

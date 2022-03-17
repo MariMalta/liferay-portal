@@ -20,7 +20,7 @@ const User = ({notificationIndex, updateSelectedItem: _, ...restProps}) => {
 		setSelectedItem((previousItem) => {
 			previousItem.data.notifications.recipients[notificationIndex] = {
 				 assignmentType: ['user'],
-				 emailAddress: values.map(({emailAdress}) => emailAdress),
+				 emailAddress: values.map(({emailAddress}) => emailAddress),
 				 sectionsData: values.map((values) => values),				
 			};
 
