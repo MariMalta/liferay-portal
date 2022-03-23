@@ -100,6 +100,8 @@ DeserializeUtil.prototype = {
 
 				let nodeId;
 
+				
+
 				if (node.id) {
 					nodeId = node.id;
 				}

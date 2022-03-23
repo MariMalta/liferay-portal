@@ -10,7 +10,7 @@
  *
  */
 
-import {isObject, isObjectEmpty} from '../util/utils';
+import { isObject, isObjectEmpty } from '../util/utils';
 import {
 	DEFAULT_LANGUAGE,
 	STR_CDATA_CLOSE,
@@ -41,7 +41,7 @@ function jsonStringify(value) {
 			JSON.stringify(value, null, STR_CHAR_TAB) +
 			STR_CHAR_CRLF;
 	}
-	catch (error) {}
+	catch (error) { }
 
 	return jsonString;
 }
@@ -50,9 +50,10 @@ function appendXMLActions(
 	buffer,
 	actions,
 	notifications,
+	publishing,
 	assignments,
 	wrapperNodeName,
-	actionNodeName,
+	actionNodeName,	
 	notificationNodeName,
 	assignmentNodeName
 ) {
@@ -69,7 +70,7 @@ function appendXMLActions(
 	}
 
 	if (hasAction) {
-		const {description, executionType, priority, script} = actions;
+		const { description, executionType, priority, script } = actions;
 
 		const xmlAction = XMLUtil.createObj(actionNodeName || 'action');
 
@@ -101,7 +102,7 @@ function appendXMLActions(
 	}
 
 	if (hasNotification) {
-		appendXMLNotifications(buffer, notifications, notificationNodeName);
+		appendXMLNotifications(buffer, notifications, notificationNodeName, publishing);
 	}
 
 	if (hasAssignment) {
@@ -163,6 +164,10 @@ function appendXMLAssignments(
 
 			dataAssignments.roleType.forEach((item, index) => {
 				const roleName = dataAssignments.roleName[index];
+
+				// if(publishing && item === 'asset library'){
+				// 	item = 'depot';
+				// }
 
 				if (roleName) {
 					buffer.push(
@@ -292,7 +297,7 @@ function appendXMLAssignments(
 	}
 }
 
-function appendXMLNotifications(buffer, notifications, nodeName) {
+function appendXMLNotifications(buffer, notifications, nodeName, publishing) {
 	if (notifications && notifications.name && notifications.name.length > 0) {
 		const {
 			description,
@@ -356,6 +361,10 @@ function appendXMLNotifications(buffer, notifications, nodeName) {
 					'recipients',
 					recipientsAttrs
 				);
+			}
+
+			if(publishing && recipients[index].roleType[0] === 'asset library'){				
+				recipients[index].roleType = ['depot'];
 			}
 
 			if (executionType) {
@@ -530,9 +539,10 @@ function serializeDefinition(
 
 		const xmlNode = XMLUtil.createObj(xmlType);
 
-		console.log(publishing);
-
 		const tagNodeNameId = publishing ? 'name' : 'id';
+
+
+
 
 		buffer.push(xmlNode.open, XMLUtil.create(`${tagNodeNameId}`, id));
 
@@ -540,7 +550,7 @@ function serializeDefinition(
 			buffer.push(XMLUtil.create('description', description));
 		}
 
-		const metadata = {xy: [item.position.x, item.position.y]};
+		const metadata = { xy: [item.position.x, item.position.y] };
 
 		if (item.type === 'end') {
 			metadata.terminal = true;
@@ -548,7 +558,7 @@ function serializeDefinition(
 
 		buffer.push(XMLUtil.create('metadata', cdata(jsonStringify(metadata))));
 
-		appendXMLActions(buffer, item.data.actions, item.data.notifications);
+		appendXMLActions(buffer, item.data.actions, item.data.notifications,publishing);
 
 		appendXMLAssignments(buffer, item.data.assignments);
 
@@ -595,4 +605,4 @@ function serializeDefinition(
 	return XMLUtil.format(buffer);
 }
 
-export {serializeDefinition};
+export { serializeDefinition };
