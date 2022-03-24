@@ -138,6 +138,7 @@ export function parseNotifications(node) {
 			};
 		}
 		else if (item['role-type']) {
+
 			notifications.recipients[index] = {
 				assignmentType: ['roleType'],
 				autoCreate: item['auto-create'],
