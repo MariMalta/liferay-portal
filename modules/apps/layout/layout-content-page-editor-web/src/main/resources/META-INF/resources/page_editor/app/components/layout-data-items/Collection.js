@@ -12,7 +12,6 @@
  * details.
  */
 
-import ClayAlert from '@clayui/alert';
 import ClayLayout from '@clayui/layout';
 import ClayLoadingIndicator from '@clayui/loading-indicator';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
@@ -27,6 +26,7 @@ import {
 import {useDisplayPagePreviewItem} from '../../contexts/DisplayPagePreviewItemContext';
 import {useDispatch, useSelector} from '../../contexts/StoreContext';
 import selectLanguageId from '../../selectors/selectLanguageId';
+import selectSegmentsExperienceId from '../../selectors/selectSegmentsExperienceId';
 import CollectionService from '../../services/CollectionService';
 import updateItemConfig from '../../thunks/updateItemConfig';
 import {getResponsiveConfig} from '../../utils/getResponsiveConfig';
@@ -89,6 +89,19 @@ const EmptyCollectionGridMessage = () => (
 		{Liferay.Language.get(
 			'the-collection-is-empty-to-display-your-items-add-them-to-the-collection-or-choose-a-different-collection'
 		)}
+	</div>
+);
+
+const EditModeMaxItemsAlert = () => (
+	<div className="alert alert-fluid alert-info">
+		<div className="container-fluid">
+			{Liferay.Util.sub(
+				Liferay.Language.get(
+					'in-edit-mode,-the-number-of-elements-displayed-is-limited-to-x-due-to-performance'
+				),
+				config.maxNumberOfItemsEditMode
+			)}
+		</div>
 	</div>
 );
 
@@ -156,18 +169,7 @@ const Grid = ({
 				</ClayLayout.Row>
 			))}
 			{maxNumberOfItems > config.maxNumberOfItemsEditMode && (
-				<ClayAlert
-					className="border-0 mb-0"
-					displayType="info"
-					variant="stripe"
-				>
-					{Liferay.Util.sub(
-						Liferay.Language.get(
-							'in-edit-mode,-the-number-of-elements-displayed-is-limited-to-x-due-to-performance'
-						),
-						config.maxNumberOfItemsEditMode
-					)}
-				</ClayAlert>
+				<EditModeMaxItemsAlert />
 			)}
 		</>
 	);
@@ -226,6 +228,7 @@ const Collection = React.memo(
 
 		const dispatch = useDispatch();
 		const languageId = useSelector(selectLanguageId);
+		const segmentsExperienceId = useSelector(selectSegmentsExperienceId);
 
 		const [activePage, setActivePage] = useState(1);
 		const [collection, setCollection] = useState(emptyCollection);
@@ -328,6 +331,7 @@ const Collection = React.memo(
 										},
 									},
 									itemId: item.itemId,
+									segmentsExperienceId,
 								})
 							);
 						}
@@ -350,6 +354,7 @@ const Collection = React.memo(
 			itemClassNameId,
 			itemClassPK,
 			languageId,
+			segmentsExperienceId,
 		]);
 
 		const selectedViewportSize = useSelector(

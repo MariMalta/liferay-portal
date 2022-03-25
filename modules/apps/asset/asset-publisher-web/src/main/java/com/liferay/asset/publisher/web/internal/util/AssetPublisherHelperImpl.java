@@ -36,6 +36,7 @@ import com.liferay.asset.publisher.web.internal.configuration.AssetPublisherWebC
 import com.liferay.asset.publisher.web.internal.constants.AssetPublisherSelectionStyleConstants;
 import com.liferay.asset.util.AssetHelper;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
+import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
@@ -520,7 +521,7 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 				viewFullContentURL.toString());
 
 			if (Validator.isNotNull(viewURL)) {
-				return viewURL;
+				return _normalizeURL(viewURL);
 			}
 		}
 		catch (Exception exception) {
@@ -529,7 +530,7 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 			}
 		}
 
-		return viewFullContentURL.toString();
+		return _normalizeURL(viewFullContentURL.toString());
 	}
 
 	@Override
@@ -1233,6 +1234,16 @@ public class AssetPublisherHelperImpl implements AssetPublisherHelper {
 		}
 
 		return assetTagNames;
+	}
+
+	private String _normalizeURL(String url) {
+		int index = url.indexOf(CharPool.QUESTION);
+
+		if (index != -1) {
+			url = url.substring(0, index);
+		}
+
+		return url;
 	}
 
 	private void _removeAndStoreSelection(

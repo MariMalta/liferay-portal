@@ -118,6 +118,32 @@ public class Main {
 		}
 	}
 
+	private void _addTestrayFactor(
+			long testrayFactorCategoryId, String testrayFactorCategoryName,
+			long testrayFactorOptionId, String testrayFactorOptionName,
+			long testrayRunId)
+		throws Exception {
+
+		_postObjectEntry(
+			HashMapBuilder.put(
+				"classNameId", String.valueOf(testrayRunId)
+			).put(
+				"classPK", String.valueOf(testrayRunId)
+			).put(
+				"r_factorCategoryToFactors_c_factorCategoryId",
+				String.valueOf(testrayFactorCategoryId)
+			).put(
+				"r_factorOptionToFactors_c_factorOptionId",
+				String.valueOf(testrayFactorOptionId)
+			).put(
+				"testrayFactorCategoryName", testrayFactorCategoryName
+			).put(
+				"testrayFactorOptionName",
+				String.valueOf(testrayFactorOptionName)
+			).build(),
+			null, "factors");
+	}
+
 	private String _getAttributeValue(String attributeName, Node node) {
 		NamedNodeMap namedNodeMap = node.getAttributes();
 
@@ -273,6 +299,39 @@ public class Main {
 			testrayBuildName, "builds");
 	}
 
+	private long _getTestrayFactorCategoryId(String testrayFactorCategoryName)
+		throws Exception {
+
+		long testrayFactorCategoryId = _getObjectEntryId(
+			testrayFactorCategoryName, "factorcategories");
+
+		if (testrayFactorCategoryId != 0) {
+			return testrayFactorCategoryId;
+		}
+
+		return _postObjectEntry(
+			null, testrayFactorCategoryName, "factorcategories");
+	}
+
+	private long _getTestrayFactorOptionId(
+			long testrayFactorCategoryId, String testrayFactorOptionName)
+		throws Exception {
+
+		long testrayFactorOptionId = _getObjectEntryId(
+			testrayFactorOptionName, "factoroptions");
+
+		if (testrayFactorOptionId != 0) {
+			return testrayFactorOptionId;
+		}
+
+		return _postObjectEntry(
+			HashMapBuilder.put(
+				"r_factorCategoryToOptions_c_factorCategoryId",
+				String.valueOf(testrayFactorCategoryId)
+			).build(),
+			testrayFactorOptionName, "factoroptions");
+	}
+
 	private long _getTestrayProductVersionId(
 			long testrayProjectId, String testrayProductVersionName)
 		throws Exception {
@@ -322,6 +381,84 @@ public class Main {
 				String.valueOf(testrayProjectId)
 			).build(),
 			testrayRoutineName, "routines");
+	}
+
+	private String _getTestrayRunEnvironmentHash(
+			Element element, long testrayRunId)
+		throws Exception {
+
+		StringBundler sb = new StringBundler();
+
+		NodeList environmentNodeList = element.getElementsByTagName(
+			"environment");
+
+		for (int i = 0; i < environmentNodeList.getLength(); i++) {
+			Node node = environmentNodeList.item(i);
+
+			if (!node.hasAttributes()) {
+				continue;
+			}
+
+			String testrayFactorCategoryName = _getAttributeValue("type", node);
+
+			long testrayFactorCategoryId = _getTestrayFactorCategoryId(
+				testrayFactorCategoryName);
+
+			String testrayFactorOptionName = _getAttributeValue("option", node);
+
+			long testrayFactorOptionId = _getTestrayFactorOptionId(
+				testrayFactorCategoryId, testrayFactorOptionName);
+
+			_addTestrayFactor(
+				testrayFactorCategoryId, testrayFactorCategoryName,
+				testrayFactorOptionId, testrayFactorOptionName, testrayRunId);
+
+			sb.append(testrayFactorCategoryId);
+			sb.append(testrayFactorOptionId);
+		}
+
+		String testrayFactorsString = sb.toString();
+
+		return String.valueOf(testrayFactorsString.hashCode());
+	}
+
+	private long _getTestrayRunId(
+			Element element, Map<String, String> propertiesMap,
+			long testrayBuildId, String testrayRunName)
+		throws Exception {
+
+		long testrayRunId = _getObjectEntryId(testrayRunName, "runs");
+
+		if (testrayRunId != 0) {
+			return testrayRunId;
+		}
+
+		testrayRunId = _postObjectEntry(
+			HashMapBuilder.put(
+				"externalReferencePK", propertiesMap.get("testray.run.id")
+			).put(
+				"externalReferenceType",
+				String.valueOf(_TESTRAY_RUN_EXTERNAL_REFERENCE_TYPE_POSHI)
+			).put(
+				"jenkinsJobKey", propertiesMap.get("jenkins.job.id")
+			).put(
+				"name", testrayRunName
+			).put(
+				"r_buildToRuns_c_buildId", String.valueOf(testrayBuildId)
+			).build(),
+			testrayRunName, "runs");
+
+		JSONObject jsonObject = new JSONObject();
+
+		jsonObject.put(
+			"environmentHash",
+			_getTestrayRunEnvironmentHash(element, testrayRunId));
+
+		_invoke(
+			jsonObject.toString(), null, HttpInvoker.HttpMethod.PATCH,
+			"runs/" + testrayRunId, null);
+
+		return testrayRunId;
 	}
 
 	private HttpInvoker.HttpResponse _invoke(
@@ -437,8 +574,16 @@ public class Main {
 
 		String testrayBuildName = propertiesMap.get("testray.build.name");
 
-		_getTestrayBuildId(propertiesMap, testrayBuildName, testrayProjectId);
+		long testrayBuildId = _getTestrayBuildId(
+			propertiesMap, testrayBuildName, testrayProjectId);
+
+		String testrayRunName = propertiesMap.get("testray.run.id");
+
+		_getTestrayRunId(
+			element, propertiesMap, testrayBuildId, testrayRunName);
 	}
+
+	private static final int _TESTRAY_RUN_EXTERNAL_REFERENCE_TYPE_POSHI = 1;
 
 	private final String _liferayLogin;
 	private final String _liferayPassword;

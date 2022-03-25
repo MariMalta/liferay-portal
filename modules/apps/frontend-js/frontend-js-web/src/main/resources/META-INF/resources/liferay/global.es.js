@@ -153,6 +153,15 @@ Liferay.Util.MAP_HTML_CHARS_ESCAPED = MAP_HTML_CHARS_ESCAPED;
  */
 Liferay.Util.addParams = addParams;
 
+Liferay.Util.openAlertModal = (...args) => {
+	Liferay.Loader.require(
+		'frontend-js-web/liferay/modal/Modal',
+		(commands) => {
+			commands.openAlertModal(...args);
+		}
+	);
+};
+
 /**
  * @deprecated As of Athanasius (7.3.x), with no direct replacement
  */
