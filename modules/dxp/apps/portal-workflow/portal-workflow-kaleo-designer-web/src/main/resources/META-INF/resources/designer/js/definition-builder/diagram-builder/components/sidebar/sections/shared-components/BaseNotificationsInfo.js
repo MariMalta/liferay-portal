@@ -87,12 +87,14 @@ const templateLanguageOptions = [
 ];
 
 const BaseNotificationsInfo = ({
+	errors,
 	identifier,
 	notificationIndex,
 	notifications,
 	recipientTypeComponents,
 	regularNotification,
 	sectionsLength,
+	setErrors,
 	setSections,
 	taskTimerNotification,
 	timerIndex,
@@ -610,6 +612,7 @@ const BaseNotificationsInfo = ({
 						<ClayForm.Group className="recipient-type-form-group">
 							{internalSections.map(({identifier}, index) => (
 								<RecipientTypeComponent
+									errors={errors}
 									identifier={identifier}
 									index={index}
 									inputValue={
@@ -620,6 +623,7 @@ const BaseNotificationsInfo = ({
 									key={`section-${identifier}`}
 									notificationIndex={notificationIndex}
 									sectionsLength={internalSections.length}
+									setErrors={setErrors}
 									setSections={setInternalSections}
 									timerIndex={timerIndex}
 									updateSelectedItem={

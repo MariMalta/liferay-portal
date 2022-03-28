@@ -19,7 +19,12 @@ import Role from './Role';
 import RoleType from './RoleType';
 import User from './User';
 
-const NotificationsInfo = ({index: notificationIndex, setSections}) => {
+const NotificationsInfo = ({
+	errors,
+	index: notificationIndex,
+	setErrors,
+	setSections,
+}) => {
 	const {selectedItem, setSelectedItem} = useContext(DiagramBuilderContext);
 
 	const notifications = selectedItem.data.notifications;
@@ -78,10 +83,12 @@ const NotificationsInfo = ({index: notificationIndex, setSections}) => {
 
 	return (
 		<BaseNotificationsInfo
+			errors={errors}
 			notificationIndex={notificationIndex}
 			notifications={notifications}
 			recipientTypeComponents={recipientTypeComponents}
 			regularNotification
+			setErrors={setErrors}
 			setSections={setSections}
 			updateNotificationInfo={updateNotificationInfo}
 			updateSelectedItem={updateSelectedItem}
