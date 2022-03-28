@@ -12,7 +12,7 @@
  * details.
  */
 
-export * from './liferayUser';
+export * from './liferayUserAccount';
 export * from './testrayCase';
 export * from './testrayCaseType';
 export * from './testrayFactorCategory';

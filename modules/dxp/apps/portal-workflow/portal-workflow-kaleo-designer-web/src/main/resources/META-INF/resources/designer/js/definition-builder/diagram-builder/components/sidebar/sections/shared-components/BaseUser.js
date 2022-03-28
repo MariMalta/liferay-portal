@@ -70,7 +70,7 @@ const BaseUser = ({
 	};
 
 	const checkSearchErrors = (errors, user) => {
-		const temp = errors.user ? [...errors.user] : [];
+		const temp = errors?.user ? [...errors.user] : [];
 
 		if (!temp[notificationIndex]) {
 			temp[notificationIndex] = [];
@@ -162,7 +162,9 @@ const BaseUser = ({
 
 			<ClayForm.Group
 				className={
-					errors.user?.[notificationIndex]?.[index] ? 'has-error' : ''
+					errors?.user?.[notificationIndex]?.[index]
+						? 'has-error'
+						: ''
 				}
 			>
 				<label htmlFor="screen-name">
@@ -180,7 +182,7 @@ const BaseUser = ({
 				/>
 
 				<ClayForm.FeedbackItem>
-					{errors.user?.[notificationIndex]?.[index] && (
+					{errors?.user?.[notificationIndex]?.[index] && (
 						<>
 							<ClayForm.FeedbackIndicator symbol="exclamation-full" />
 
@@ -210,7 +212,7 @@ const BaseUser = ({
 				/>
 
 				<ClayForm.FeedbackItem>
-					{errors.user?.[notificationIndex]?.[index] && (
+					{errors?.user?.[notificationIndex]?.[index] && (
 						<>
 							<ClayForm.FeedbackIndicator symbol="exclamation-full" />
 
@@ -222,7 +224,9 @@ const BaseUser = ({
 
 			<ClayForm.Group
 				className={
-					errors.user?.[notificationIndex]?.[index] ? 'has-error' : ''
+					errors?.user?.[notificationIndex]?.[index]
+						? 'has-error'
+						: ''
 				}
 			>
 				<label htmlFor="user-id">
@@ -240,7 +244,7 @@ const BaseUser = ({
 				/>
 
 				<ClayForm.FeedbackItem>
-					{errors.user?.[notificationIndex]?.[index] && (
+					{errors?.user?.[notificationIndex]?.[index] && (
 						<>
 							<ClayForm.FeedbackIndicator symbol="exclamation-full" />
 

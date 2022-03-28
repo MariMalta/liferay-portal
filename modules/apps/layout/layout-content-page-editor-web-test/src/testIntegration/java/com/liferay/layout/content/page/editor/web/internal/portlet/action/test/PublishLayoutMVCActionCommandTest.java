@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.Collections;
 import java.util.List;
@@ -101,7 +102,9 @@ public class PublishLayoutMVCActionCommandTest {
 
 		_layoutPageTemplateStructureLocalService.
 			updateLayoutPageTemplateStructureData(
-				_group.getGroupId(), draftLayout.getPlid(), 0,
+				_group.getGroupId(), draftLayout.getPlid(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(layout.getPlid()),
 				layoutStructure.toString());
 
 		ReflectionTestUtil.invoke(
@@ -156,6 +159,9 @@ public class PublishLayoutMVCActionCommandTest {
 		filter = "mvc.command.name=/layout_content_page_editor/publish_layout"
 	)
 	private MVCActionCommand _mvcActionCommand;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	private ServiceContext _serviceContext;
 

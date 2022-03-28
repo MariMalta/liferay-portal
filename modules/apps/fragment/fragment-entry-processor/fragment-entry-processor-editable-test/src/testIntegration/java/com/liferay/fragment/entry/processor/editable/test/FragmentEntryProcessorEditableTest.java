@@ -97,6 +97,7 @@ import com.liferay.portal.kernel.xml.SAXReaderUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.io.InputStream;
 
@@ -199,10 +200,13 @@ public class FragmentEntryProcessorEditableTest {
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
 				TestPropsValues.getUserId(), _group.getGroupId(), 0,
-				fragmentEntry.getFragmentEntryId(), 0, _layout.getPlid(),
-				fragmentEntry.getCss(), fragmentEntry.getHtml(),
-				fragmentEntry.getJs(), StringPool.BLANK, StringPool.BLANK,
-				StringPool.BLANK, 0, null, serviceContext);
+				fragmentEntry.getFragmentEntryId(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(_layout.getPlid()),
+				_layout.getPlid(), fragmentEntry.getCss(),
+				fragmentEntry.getHtml(), fragmentEntry.getJs(),
+				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 0, null,
+				serviceContext);
 
 		List<PortletPreferences> portletPreferencesList =
 			_portletPreferencesLocalService.getPortletPreferences(
@@ -260,7 +264,9 @@ public class FragmentEntryProcessorEditableTest {
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
 				TestPropsValues.getUserId(), _group.getGroupId(), 0,
-				fragmentEntry.getFragmentEntryId(), 0,
+				fragmentEntry.getFragmentEntryId(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(_layout.getPlid()),
 				TestPropsValues.getPlid(), fragmentEntry.getCss(),
 				fragmentEntry.getHtml(), fragmentEntry.getJs(),
 				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK, 0, null,
@@ -737,7 +743,9 @@ public class FragmentEntryProcessorEditableTest {
 		FragmentEntryLink fragmentEntryLink =
 			_fragmentEntryLinkLocalService.addFragmentEntryLink(
 				TestPropsValues.getUserId(), _group.getGroupId(), 0,
-				fragmentEntry.getFragmentEntryId(), 0,
+				fragmentEntry.getFragmentEntryId(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(_layout.getPlid()),
 				TestPropsValues.getPlid(), fragmentEntry.getCss(),
 				fragmentEntry.getHtml(), fragmentEntry.getJs(),
 				StringPool.BLANK, editableValues, StringPool.BLANK, 0, null,
@@ -983,6 +991,9 @@ public class FragmentEntryProcessorEditableTest {
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
 	private String _processedHTML;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	@Inject
 	private ThemeLocalService _themeLocalService;

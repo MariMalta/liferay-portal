@@ -301,7 +301,8 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 				fetchLayoutPageTemplateStructureRel(
 					layoutPageTemplateStructure.
 						getLayoutPageTemplateStructureId(),
-					SegmentsExperienceConstants.ID_DEFAULT);
+					_segmentsExperienceLocalService.
+						fetchDefaultSegmentsExperienceId(layout.getPlid()));
 
 		layoutPageTemplateStructureRel.setSegmentsExperienceId(
 			segmentsExperience.getSegmentsExperienceId());

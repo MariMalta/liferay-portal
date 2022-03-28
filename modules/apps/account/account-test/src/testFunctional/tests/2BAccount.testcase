@@ -104,7 +104,7 @@ definition {
 			portletName = "Account Management",
 			searchTerm = "Account Name");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Edit",
 			rowEntry = "Account Name");
 
@@ -162,7 +162,7 @@ definition {
 			portletName = "Account Management",
 			searchTerm = "Account Name");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Edit",
 			rowEntry = "Account Name");
 
@@ -239,7 +239,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "2B Account Page");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Deactivate",
 			rowEntry = "Account Name");
 
@@ -263,7 +263,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "2B Account Page");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Delete",
 			rowEntry = "Account Name");
 
@@ -277,7 +277,7 @@ definition {
 	test AccountAdminCanEditAccount {
 		property portal.acceptance = "true";
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Edit",
 			rowEntry = "Account Name");
 
@@ -380,7 +380,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 		}
@@ -397,7 +397,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 
@@ -423,7 +423,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Edit",
 				rowEntry = "Account Name");
 
@@ -461,7 +461,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 
@@ -483,7 +483,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 
@@ -498,7 +498,7 @@ definition {
 			portletName = "Account Management",
 			searchTerm = "Account Name");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Edit",
 			rowEntry = "Account Name");
 
@@ -539,7 +539,7 @@ definition {
 			portletName = "Account Management",
 			searchTerm = "Account Name");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Edit",
 			rowEntry = "Account Name");
 
@@ -671,6 +671,22 @@ definition {
 	@priority = "5"
 	test AccountAdminCanUnassignRolesToUsers {
 		task ("Given an Account User is given a role by the Account Administrator") {
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "test@liferay.com",
+				userLoginFullName = "Test Test");
+
+			Accounts.openAccountsAdmin();
+
+			LexiconEntry.gotoEntry(rowEntry = "Account Name");
+
+			Accounts.addOwnedAccountRole(accountRoleTitle = "Account Specific Role");
+
+			User.logoutAndLoginPG(
+				userLoginEmailAddress = "userea@liferay.com",
+				userLoginFullName = "userfn userln");
+
+			Navigator.gotoPage(pageName = "2B Account Page");
+
 			JSONAccountEntryUser.addAccountEntryUser(
 				accountEntryName = "Account Name",
 				userEmailAddress = "user1@liferay.com",
@@ -681,19 +697,19 @@ definition {
 			LexiconEntry.gotoEntry(rowEntry = "Account Name");
 
 			Accounts.addAssigneeToRoleViaUsersTab(
-				accountRoleTitle = "Buyer",
+				accountRoleTitle = "Account Specific Role",
 				accountUserName = "user1 user1");
 
 			AssertTextEquals(
 				key_columnName = "lfr-account-roles-column",
 				key_rowEntry = "user1 user1",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
-				value1 = "Buyer");
+				value1 = "Account Specific Role");
 		}
 
 		task ("When the Account Administrator unassigns that role") {
 			Accounts.unassignUserRole(
-				accountRoleTitle = "Buyer",
+				accountRoleTitle = "Account Specific Role",
 				accountUserName = "user1 user1");
 		}
 
@@ -702,7 +718,7 @@ definition {
 				key_columnName = "lfr-account-roles-column",
 				key_rowEntry = "user1 user1",
 				locator1 = "ContentRow#ENTRY_CONTENT_ROW_NUMBER_TD",
-				value1 = "Buyer");
+				value1 = "Account Specific Role");
 		}
 	}
 
@@ -736,7 +752,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 		}
@@ -826,7 +842,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 		}
@@ -913,7 +929,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 
@@ -1106,7 +1122,7 @@ definition {
 
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Manage Users",
 				rowEntry = "Account Name");
 		}
@@ -1397,7 +1413,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "2B Account Page");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Manage Users",
 			rowEntry = "Account Name");
 
@@ -1406,7 +1422,7 @@ definition {
 			locator1 = "NavTab#ACTIVE_TAB_LINK");
 
 		for (var users : list "user1 user1,user2 user2") {
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Remove",
 				rowEntry = "${users}");
 
@@ -1419,7 +1435,7 @@ definition {
 			portletName = "Account Management",
 			searchTerm = "Account Name");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Manage Users",
 			rowEntry = "Account Name");
 
@@ -1458,7 +1474,7 @@ definition {
 		task ("Select new account to be main active account, denoted by a checkmark, and assert that previous account is no longer selected") {
 			Navigator.gotoPage(pageName = "2B Account Page");
 
-			Accounts.goToEntryMenuItem(
+			LexiconEntry.gotoEntryMenuItem(
 				menuItem = "Select Account",
 				rowEntry = "New Selection for Test");
 
@@ -1511,7 +1527,7 @@ definition {
 
 		Navigator.gotoPage(pageName = "2B Account Page");
 
-		Accounts.goToEntryMenuItem(
+		LexiconEntry.gotoEntryMenuItem(
 			menuItem = "Deactivate",
 			rowEntry = "Account Name");
 

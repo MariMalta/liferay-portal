@@ -321,6 +321,25 @@ public class SegmentsExperienceLocalServiceImpl
 	}
 
 	@Override
+	public long fetchDefaultSegmentsExperienceId(long plid) {
+		Layout layout = _layoutLocalService.fetchLayout(plid);
+
+		if (layout == null) {
+			return SegmentsExperienceConstants.ID_DEFAULT;
+		}
+
+		SegmentsExperience segmentsExperience = fetchSegmentsExperience(
+			layout.getGroupId(), SegmentsExperienceConstants.KEY_DEFAULT,
+			classNameLocalService.getClassNameId(Layout.class), plid);
+
+		if (segmentsExperience == null) {
+			return SegmentsExperienceConstants.ID_DEFAULT;
+		}
+
+		return segmentsExperience.getSegmentsExperienceId();
+	}
+
+	@Override
 	public SegmentsExperience fetchSegmentsExperience(
 		long segmentsExperienceId) {
 

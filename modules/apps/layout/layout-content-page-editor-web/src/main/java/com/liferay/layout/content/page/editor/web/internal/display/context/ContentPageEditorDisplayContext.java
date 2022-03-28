@@ -289,7 +289,8 @@ public class ContentPageEditorDisplayContext {
 				LocaleUtil.toLanguageId(themeDisplay.getSiteDefaultLocale())
 			).put(
 				"defaultSegmentsExperienceId",
-				SegmentsExperienceConstants.ID_DEFAULT
+				SegmentsExperienceLocalServiceUtil.
+					fetchDefaultSegmentsExperienceId(themeDisplay.getPlid())
 			).put(
 				"defaultStyleBookEntryImagePreviewURL",
 				() -> {
@@ -347,6 +348,9 @@ public class ContentPageEditorDisplayContext {
 				"editFragmentEntryLinkURL",
 				getFragmentEntryActionURL(
 					"/layout_content_page_editor/edit_fragment_entry_link")
+			).put(
+				"feature.flag.LPS-141410",
+				PropsUtil.get("feature.flag.LPS-141410")
 			).put(
 				"featureFlagLps119551",
 				GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-119551"))
@@ -664,7 +668,7 @@ public class ContentPageEditorDisplayContext {
 				ContentUtil.getPageContentsJSONArray(
 					httpServletRequest,
 					PortalUtil.getHttpServletResponse(_renderResponse),
-					themeDisplay.getPlid())
+					themeDisplay.getPlid(), getSegmentsExperienceId())
 			).put(
 				"permissions",
 				HashMapBuilder.<String, Object>put(

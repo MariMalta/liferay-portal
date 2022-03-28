@@ -42,6 +42,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
+import com.liferay.segments.service.SegmentsExperienceLocalService;
 
 import java.util.Collections;
 import java.util.List;
@@ -124,7 +125,9 @@ public class PublishLayoutPageTemplateEntryMVCActionCommandTest {
 
 		_layoutPageTemplateStructureLocalService.
 			updateLayoutPageTemplateStructureData(
-				_group.getGroupId(), draftLayout.getPlid(), 0,
+				_group.getGroupId(), draftLayout.getPlid(),
+				_segmentsExperienceLocalService.
+					fetchDefaultSegmentsExperienceId(layout.getPlid()),
 				layoutStructure.toString());
 
 		ReflectionTestUtil.invoke(
@@ -186,6 +189,9 @@ public class PublishLayoutPageTemplateEntryMVCActionCommandTest {
 
 	@Inject
 	private Portal _portal;
+
+	@Inject
+	private SegmentsExperienceLocalService _segmentsExperienceLocalService;
 
 	private ServiceContext _serviceContext;
 
