@@ -9,35 +9,33 @@
  * distribution rights of the Software.
  */
 
-import React, {useContext} from 'react';
+import {useContext, useEffect} from 'react';
 
 import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
-import BaseUser from '../shared-components/BaseUser';
 
-const User = ({notificationIndex, updateSelectedItem: _, ...restProps}) => {
+const AssetCreator = ({notificationIndex}) => {
 	const {setSelectedItem} = useContext(DiagramBuilderContext);
 
-	const updateSelectedItem = (values) => {
+	console.log('entrou no comp');
+
+	useEffect(() => {
+		debugger;
 		setSelectedItem((previousItem) => {
-			const updatedItem = {...previousItem};
+			if (previousItem.data?.notifications?.recipients) {
+				const updatedItem = {...previousItem};
 
-			updatedItem.data.notifications.recipients[notificationIndex] = {
-				assignmentType: ['user'],
-				emailAddress: values.map(({emailAddress}) => emailAddress),
-				sectionsData: values.map((values) => values),
-			};
+				updatedItem.data.notifications.recipients[notificationIndex] = {
+					assignmentType: ['user'],
+				};
 
-			return updatedItem;
+				return updatedItem;
+			}
+
+			return previousItem;
 		});
-	};
+	}, []);
 
-	return (
-		<BaseUser
-			notificationIndex={notificationIndex}
-			updateSelectedItem={updateSelectedItem}
-			{...restProps}
-		/>
-	);
+	return null;
 };
 
-export default User;
+export default AssetCreator;

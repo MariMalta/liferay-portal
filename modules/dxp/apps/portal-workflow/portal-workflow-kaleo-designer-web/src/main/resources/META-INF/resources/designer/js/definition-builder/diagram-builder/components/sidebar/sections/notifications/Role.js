@@ -19,7 +19,9 @@ const Role = ({notificationIndex}) => {
 
 	const updateSelectedItem = (role) => {
 		setSelectedItem((previousItem) => {
-			previousItem.data.notifications.recipients[notificationIndex] = {
+			const updatedItem = {...previousItem};
+
+			updatedItem.data.notifications.recipients[notificationIndex] = {
 				assignmentType: ['roleId'],
 				roleId: role.id,
 				sectionsData: {
@@ -29,7 +31,7 @@ const Role = ({notificationIndex}) => {
 				},
 			};
 
-			return previousItem;
+			return updatedItem;
 		});
 	};
 

@@ -22,6 +22,9 @@ import SidebarPanel from '../../SidebarPanel';
 import Role from './Role';
 import RoleType from './RoleType';
 import User from './User';
+import AssetCreator from './AssetCreator'
+
+import {getRecipientType} from './utils'
 
 let executionTypeOptions = [
 	{
@@ -34,28 +37,9 @@ let executionTypeOptions = [
 	},
 ];
 
-const getRecipientType = (assignmentType) => {
-	if (assignmentType === 'roleId') {
-		return 'role';
-	}
-	else if (assignmentType === 'roleType') {
-		return 'roleType';
-	}
-	else if (assignmentType === 'scriptedRecipient') {
-		return 'scriptedRecipient';
-	}
-	else if (assignmentType === 'taskAssignees') {
-		return 'taskAssignees';
-	}
-	else if (assignmentType === 'user') {
-		return 'user';
-	}
-	else {
-		return null;
-	}
-};
 
 const recipientTypeComponents = {
+	assetCreator: AssetCreator,
 	role: Role,
 	roleType: RoleType,
 	scriptedRecipient: ScriptInput,
@@ -139,12 +123,14 @@ const NotificationsInfo = ({
 			false
 	);
 
+	const assignments = selectedItem.data.notifications?.recipients?.[notificationIndex];
+	const a = getRecipientType(assignments)
+
 	const [recipientType, setRecipientType] = useState(
-		getRecipientType(
-			selectedItem.data.notifications?.recipients?.[notificationIndex]
-				?.assignmentType?.[0]
-		) || 'assetCreator'
+		 a || 'assetCreator'
 	);
+	
+
 	const [template, setTemplate] = useState(
 		selectedItem.data.notifications?.template?.[notificationIndex] || ''
 	);
@@ -257,11 +243,10 @@ const NotificationsInfo = ({
 		if (selectedItem.data.notifications) {
 			setSelectedItem((previousItem) => {
 				let recipientDetails = {};
+				const updatedItem = {...previousItem};
 
-				if (recipientType === 'assetCreator') {
-					recipientDetails = {assignmentType: ['user']};
-				}
-				else if (recipientType === 'taskAssignees') {
+
+			   if (recipientType === 'taskAssignees') {
 					recipientDetails = {assignmentType: ['taskAssignees']};
 				}
 
@@ -270,31 +255,32 @@ const NotificationsInfo = ({
 				};
 
 				if (
-					previousItem.data.notifications.recipients[
+					updatedItem.data.notifications.recipients[
 						notificationIndex
 					]
 				) {
-					previousItem.data.notifications.recipients[
+					debugger;
+					updatedItem.data.notifications.recipients[
 						notificationIndex
 					] = {
-						...previousItem.data.notifications.recipients[
+						...updatedItem.data.notifications.recipients[
 							notificationIndex
 						],
 						...currentRecipient,
 					};
 				}
 				else {
-					previousItem.data.notifications.recipients[
+					updatedItem.data.notifications.recipients[
 						notificationIndex
 					] = currentRecipient;
 				}
 
-				return previousItem;
+				return updatedItem;
 			});
 		}
 
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [notificationIndex, recipientType, setSelectedItem]);
+	}, [notificationIndex, recipientType]);
 
 	useEffect(() => {
 		let sectionsData = [];
@@ -676,8 +662,7 @@ const NotificationsInfo = ({
 				</ClaySelect>
 			</ClayForm.Group>
 
-			{recipientType !== 'assetCreator' &&
-				recipientType !== 'taskAssignees' && (
+			{recipientType !== 'taskAssignees' && (
 					<SidebarPanel panelTitle={Liferay.Language.get('type')}>
 						<ClayForm.Group className="recipient-type-form-group">
 							{internalSections.map((props, index) => (
