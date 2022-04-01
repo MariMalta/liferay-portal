@@ -16,10 +16,7 @@ import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 const AssetCreator = ({notificationIndex}) => {
 	const {setSelectedItem} = useContext(DiagramBuilderContext);
 
-	console.log('entrou no comp');
-
 	useEffect(() => {
-		debugger;
 		setSelectedItem((previousItem) => {
 			if (previousItem.data?.notifications?.recipients) {
 				const updatedItem = {...previousItem};
@@ -33,6 +30,7 @@ const AssetCreator = ({notificationIndex}) => {
 
 			return previousItem;
 		});
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return null;

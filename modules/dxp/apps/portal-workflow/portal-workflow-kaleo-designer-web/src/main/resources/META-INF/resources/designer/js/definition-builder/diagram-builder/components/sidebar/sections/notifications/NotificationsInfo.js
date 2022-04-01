@@ -19,12 +19,11 @@ import {DEFAULT_LANGUAGE} from '../../../../../source-builder/constants';
 import {DiagramBuilderContext} from '../../../../DiagramBuilderContext';
 import ScriptInput from '../../../shared-components/ScriptInput';
 import SidebarPanel from '../../SidebarPanel';
+import AssetCreator from './AssetCreator';
 import Role from './Role';
 import RoleType from './RoleType';
 import User from './User';
-import AssetCreator from './AssetCreator'
-
-import {getRecipientType} from './utils'
+import {getRecipientType} from './utils';
 
 let executionTypeOptions = [
 	{
@@ -36,7 +35,6 @@ let executionTypeOptions = [
 		value: 'onExit',
 	},
 ];
-
 
 const recipientTypeComponents = {
 	assetCreator: AssetCreator,
@@ -123,13 +121,11 @@ const NotificationsInfo = ({
 			false
 	);
 
-	const assignments = selectedItem.data.notifications?.recipients?.[notificationIndex];
-	const a = getRecipientType(assignments)
+	const assignments =
+		selectedItem.data.notifications?.recipients?.[notificationIndex];
+	const a = getRecipientType(assignments);
 
-	const [recipientType, setRecipientType] = useState(
-		 a || 'assetCreator'
-	);
-	
+	const [recipientType, setRecipientType] = useState(a || 'assetCreator');
 
 	const [template, setTemplate] = useState(
 		selectedItem.data.notifications?.template?.[notificationIndex] || ''
@@ -245,8 +241,7 @@ const NotificationsInfo = ({
 				let recipientDetails = {};
 				const updatedItem = {...previousItem};
 
-
-			   if (recipientType === 'taskAssignees') {
+				if (recipientType === 'taskAssignees') {
 					recipientDetails = {assignmentType: ['taskAssignees']};
 				}
 
@@ -255,11 +250,8 @@ const NotificationsInfo = ({
 				};
 
 				if (
-					updatedItem.data.notifications.recipients[
-						notificationIndex
-					]
+					updatedItem.data.notifications.recipients[notificationIndex]
 				) {
-					debugger;
 					updatedItem.data.notifications.recipients[
 						notificationIndex
 					] = {
@@ -663,30 +655,30 @@ const NotificationsInfo = ({
 			</ClayForm.Group>
 
 			{recipientType !== 'taskAssignees' && (
-					<SidebarPanel panelTitle={Liferay.Language.get('type')}>
-						<ClayForm.Group className="recipient-type-form-group">
-							{internalSections.map((props, index) => (
-								<RecipientTypeComponent
-									index={index}
-									inputValue={
-										selectedItem.data.notifications
-											?.recipients[notificationIndex]
-											?.script?.[0]
-									}
-									key={`section-${props.identifier}`}
-									notificationIndex={notificationIndex}
-									sectionsLength={internalSections.length}
-									setSections={setInternalSections}
-									updateSelectedItem={
-										scriptedRecipientUpdateSelectedItem
-									}
-									{...props}
-									{...restProps}
-								/>
-							))}
-						</ClayForm.Group>
-					</SidebarPanel>
-				)}
+				<SidebarPanel panelTitle={Liferay.Language.get('type')}>
+					<ClayForm.Group className="recipient-type-form-group">
+						{internalSections.map((props, index) => (
+							<RecipientTypeComponent
+								index={index}
+								inputValue={
+									selectedItem.data.notifications?.recipients[
+										notificationIndex
+									]?.script?.[0]
+								}
+								key={`section-${props.identifier}`}
+								notificationIndex={notificationIndex}
+								sectionsLength={internalSections.length}
+								setSections={setInternalSections}
+								updateSelectedItem={
+									scriptedRecipientUpdateSelectedItem
+								}
+								{...props}
+								{...restProps}
+							/>
+						))}
+					</ClayForm.Group>
+				</SidebarPanel>
+			)}
 
 			<div className="sheet-subtitle" />
 

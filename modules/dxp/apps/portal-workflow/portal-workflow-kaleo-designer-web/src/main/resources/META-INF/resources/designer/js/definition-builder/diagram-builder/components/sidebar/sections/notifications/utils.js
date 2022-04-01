@@ -9,14 +9,11 @@
  * distribution rights of the Software.
  */
 
-
-const getRecipientType = (assignmentTypee) => {
-
-	return assignmentTypee?.assignmentType[0] === 'user' &&
-		!Object.keys(assignmentTypee).includes('emailAddress')
+const getRecipientType = (assignment) => {
+	return assignment?.assignmentType[0] === 'user' &&
+		!Object.keys(assignment).includes('emailAddress')
 		? 'assetCreator'
-		: assignmentTypee?.assignmentType[0];
-
+		: assignment?.assignmentType[0];
 };
 
 export {getRecipientType};
