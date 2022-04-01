@@ -12,64 +12,7 @@
  * details.
  */
 
-function setCookie(name, value, days = 180) {
-	var date = new Date();
-
-	date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
-
-	var expires = '; expires=' + date.toUTCString();
-
-	document.cookie = name + '=' + (value || '') + expires + '; path=/';
-}
-
-function getCookie(name) {
-	var cookieName = name + '=';
-	var cookieSet = document.cookie.split(';');
-
-	for (var i = 0; i < cookieSet.length; i++) {
-		var c = cookieSet[i];
-
-		while (c.charAt(0) === ' ') {
-			c = c.substring(1, c.length);
-		}
-
-		if (c.indexOf(cookieName) === 0) {
-			return c.substring(cookieName.length, c.length);
-		}
-	}
-
-	return null;
-}
-
-function checkCookiesConsent(cookieBanner) {
-	if (
-		getCookie('liferay.cookie.consent.functional') === 'accepted' ||
-		getCookie('liferay.cookie.consent.functional') === 'decline' ||
-		getCookie('liferay.cookie.consent.performance') === 'accepted' ||
-		getCookie('liferay.cookie.consent.performance') === 'decline' ||
-		getCookie('liferay.cookie.consent.personalization') === 'accepted' ||
-		getCookie('liferay.cookie.consent.personalization') === 'decline'
-	) {
-		cookieBanner.style.display = 'none';
-	}
-	else {
-		cookieBanner.style.display = 'block';
-	}
-}
-
-function cookiesAcceptAll() {
-	setCookie('liferay.cookie.consent.functional', 'accepted');
-	setCookie('liferay.cookie.consent.performance', 'accepted');
-	setCookie('liferay.cookie.consent.personalization', 'accepted');
-}
-
-function cookiesDeclineAll() {
-	setCookie('liferay.cookie.consent.functional', 'decline');
-	setCookie('liferay.cookie.consent.performance', 'decline');
-	setCookie('liferay.cookie.consent.personalization', 'decline');
-}
-
-export default function ({configurationTitle, configurationUrl}) {
+export default function ({configurationUrl}) {
 	const buttonAccept = document.querySelector(
 		'.cookies-banner-button-accept'
 	);
@@ -100,7 +43,7 @@ export default function ({configurationTitle, configurationUrl}) {
 				Liferay.Util.openModal({
 					buttons: [
 						{
-							label: 'Decline all',
+							label: Liferay.Language.get('decline-all'),
 							onClick() {
 								cookiesDeclineAll();
 
@@ -116,7 +59,7 @@ export default function ({configurationTitle, configurationUrl}) {
 						},
 						{
 							displayType: 'secondary',
-							label: 'Confirm',
+							label: Liferay.Language.get('confirm'),
 							onClick() {
 								checkCookiesConsent(cookieBanner);
 
@@ -130,7 +73,7 @@ export default function ({configurationTitle, configurationUrl}) {
 						},
 						{
 							displayType: 'secondary',
-							label: 'Accept all',
+							label: Liferay.Language.get('accept-all'),
 							onClick() {
 								cookiesAcceptAll();
 
@@ -149,7 +92,7 @@ export default function ({configurationTitle, configurationUrl}) {
 					height: '70vh',
 					id: 'cookiesBannerConfiguration',
 					size: 'lg',
-					title: configurationTitle,
+					title: Liferay.Language.get('cookies-configuration'),
 					url: configurationUrl,
 				});
 			}
@@ -164,4 +107,61 @@ export default function ({configurationTitle, configurationUrl}) {
 			}
 		);
 	}
+}
+
+function checkCookiesConsent(cookieBanner) {
+	if (
+		getCookie('liferay.cookie.consent.functional') === 'accepted' ||
+		getCookie('liferay.cookie.consent.functional') === 'decline' ||
+		getCookie('liferay.cookie.consent.performance') === 'accepted' ||
+		getCookie('liferay.cookie.consent.performance') === 'decline' ||
+		getCookie('liferay.cookie.consent.personalization') === 'accepted' ||
+		getCookie('liferay.cookie.consent.personalization') === 'decline'
+	) {
+		cookieBanner.style.display = 'none';
+	}
+	else {
+		cookieBanner.style.display = 'block';
+	}
+}
+
+function cookiesAcceptAll() {
+	setCookie('liferay.cookie.consent.functional', 'accepted');
+	setCookie('liferay.cookie.consent.performance', 'accepted');
+	setCookie('liferay.cookie.consent.personalization', 'accepted');
+}
+
+function cookiesDeclineAll() {
+	setCookie('liferay.cookie.consent.functional', 'decline');
+	setCookie('liferay.cookie.consent.performance', 'decline');
+	setCookie('liferay.cookie.consent.personalization', 'decline');
+}
+
+function getCookie(name) {
+	const cookieName = name + '=';
+	const cookieSet = document.cookie.split(';');
+
+	for (let i = 0; i < cookieSet.length; i++) {
+		let c = cookieSet[i];
+
+		while (c.charAt(0) === ' ') {
+			c = c.substring(1, c.length);
+		}
+
+		if (c.indexOf(cookieName) === 0) {
+			return c.substring(cookieName.length, c.length);
+		}
+	}
+
+	return null;
+}
+
+function setCookie(name, value, days = 180) {
+	const date = new Date();
+
+	date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+
+	const expires = '; expires=' + date.toUTCString();
+
+	document.cookie = name + '=' + (value || '') + expires + '; path=/';
 }

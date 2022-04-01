@@ -60,6 +60,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -507,6 +508,12 @@ public class RenderLayoutStructureDisplayContext {
 		return _layoutStructure;
 	}
 
+	public String getLayoutStructureItemCssClass(
+		LayoutStructureItem layoutStructureItem) {
+
+		return "lfr-layout-structure-item-" + layoutStructureItem.getItemId();
+	}
+
 	public List<String> getMainChildrenItemIds() {
 		LayoutStructure layoutStructure = getLayoutStructure();
 
@@ -521,26 +528,8 @@ public class RenderLayoutStructureDisplayContext {
 
 		StringBundler styleSB = new StringBundler(59);
 
-		String backgroundColor = styledLayoutStructureItem.getBackgroundColor();
-
-		if (Validator.isNotNull(backgroundColor)) {
-			styleSB.append("background-color: ");
-			styleSB.append(getStyleFromStyleBookEntry(backgroundColor));
-			styleSB.append(StringPool.SEMICOLON);
-		}
-
 		JSONObject backgroundImageJSONObject =
 			styledLayoutStructureItem.getBackgroundImageJSONObject();
-
-		String backgroundImage = _getBackgroundImage(backgroundImageJSONObject);
-
-		if (Validator.isNotNull(backgroundImage)) {
-			styleSB.append("background-position: 50% 50%; background-repeat: ");
-			styleSB.append("no-repeat; background-size: cover; ");
-			styleSB.append("background-image: url(");
-			styleSB.append(backgroundImage);
-			styleSB.append(");");
-		}
 
 		long fileEntryId = 0;
 
@@ -579,6 +568,37 @@ public class RenderLayoutStructureDisplayContext {
 		if (fileEntryId != 0) {
 			styleSB.append("--background-image-file-entry-id:");
 			styleSB.append(fileEntryId);
+			styleSB.append(StringPool.SEMICOLON);
+		}
+
+		String backgroundImageURL = _getBackgroundImage(
+			backgroundImageJSONObject);
+
+		if (isCommonStylesFFEnabled()) {
+			if (Validator.isNotNull(backgroundImageURL)) {
+				styleSB.append("--lfr-background-image-");
+				styleSB.append(styledLayoutStructureItem.getItemId());
+				styleSB.append(": url(");
+				styleSB.append(backgroundImageURL);
+				styleSB.append(");");
+			}
+
+			return styleSB.toString();
+		}
+
+		if (Validator.isNotNull(backgroundImageURL)) {
+			styleSB.append("background-position: 50% 50%; background-repeat: ");
+			styleSB.append("no-repeat; background-size: cover; ");
+			styleSB.append("background-image: url(");
+			styleSB.append(backgroundImageURL);
+			styleSB.append(");");
+		}
+
+		String backgroundColor = styledLayoutStructureItem.getBackgroundColor();
+
+		if (Validator.isNotNull(backgroundColor)) {
+			styleSB.append("background-color: ");
+			styleSB.append(getStyleFromStyleBookEntry(backgroundColor));
 			styleSB.append(StringPool.SEMICOLON);
 		}
 
@@ -732,6 +752,14 @@ public class RenderLayoutStructureDisplayContext {
 			FrontendTokenMapping.TYPE_CSS_VARIABLE);
 
 		return "var(--" + cssVariable + ")";
+	}
+
+	public boolean isCommonStylesFFEnabled() {
+		if (GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-132571"))) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private String _getBackgroundImage(JSONObject jsonObject) throws Exception {
@@ -916,24 +944,6 @@ public class RenderLayoutStructureDisplayContext {
 
 		_frontendTokensJSONObject = JSONFactoryUtil.createJSONObject();
 
-		StyleBookEntry styleBookEntry = null;
-
-		boolean styleBookEntryPreview = ParamUtil.getBoolean(
-			_httpServletRequest, "styleBookEntryPreview");
-
-		if (!styleBookEntryPreview) {
-			styleBookEntry = DefaultStyleBookEntryUtil.getDefaultStyleBookEntry(
-				_themeDisplay.getLayout());
-		}
-
-		JSONObject frontendTokenValuesJSONObject =
-			JSONFactoryUtil.createJSONObject();
-
-		if (styleBookEntry != null) {
-			frontendTokenValuesJSONObject = JSONFactoryUtil.createJSONObject(
-				styleBookEntry.getFrontendTokensValues());
-		}
-
 		FrontendTokenDefinitionRegistry frontendTokenDefinitionRegistry =
 			ServletContextUtil.getFrontendTokenDefinitionRegistry();
 
@@ -945,12 +955,30 @@ public class RenderLayoutStructureDisplayContext {
 				layoutSet.getThemeId());
 
 		if (frontendTokenDefinition == null) {
-			return JSONFactoryUtil.createJSONObject();
+			return _frontendTokensJSONObject;
+		}
+
+		StyleBookEntry styleBookEntry = null;
+
+		if (!ParamUtil.getBoolean(
+				_httpServletRequest, "styleBookEntryPreview")) {
+
+			styleBookEntry = DefaultStyleBookEntryUtil.getDefaultStyleBookEntry(
+				_themeDisplay.getLayout());
+		}
+
+		JSONObject frontendTokenValuesJSONObject = null;
+
+		if (styleBookEntry != null) {
+			frontendTokenValuesJSONObject = JSONFactoryUtil.createJSONObject(
+				styleBookEntry.getFrontendTokensValues());
+		}
+		else {
+			frontendTokenValuesJSONObject = JSONFactoryUtil.createJSONObject();
 		}
 
 		JSONObject frontendTokenDefinitionJSONObject =
-			JSONFactoryUtil.createJSONObject(
-				frontendTokenDefinition.getJSON(_themeDisplay.getLocale()));
+			frontendTokenDefinition.getJSONObject(_themeDisplay.getLocale());
 
 		JSONArray frontendTokenCategoriesJSONArray =
 			frontendTokenDefinitionJSONObject.getJSONArray(

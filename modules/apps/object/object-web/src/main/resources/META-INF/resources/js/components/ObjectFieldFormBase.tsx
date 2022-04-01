@@ -16,7 +16,7 @@ import {ClayToggle} from '@clayui/form';
 import {fetch} from 'frontend-js-web';
 import React, {ChangeEventHandler, ReactNode, useMemo, useState} from 'react';
 
-import useForm, {FormError} from '../hooks/useForm';
+import useForm, {FormError, invalidateRequired} from '../hooks/useForm';
 import {toCamelCase} from '../utils/string';
 import CustomSelect from './Form/CustomSelect/CustomSelect';
 import Input from './Form/Input';
@@ -57,6 +57,7 @@ async function fetchPickList() {
 }
 
 export default function ObjectFieldFormBase({
+	allowMaxLength,
 	children,
 	disabled,
 	errors,
@@ -82,23 +83,41 @@ export default function ObjectFieldFormBase({
 			setPickList(await fetchPickList());
 		}
 
-		const objectFieldSettings: ObjectFieldSetting[] | undefined =
-			option.businessType === 'Attachment'
-				? [
+		let objectFieldSettings: ObjectFieldSetting[] | undefined;
+
+		switch (option.businessType) {
+			case 'Attachment':
+				objectFieldSettings = [
+					{
+						name: 'acceptedFileExtensions',
+						value: 'jpeg, jpg, pdf, png',
+					},
+					{
+						name: 'fileSource',
+						value: 'userComputer',
+					},
+					{
+						name: 'maximumFileSize',
+						value: 100,
+					},
+				];
+				break;
+
+			case 'LongText':
+			case 'Text':
+				if (allowMaxLength) {
+					objectFieldSettings = [
 						{
-							name: 'acceptedFileExtensions',
-							value: 'jpeg, jpg, pdf, png',
+							name: 'showCounter',
+							value: false,
 						},
-						{
-							name: 'fileSource',
-							value: 'userComputer',
-						},
-						{
-							name: 'maximumFileSize',
-							value: 100,
-						},
-				  ]
-				: undefined;
+					];
+				}
+				break;
+
+			default:
+				break;
+		}
 
 		const isSearchableByText =
 			option.businessType === 'Attachment' || option.dbType === 'String';
@@ -123,7 +142,7 @@ export default function ObjectFieldFormBase({
 		<>
 			<Input
 				disabled={disabled}
-				error={errors.name || errors.label}
+				error={errors.name}
 				label={Liferay.Language.get('field-name')}
 				name="name"
 				onChange={handleChange}
@@ -187,13 +206,21 @@ export function useObjectFieldForm({
 	const validate = (field: Partial<ObjectField>) => {
 		const errors: ObjectFieldErrors = {};
 
-		const label = field.label?.[defaultLanguageId]?.trim();
+		const label = field.label?.[defaultLanguageId];
 
-		if (!label) {
+		const settings: {
+			[key in ObjectFieldSettingName]?: string | number | boolean;
+		} = {};
+
+		field.objectFieldSettings?.forEach(({name, value}) => {
+			settings[name] = value;
+		});
+
+		if (invalidateRequired(label)) {
 			errors.label = REQUIRED_MSG;
 		}
 
-		if (!(field.name?.trim() ?? label)) {
+		if (invalidateRequired(field.name ?? label)) {
 			errors.name = REQUIRED_MSG;
 		}
 
@@ -201,15 +228,11 @@ export function useObjectFieldForm({
 			errors.businessType = REQUIRED_MSG;
 		}
 		else if (field.businessType === 'Attachment') {
-			const settings: {
-				[key in ObjectFieldSettingName]?: string | number;
-			} = {};
-
-			field.objectFieldSettings?.forEach(({name, value}) => {
-				settings[name] = value;
-			});
-
-			if (!settings.acceptedFileExtensions) {
+			if (
+				invalidateRequired(
+					settings.acceptedFileExtensions as string | undefined
+				)
+			) {
 				errors.acceptedFileExtensions = REQUIRED_MSG;
 			}
 			if (!settings.fileSource) {
@@ -225,6 +248,14 @@ export function useObjectFieldForm({
 					),
 					0
 				);
+			}
+		}
+		else if (
+			field.businessType === 'Text' ||
+			field.businessType === 'LongText'
+		) {
+			if (settings.showCounter && !settings.maxLength) {
+				errors.maxLength = REQUIRED_MSG;
 			}
 		}
 		else if (field.businessType === 'Picklist') {
@@ -258,6 +289,7 @@ interface IPickList {
 }
 
 interface IProps {
+	allowMaxLength?: boolean;
 	children?: ReactNode;
 	disabled?: boolean;
 	errors: ObjectFieldErrors;

@@ -19,13 +19,15 @@ const User = ({notificationIndex, updateSelectedItem: _, ...restProps}) => {
 
 	const updateSelectedItem = (values) => {
 		setSelectedItem((previousItem) => {
-			previousItem.data.notifications.recipients[notificationIndex] = {
+			const updatedItem = {...previousItem};
+
+			updatedItem.data.notifications.recipients[notificationIndex] = {
 				assignmentType: ['user'],
 				emailAddress: values.map(({emailAddress}) => emailAddress),
 				sectionsData: values.map((values) => values),
 			};
 
-			return previousItem;
+			return updatedItem;
 		});
 	};
 

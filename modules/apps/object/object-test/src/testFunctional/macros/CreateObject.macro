@@ -47,8 +47,6 @@ definition {
 
 		WaitForSPARefresh();
 
-		WaitForVisible(locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD");
-
 		AssertVisible(locator1 = "ObjectAdmin#ENTRY_STRING_VALUE_FIELD");
 	}
 
@@ -68,6 +66,13 @@ definition {
 		AssertElementNotPresent(
 			key_labelName = "${labelName}",
 			locator1 = "CreateObject#OBJECT_NAME");
+	}
+
+	macro assertCustomObjectWithIndex {
+		AssertElementPresent(
+			key_index = "${index}",
+			key_labelName = "${labelName}",
+			locator1 = "CreateObject#OBJECT_NAME_INDEX");
 	}
 
 	macro assertDisabledAllFields {

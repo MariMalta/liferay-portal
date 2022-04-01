@@ -168,8 +168,7 @@ public class FragmentCollectionServiceTest {
 		FragmentCollection fragmentCollection =
 			_fragmentCollectionService.addFragmentCollection(
 				_group.getGroupId(), RandomTestUtil.randomString(),
-				RandomTestUtil.randomString(),
-				StringPool.BLANK,
+				RandomTestUtil.randomString(), StringPool.BLANK,
 				ServiceContextTestUtil.getServiceContext(
 					_group, TestPropsValues.getUserId()));
 
@@ -190,6 +189,7 @@ public class FragmentCollectionServiceTest {
 				fragmentCollection.getFragmentCollectionId());
 
 		Assert.assertEquals(
+			actualFragmentCollectionFileEntries.toString(),
 			originalFragmentCollectionFileEntries.size() + 1,
 			actualFragmentCollectionFileEntries.size());
 	}

@@ -40,7 +40,7 @@ definition {
 
 		LexiconEntry.gotoAdd();
 
-		LexiconCard.clickCard(card = "Testray");
+		LexiconCard.clickCard(card = "Liferay Site Initializer Testray");
 
 		SelectFrame(
 			key_title = "Add Site",
@@ -51,6 +51,25 @@ definition {
 		Click(locator1 = "Button#ADD");
 
 		Alert.viewSuccessMessage();
+	}
+
+	macro enableTestrayTasksInPortlet {
+		Refresh();
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Object",
+			panel = "Control Panel",
+			portlet = "Objects");
+
+		Click(
+			key_pageNumber = "2",
+			locator1 = "Pagination#ANY_PAGE");
+
+		ObjectPortlet.selectCustomObject(label = "Testray Task");
+
+		CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
+
+		CreateObject.saveObject();
 	}
 
 	macro goToNextAndPreviousPage {
@@ -69,6 +88,23 @@ definition {
 		Click(
 			key_navTabName = "${navTabName}",
 			locator1 = "Testray#PROJECT_NAVIGATOR_TAB_BUTTON");
+	}
+
+	macro statusChangeTestray {
+		ApplicationsMenu.gotoPortlet(
+			category = "Object",
+			panel = "Control Panel",
+			portlet = "Testray Tasks");
+
+		Click(locator1 = "CommerceEntry#DROPDOWN");
+
+		MenuItem.click(menuItem = "View");
+
+		Type(
+			locator1 = "TestrayTestflow#STATUS_EDIT",
+			value1 = "${value}");
+
+		Click(locator1 = "Button#SAVE");
 	}
 
 	macro tearDownCP {
