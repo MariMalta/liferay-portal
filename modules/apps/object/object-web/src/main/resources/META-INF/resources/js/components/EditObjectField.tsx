@@ -16,10 +16,42 @@ import ClayButton from '@clayui/button';
 import ClayForm from '@clayui/form';
 import ClayTabs from '@clayui/tabs';
 
+import 'codemirror/addon/display/autorefresh';
+
+import 'codemirror/addon/edit/closebrackets';
+
+import 'codemirror/addon/edit/closetag';
+
+import 'codemirror/addon/edit/matchbrackets';
+
+import 'codemirror/addon/fold/brace-fold';
+
+import 'codemirror/addon/fold/comment-fold';
+
+import 'codemirror/addon/fold/foldcode';
+
+import 'codemirror/addon/fold/foldgutter.css';
+
+import 'codemirror/addon/fold/foldgutter';
+
+import 'codemirror/addon/fold/indent-fold';
+
+import 'codemirror/addon/fold/xml-fold';
+
+import 'codemirror/addon/hint/show-hint.css';
+
+import 'codemirror/addon/hint/show-hint';
+
+import 'codemirror/addon/hint/xml-hint';
+
+import 'codemirror/lib/codemirror.css';
+
+import 'codemirror/mode/htmlmixed/htmlmixed';
+
 // @ts-ignore
 
-import {Editor} from 'frontend-editor-ckeditor-web';
-import React, {useRef, useState} from 'react';
+import CodeMirror from 'codemirror';
+import React, {useEffect, useState} from 'react';
 
 import InputLocalized from './Form/InputLocalized/InputLocalized';
 import Select from './Form/Select';
@@ -107,13 +139,8 @@ function BasicInfo() {
 	);
 }
 
-const editorConditions = {
-	tabSpaces: 4,
-	toolbar: [['Source']],
-};
-
-function Conditions() {
-	const editorRef = useRef();
+function Conditions({content}: IConditions) {
+	const defaultContent = `<#-- Insert a Groovy Script to define your validation. -->`;
 
 	const [values, setValues] = useState({message: {}});
 
@@ -131,13 +158,7 @@ function Conditions() {
 					{Liferay.Language.get('groovy')}
 				</h2>
 
-				<Editor
-					conditions={editorConditions}
-					onInstanceReady={({editor}: any) => {
-						editor.setMode('source');
-					}}
-					ref={editorRef}
-				/>
+				<Editor content={content || defaultContent} />
 			</div>
 
 			<div className="mt-4 sheet">
@@ -159,7 +180,65 @@ function Conditions() {
 	);
 }
 
-export default function EditObjectField() {
+function Editor({content}: EditorProps) {
+	const [editor, setEditor] = useState<any>();
+	const [editorWrapper, setEditorWrapper] = useState<any>();
+	const [script, setScript] = useState(content);
+
+	useEffect(() => {
+		setEditor(
+			CodeMirror(editorWrapper, {
+				autoCloseTags: true,
+				autoRefresh: true,
+				foldGutter: true,
+				gutters: ['CodeMirror-linenumbers', 'CodeMirror-foldgutter'],
+				indentWithTabs: true,
+				inputStyle: 'contenteditable',
+				lineNumbers: true,
+				matchBrackets: true,
+				showHint: true,
+				tabSize: 2,
+				theme: 'blackboard',
+				viewportMargin: Infinity,
+			})
+		);
+	}, [editorWrapper]);
+
+	useEffect(() => {
+		if (!editor) {
+			return;
+		}
+
+		const handleChange = () => {
+			setScript(editor.getValue());
+		};
+
+		editor.on('change', handleChange);
+
+		return () => {
+			editor.off('change', handleChange);
+		};
+	}, [editor, setScript]);
+
+	useEffect(() => {
+		if (editor && editor.getValue() !== content) {
+			editor.setValue(content);
+		}
+	}, [content, editor]);
+
+	return (
+		<div
+			className="lfr-objects__editor__CodeMirrorEditor"
+			ref={setEditorWrapper}
+		/>
+	);
+}
+
+interface EditorProps {
+	content: string;
+}
+
+export default function EditObjectField({script}: any) {
 	const [activeIndex, setActiveIndex] = useState<number>(0);
 
 	return (
@@ -181,7 +260,7 @@ export default function EditObjectField() {
 					<ClayTabs.Content activeIndex={activeIndex} fade>
 						{TABS.map(({Component}, index) => (
 							<ClayTabs.TabPane key={index}>
-								<Component />
+								<Component content={script} />
 							</ClayTabs.TabPane>
 						))}
 					</ClayTabs.Content>
@@ -221,4 +300,8 @@ function TriggerEventContainer({eventTypes}: ITriggerEventProps) {
 
 interface ITriggerEventProps {
 	eventTypes: string[];
+}
+
+interface IConditions {
+	content: string;
 }

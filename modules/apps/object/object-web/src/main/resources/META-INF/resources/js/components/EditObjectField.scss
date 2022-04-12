@@ -12,14 +12,14 @@
 	}
 }
 
-.cke_top {
-	display: none !important;
-}
+.lfr-objects__editor__CodeMirrorEditor {
+	border-bottom: 1px solid #a7a9bc;
+	border-top: 1px solid #a7a9bc;
 
-.CodeMirror-linenumbers {
-	 width: 36px !important;
-}
+	flex-grow: 1;
 
-.CodeMirror-sizer {
-	margin-left: 37px !important;
+	> .CodeMirror {
+		height: 300px;
+		width: 730px;
+	}
 }
