@@ -12,24 +12,17 @@
  * details.
  */
 
-/// <reference types="react" />
-
-<<<<<<< HEAD
-export default function ModalWithProvider({
-	apiURL,
-	objectValidationRuleEngines,
+import {ReactNode} from 'react';
+export default function ObjectValidationFormBase({
+	activeValidation,
+	children,
+	objectValidationTypes,
+	setActiveValidation,
 }: IProps): JSX.Element;
-declare type ObjectValidationType = {
-	label: string;
-	name: string;
-};
 interface IProps {
-	apiURL: string;
-	objectValidationRuleEngines: ObjectValidationType[];
-=======
-export default function ModalWithProvider({apiURL}: IProps): JSX.Element;
-interface IProps {
-	apiURL: string;
->>>>>>> 57110e2 (wip)
+	activeValidation: boolean;
+	children?: ReactNode;
+	objectValidationTypes: ObjectValidationType[];
+	setActiveValidation: (active: boolean) => void;
 }
 export {};

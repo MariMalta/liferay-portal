@@ -11,25 +11,5 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-
 /// <reference types="react" />
-
-<<<<<<< HEAD
-export default function ModalWithProvider({
-	apiURL,
-	objectValidationRuleEngines,
-}: IProps): JSX.Element;
-declare type ObjectValidationType = {
-	label: string;
-	name: string;
-};
-interface IProps {
-	apiURL: string;
-	objectValidationRuleEngines: ObjectValidationType[];
-=======
-export default function ModalWithProvider({apiURL}: IProps): JSX.Element;
-interface IProps {
-	apiURL: string;
->>>>>>> 57110e2 (wip)
-}
-export {};
+export default function EditObjectField({ script }: any): JSX.Element;
