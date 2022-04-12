@@ -11,7 +11,9 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+
 /// <reference types="react" />
+
 import 'codemirror/addon/display/autorefresh';
 import 'codemirror/addon/edit/closebrackets';
 import 'codemirror/addon/edit/closetag';
@@ -29,8 +31,8 @@ import 'codemirror/addon/hint/xml-hint';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import './Editor.scss';
-export default function Editor({ content }: EditorProps): JSX.Element;
+export default function Editor({content}: EditorProps): JSX.Element;
 interface EditorProps {
-    content: string;
+	content: string;
 }
 export {};

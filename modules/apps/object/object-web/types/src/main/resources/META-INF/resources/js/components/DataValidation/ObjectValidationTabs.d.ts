@@ -14,4 +14,20 @@
 
 /// <reference types="react" />
 
-export default function EditObjectValidation({script}: any): JSX.Element;
+declare function BasicInfo({defaultLocale, label}: IBasicInfo): JSX.Element;
+declare function Conditions({content, defaultLocale}: IConditions): JSX.Element;
+interface IBasicInfo {
+	defaultLocale: {
+		label: string;
+		symbol: string;
+	};
+	label: string;
+}
+interface IConditions {
+	content: string;
+	defaultLocale: {
+		label: string;
+		symbol: string;
+	};
+}
+export {BasicInfo, Conditions};

@@ -52,7 +52,7 @@ function closeSidePanel() {
 	parentWindow.Liferay.fire('close-side-panel');
 }
 
-export default function EditObjectField({script}: any) {
+export default function EditObjectValidation({script}: any) {
 	const [activeIndex, setActiveIndex] = useState<number>(0);
 
 	return (
@@ -74,10 +74,9 @@ export default function EditObjectField({script}: any) {
 					<ClayTabs.Content activeIndex={activeIndex} fade>
 						{TABS.map(({Component, label}, index) => (
 							<ClayTabs.TabPane key={index}>
-								<Component
-									content={script}
-									defaultLocale={defaultLocale!}
-									label={label}
+								<Component content={script} 
+								defaultLocale={defaultLocale!}
+								label={label}
 								/>
 							</ClayTabs.TabPane>
 						))}

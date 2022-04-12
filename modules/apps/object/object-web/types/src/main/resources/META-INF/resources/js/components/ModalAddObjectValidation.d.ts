@@ -14,7 +14,6 @@
 
 /// <reference types="react" />
 
-<<<<<<< HEAD
 export default function ModalWithProvider({
 	apiURL,
 	objectValidationRuleEngines,
@@ -26,10 +25,5 @@ declare type ObjectValidationType = {
 interface IProps {
 	apiURL: string;
 	objectValidationRuleEngines: ObjectValidationType[];
-=======
-export default function ModalWithProvider({apiURL}: IProps): JSX.Element;
-interface IProps {
-	apiURL: string;
->>>>>>> 57110e2 (wip)
 }
 export {};

@@ -13,18 +13,19 @@
  */
 
 import ClayForm from '@clayui/form';
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
 import Editor from '../Editor/Editor';
 import InputLocalized from '../Form/InputLocalized/InputLocalized';
 import Select from '../Form/Select';
 import ObjectValidationFormBase from '../ObjectValidationFormBase';
 
-const locales: {label: string; symbol: string}[] = [];
+const locales: { label: string; symbol: string }[] = [];
 
-function BasicInfo({defaultLocale, label}: IBasicInfo) {
+
+function BasicInfo({ defaultLocale, label }: IBasicInfo) {
 	const [activeValidation, setActiveValidation] = useState<boolean>(false);
-	const [values, setValues] = useState({label: {}});
+	const [values, setValues] = useState({ label: {} });
 
 	const [locale, setSelectedLocale] = useState(
 		defaultLocale as {
@@ -36,13 +37,15 @@ function BasicInfo({defaultLocale, label}: IBasicInfo) {
 	return (
 		<ClayForm className="lfr-objects__edit-object-field">
 			<div className="sheet">
-				<h2 className="sheet-title">{label}</h2>
+				<h2 className="sheet-title">
+					{label}
+				</h2>
 
 				<InputLocalized
 					label={Liferay.Language.get('label')}
 					locales={locales}
 					onSelectedLocaleChange={setSelectedLocale}
-					onTranslationsChange={(label) => setValues({label})}
+					onTranslationsChange={(label) => setValues({ label })}
 					required
 					selectedLocale={locale}
 					translations={values.label as LocalizedValue<string>}
@@ -66,10 +69,10 @@ function BasicInfo({defaultLocale, label}: IBasicInfo) {
 	);
 }
 
-function Conditions({content, defaultLocale}: IConditions) {
+function Conditions({ content, defaultLocale }: IConditions) {
 	const defaultContent = `<#-- Insert a Groovy Script to define your validation. -->`;
 
-	const [values, setValues] = useState({message: {}});
+	const [values, setValues] = useState({ message: {} });
 
 	const [locale, setSelectedLocale] = useState(
 		defaultLocale as {
@@ -97,7 +100,7 @@ function Conditions({content, defaultLocale}: IConditions) {
 					label={Liferay.Language.get('message')}
 					locales={locales}
 					onSelectedLocaleChange={setSelectedLocale}
-					onTranslationsChange={(message) => setValues({message})}
+					onTranslationsChange={(message) => setValues({ message })}
 					required
 					selectedLocale={locale}
 					translations={values.message as LocalizedValue<string>}
@@ -107,7 +110,7 @@ function Conditions({content, defaultLocale}: IConditions) {
 	);
 }
 
-function TriggerEventContainer({eventTypes}: ITriggerEventProps) {
+function TriggerEventContainer({ eventTypes }: ITriggerEventProps) {
 	return (
 		<div className="mt-4 sheet">
 			<h2 className="sheet-title">
@@ -127,13 +130,14 @@ interface ITriggerEventProps {
 }
 
 interface IBasicInfo {
-	defaultLocale: {label: string; symbol: string};
+	defaultLocale: { label: string, symbol: string };
 	label: string;
 }
 
 interface IConditions {
 	content: string;
-	defaultLocale: {label: string; symbol: string};
+	defaultLocale: { label: string, symbol: string };
 }
 
-export {BasicInfo, Conditions};
+
+export { BasicInfo, Conditions };
