@@ -50,7 +50,7 @@ public class ObjectEntryValuesException extends PortalException {
 
 		public ExceedsLongMinSize() {
 			super(
-				"Object entry value falls bellow minimum long field allowed " +
+				"Object entry value falls below minimum long field allowed " +
 					"size");
 		}
 
@@ -60,6 +60,32 @@ public class ObjectEntryValuesException extends PortalException {
 
 		public ExceedsLongSize() {
 			super("Object entry value exceeds long field allowed size");
+		}
+
+	}
+
+	public static class ExceedsMaxFileSize extends ObjectEntryValuesException {
+
+		public ExceedsMaxFileSize(long maxFileSize, String objectFieldName) {
+			super(
+				String.format(
+					"File exceeds the maximum permitted size of %s MB for " +
+						"object field \"%s\"",
+					maxFileSize, objectFieldName));
+		}
+
+	}
+
+	public static class InvalidFileExtension
+		extends ObjectEntryValuesException {
+
+		public InvalidFileExtension(
+			String fileExtension, String objectFieldName) {
+
+			super(
+				String.format(
+					"The file extension %s is invalid for object field \"%s\"",
+					fileExtension, objectFieldName));
 		}
 
 	}

@@ -178,24 +178,22 @@ public class CollectionLayoutStructureItemMapper
 		CollectionStyledLayoutStructureItem
 			collectionStyledLayoutStructureItem) {
 
-		Map<String, JSONObject> collectionViewportConfigurations =
-			collectionStyledLayoutStructureItem.getViewportConfigurations();
+		Map<String, JSONObject> collectionViewportConfigurationJSONObjects =
+			collectionStyledLayoutStructureItem.
+				getViewportConfigurationJSONObjects();
 
-		if (MapUtil.isEmpty(collectionViewportConfigurations)) {
+		if (MapUtil.isEmpty(collectionViewportConfigurationJSONObjects)) {
 			return null;
 		}
 
 		List<CollectionViewport> collectionViewports = new ArrayList<>();
-
-		Map<String, JSONObject> collectionViewportConfigurationsMap =
-			collectionStyledLayoutStructureItem.getViewportConfigurations();
 
 		collectionViewports.add(
 			new CollectionViewport() {
 				{
 					collectionViewportDefinition =
 						_toCollectionViewportDefinition(
-							collectionViewportConfigurationsMap,
+							collectionViewportConfigurationJSONObjects,
 							ViewportSize.MOBILE_LANDSCAPE);
 					id = ViewportSize.MOBILE_LANDSCAPE.getViewportSizeId();
 				}
@@ -205,7 +203,7 @@ public class CollectionLayoutStructureItemMapper
 				{
 					collectionViewportDefinition =
 						_toCollectionViewportDefinition(
-							collectionViewportConfigurationsMap,
+							collectionViewportConfigurationJSONObjects,
 							ViewportSize.PORTRAIT_MOBILE);
 					id = ViewportSize.PORTRAIT_MOBILE.getViewportSizeId();
 				}
@@ -215,7 +213,7 @@ public class CollectionLayoutStructureItemMapper
 				{
 					collectionViewportDefinition =
 						_toCollectionViewportDefinition(
-							collectionViewportConfigurationsMap,
+							collectionViewportConfigurationJSONObjects,
 							ViewportSize.TABLET);
 					id = ViewportSize.TABLET.getViewportSizeId();
 				}
@@ -249,16 +247,16 @@ public class CollectionLayoutStructureItemMapper
 	}
 
 	private CollectionViewportDefinition _toCollectionViewportDefinition(
-		Map<String, JSONObject> collectionViewportConfigurations,
+		Map<String, JSONObject> collectionViewportConfigurationJSONObjects,
 		ViewportSize viewportSize) {
 
-		if (!collectionViewportConfigurations.containsKey(
+		if (!collectionViewportConfigurationJSONObjects.containsKey(
 				viewportSize.getViewportSizeId())) {
 
 			return null;
 		}
 
-		JSONObject jsonObject = collectionViewportConfigurations.get(
+		JSONObject jsonObject = collectionViewportConfigurationJSONObjects.get(
 			viewportSize.getViewportSizeId());
 
 		return new CollectionViewportDefinition() {

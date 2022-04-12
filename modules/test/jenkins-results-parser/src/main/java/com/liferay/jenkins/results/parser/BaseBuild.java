@@ -118,21 +118,18 @@ public abstract class BaseBuild implements Build {
 	}
 
 	@Override
-	public void archive(final String archiveName) {
+	public void archive(String archiveName) {
 		setArchiveName(archiveName);
 
 		if (!_status.equals("completed")) {
+			System.out.println("Unable to archive due to status: " + _status);
+
 			return;
 		}
 
 		File archiveDir = new File(getArchiveRootDir(), getArchivePath());
 
-		if (archiveDir.exists()) {
-			if (!JenkinsResultsParserUtil.isCINode()) {
-				archiveDir.delete();
-			}
-		}
-		else {
+		if (!archiveDir.exists()) {
 			archiveDir.mkdirs();
 		}
 
@@ -149,7 +146,7 @@ public abstract class BaseBuild implements Build {
 		archiveConsoleLog();
 		archiveJSON();
 
-		if (downstreamBuilds != null) {
+		if ((downstreamBuilds != null) && !downstreamBuilds.isEmpty()) {
 			List<Callable<Object>> callables = new ArrayList<>(
 				downstreamBuilds.size());
 
@@ -158,7 +155,7 @@ public abstract class BaseBuild implements Build {
 
 					@Override
 					public Object call() {
-						downstreamBuild.archive(archiveName);
+						downstreamBuild.archive();
 
 						return null;
 					}
@@ -403,10 +400,10 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public JSONObject getBuildJSONObject() {
-		String archiveFileContent = getArchiveFileContent("api/json");
+		String urlSuffix = "api/json";
 
-		if (JenkinsResultsParserUtil.isJSONObject(archiveFileContent)) {
-			return new JSONObject(archiveFileContent);
+		if (archiveFileExists(urlSuffix)) {
+			return new JSONObject(getArchiveFileContent(urlSuffix));
 		}
 
 		try {
@@ -650,10 +647,10 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public String getConsoleText() {
-		String archiveFileContent = getArchiveFileContent("consoleText");
+		String urlSuffix = "consoleText";
 
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(archiveFileContent)) {
-			return archiveFileContent;
+		if (archiveFileExists(urlSuffix)) {
+			return getArchiveFileContent(urlSuffix);
 		}
 
 		String buildURL = getBuildURL();
@@ -1406,17 +1403,23 @@ public abstract class BaseBuild implements Build {
 
 	@Override
 	public JSONObject getTestReportJSONObject(boolean checkCache) {
-		String archiveFileContent = getArchiveFileContent(
-			"testReport/api/json");
+		String result = getResult();
 
-		if (JenkinsResultsParserUtil.isJSONObject(archiveFileContent)) {
-			return new JSONObject(archiveFileContent);
+		if ((result == null) ||
+			(!result.equals("SUCCESS") && !result.equals("UNSTABLE"))) {
+
+			return null;
+		}
+
+		String urlSuffix = "testReport/api/json";
+
+		if (archiveFileExists(urlSuffix)) {
+			return new JSONObject(getArchiveFileContent(urlSuffix));
 		}
 
 		try {
 			return JenkinsResultsParserUtil.toJSONObject(
-				JenkinsResultsParserUtil.getLocalURL(
-					getBuildURL() + "testReport/api/json"),
+				JenkinsResultsParserUtil.getLocalURL(getBuildURL() + urlSuffix),
 				checkCache);
 		}
 		catch (IOException ioException) {
@@ -2296,20 +2299,26 @@ public abstract class BaseBuild implements Build {
 	}
 
 	protected void archiveConsoleLog() {
-		if (!JenkinsResultsParserUtil.isNullOrEmpty(
-				getArchiveFileContent("consoleText"))) {
+		String urlSuffix = "consoleText";
 
+		if (archiveFileExists(urlSuffix)) {
 			return;
 		}
 
 		try {
 			writeArchiveFile(
 				JenkinsResultsParserUtil.redact(getConsoleText()),
-				getArchivePath() + "/consoleText");
+				getArchivePath() + "/" + urlSuffix);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException("Unable to write file", ioException);
 		}
+	}
+
+	protected boolean archiveFileExists(String urlSuffix) {
+		File archiveFile = getArchiveFile(urlSuffix);
+
+		return archiveFile.exists();
 	}
 
 	protected void archiveJSON() {
@@ -2424,16 +2433,18 @@ public abstract class BaseBuild implements Build {
 				".*/(?<buildNumber>\\d+)/?"));
 	}
 
-	protected String getArchiveFileContent(String urlSuffix) {
-		File archiveFile = new File(
+	protected File getArchiveFile(String urlSuffix) {
+		return new File(
 			getArchiveRootDir(), getArchivePath() + "/" + urlSuffix);
+	}
 
-		if (!archiveFile.exists()) {
+	protected String getArchiveFileContent(String urlSuffix) {
+		if (!archiveFileExists(urlSuffix)) {
 			return null;
 		}
 
 		try {
-			return JenkinsResultsParserUtil.read(archiveFile);
+			return JenkinsResultsParserUtil.read(getArchiveFile(urlSuffix));
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
@@ -2477,6 +2488,12 @@ public abstract class BaseBuild implements Build {
 	}
 
 	protected JSONObject getBuildJSONObject(String tree) {
+		String urlSuffix = "api/json";
+
+		if (archiveFileExists(urlSuffix)) {
+			return new JSONObject(getArchiveFileContent(urlSuffix));
+		}
+
 		return JenkinsAPIUtil.getAPIJSONObject(getBuildURL(), tree);
 	}
 
