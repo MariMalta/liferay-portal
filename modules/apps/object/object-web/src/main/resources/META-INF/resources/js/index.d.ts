@@ -47,6 +47,18 @@ type ObjectFieldSettingName =
 	| 'maxLength'
 	| 'showCounter';
 
+interface ObjectValidation {
+	active: boolean;
+	description?: string;
+	errorMessage: LocalizedValue<string>;
+	id?: number;
+	indexedLanguageId: Locale | null;
+	label: LocalizedValue<string>;
+	script: string;
+	triggerEvent: string;
+	validationType: ObjectValidationType;
+}
+
 interface ObjectValidationType {
 	label: string;
 }

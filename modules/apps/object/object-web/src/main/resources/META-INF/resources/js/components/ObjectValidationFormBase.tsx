@@ -15,11 +15,17 @@
 import ClayForm, {ClayInput, ClayToggle} from '@clayui/form';
 import React, {ReactNode} from 'react';
 
+import useForm, {FormError, invalidateRequired} from '../hooks/useForm';
 import CustomSelect from './Form/CustomSelect/CustomSelect';
+
+const REQUIRED_MSG = Liferay.Language.get('required');
+
+const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId() as Liferay.Language.Locale;
 
 export default function ObjectValidationFormBase({
 	activeValidation,
 	children,
+	errors,
 	objectValidationTypes,
 	setActiveValidation,
 }: IProps) {
@@ -27,6 +33,7 @@ export default function ObjectValidationFormBase({
 		<>
 			<CustomSelect<ObjectValidationType>
 				disabled={true}
+				error={errors.validationType}
 				label={Liferay.Language.get('type')}
 				options={objectValidationTypes}
 				value="Groovy"
@@ -51,88 +58,44 @@ export default function ObjectValidationFormBase({
 	);
 }
 
-// export function useObjectFieldForm({
-// 	initialValues,
-// 	onSubmit,
-// }: IUseObjectFieldForm) {
-// 	const validate = (field: Partial<ObjectField>) => {
-// 		const label = field.label?.[defaultLanguageId];
+export function useObjectValidationForm({
+	initialValues,
+	onSubmit,
+}: IUseObjectValidationForm) {
+	const validate = (validation: Partial<ObjectValidation>) => {
+		const errors: ObjectValidationErrors = {};
 
-// 		const settings: {
-// 			[key in ObjectFieldSettingName]?: string | number | boolean;
-// 		} = {};
+		const label = validation.label?.[defaultLanguageId];
 
-// 		field.objectFieldSettings?.forEach(({name, value}) => {
-// 			settings[name] = value;
-// 		});
+		if (invalidateRequired(label)) {
+			errors.label = REQUIRED_MSG;
+		}
 
-// 		if (invalidateRequired(label)) {
-// 			errors.label = REQUIRED_MSG;
-// 		}
+		return errors;
+	};
 
-// 		if (invalidateRequired(field.name ?? label)) {
-// 			errors.name = REQUIRED_MSG;
-// 		}
+	const {errors, handleChange, handleSubmit, setValues, values} = useForm<
+		ObjectValidation
+	>({
+		initialValues,
+		onSubmit,
+		validate,
+	});
 
-// 		if (!field.businessType) {
-// 			errors.businessType = REQUIRED_MSG;
-// 		} else if (field.businessType === 'Attachment') {
-// 			if (
-// 				invalidateRequired(
-// 					settings.acceptedFileExtensions as string | undefined
-// 				)
-// 			) {
-// 				errors.acceptedFileExtensions = REQUIRED_MSG;
-// 			}
-// 			if (!settings.fileSource) {
-// 				errors.fileSource = REQUIRED_MSG;
-// 			}
-// 			if (!settings.maximumFileSize) {
-// 				errors.maximumFileSize = REQUIRED_MSG;
-// 			} else if (settings.maximumFileSize < 0) {
-// 				errors.maximumFileSize = Liferay.Util.sub(
-// 					Liferay.Language.get(
-// 						'only-integers-greater-than-or-equal-to-x-are-allowed'
-// 					),
-// 					0
-// 				);
-// 			}
-// 		} else if (
-// 			field.businessType === 'Text' ||
-// 			field.businessType === 'LongText'
-// 		) {
-// 			if (settings.showCounter && !settings.maxLength) {
-// 				errors.maxLength = REQUIRED_MSG;
-// 			}
-// 		} else if (field.businessType === 'Picklist') {
-// 			if (!field.listTypeDefinitionId) {
-// 				errors.listTypeDefinitionId = REQUIRED_MSG;
-// 			}
-// 		}
+	return {errors, handleChange, handleSubmit, setValues, values};
+}
 
-// 		return errors;
-// 	};
-
-// 	const {errors, handleChange, handleSubmit, setValues, values} = useForm<
-// 		ObjectField,
-// 		{[key in ObjectFieldSettingName]: any}
-// 	>({
-// 		initialValues,
-// 		onSubmit,
-// 		validate,
-// 	});
-
-// 	return {errors, handleChange, handleSubmit, setValues, values};
-// }
-
-// interface IUseObjectFieldForm {
-// 	initialValues: Partial<ObjectField>;
-// 	onSubmit: (field: ObjectField) => void;
-// }
+interface IUseObjectValidationForm {
+	initialValues: Partial<ObjectValidation>;
+	onSubmit: (validation: ObjectValidation) => void;
+}
 
 interface IProps {
 	activeValidation: boolean;
 	children?: ReactNode;
+	errors: ObjectValidationErrors;
 	objectValidationTypes: ObjectValidationType[];
 	setActiveValidation: (active: boolean) => void;
 }
+
+export type ObjectValidationErrors = FormError<ObjectValidation>;

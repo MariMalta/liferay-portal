@@ -14,9 +14,11 @@
 
 import ClayButton from '@clayui/button';
 import ClayTabs from '@clayui/tabs';
+import {fetch} from 'frontend-js-web';
 import React, {useState} from 'react';
 
 import {BasicInfo, Conditions} from './DataValidation/ObjectValidationTabs';
+import {useObjectValidationForm} from './ObjectValidationFormBase';
 import SidePanelContent from './SidePanelContent';
 
 const TABS = [
@@ -55,6 +57,49 @@ function closeSidePanel() {
 export default function EditObjectValidation({readOnly, script}: IProps) {
 	const [activeIndex, setActiveIndex] = useState<number>(0);
 
+	const onSubmit = async ({id, ...objectValidation}: ObjectValidation) => {
+		const response = await fetch(
+			`/o/object-admin/v1.0/object-validations/${id}`,
+			{
+				body: JSON.stringify(objectValidation),
+				headers: new Headers({
+					'Accept': 'application/json',
+					'Content-Type': 'application/json',
+				}),
+				method: 'PUT',
+			}
+		);
+
+		const parentWindow = Liferay.Util.getOpener();
+		if (response.ok) {
+			closeSidePanel();
+			parentWindow.Liferay.Util.openToast({
+				message: Liferay.Language.get(
+					'the-object-field-was-updated-successfully'
+				),
+				type: 'success',
+			});
+		} else {
+			const error = (await response.json()) as
+				| {type?: string}
+				| undefined;
+
+			const message =
+				(error?.type && ERRORS[error.type]) ??
+				Liferay.Language.get('an-error-occurred');
+
+			parentWindow.Liferay.Util.openToast({message, type: 'danger'});
+		}
+	};
+
+	const {
+		errors,
+		handleChange,
+		handleSubmit,
+		setValues,
+		values,
+	} = useObjectValidationForm({initialValues, onSubmit});
+
 	return (
 		<>
 			<ClayTabs className="side-panel-iframe__tabs">
@@ -78,6 +123,7 @@ export default function EditObjectValidation({readOnly, script}: IProps) {
 									content={script}
 									defaultLocale={defaultLocale!}
 									disabled={readOnly}
+									errors={errors}
 									label={label}
 									locales={locales}
 								/>

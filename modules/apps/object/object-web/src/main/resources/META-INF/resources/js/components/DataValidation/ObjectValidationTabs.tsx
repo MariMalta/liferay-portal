@@ -20,7 +20,7 @@ import InputLocalized from '../Form/InputLocalized/InputLocalized';
 import Select from '../Form/Select';
 import ObjectValidationFormBase from '../ObjectValidationFormBase';
 
-function BasicInfo({defaultLocale, disabled, label, locales}: IBasicInfo) {
+function BasicInfo({defaultLocale, disabled, errors, label, locales}: IBasicInfo) {
 	const [activeValidation, setActiveValidation] = useState<boolean>(false);
 	const [values, setValues] = useState({label: {}});
 	const [locale, setSelectedLocale] = useState(
@@ -37,6 +37,7 @@ function BasicInfo({defaultLocale, disabled, label, locales}: IBasicInfo) {
 
 				<InputLocalized
 					disabled={disabled}
+					error={errors.label}
 					label={Liferay.Language.get('label')}
 					locales={locales}
 					onSelectedLocaleChange={setSelectedLocale}
@@ -48,6 +49,7 @@ function BasicInfo({defaultLocale, disabled, label, locales}: IBasicInfo) {
 
 				<ObjectValidationFormBase
 					activeValidation={activeValidation}
+					errors={errors}
 					objectValidationTypes={[
 						{
 							label: 'Groovy',
@@ -128,6 +130,7 @@ interface ITriggerEventProps {
 interface IBasicInfo {
 	defaultLocale: {label: string; symbol: string};
 	disabled: boolean;
+	errors: ObjectValidationErrors;
 	label: string;
 	locales: Array<any>;
 }
@@ -136,6 +139,7 @@ interface IConditions {
 	content: string;
 	defaultLocale: {label: string; symbol: string};
 	disabled: boolean;
+	errors: ObjectValidationErrors;
 	locales: Array<any>;
 }
 
