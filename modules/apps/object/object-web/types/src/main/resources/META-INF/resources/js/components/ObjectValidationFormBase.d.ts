@@ -12,17 +12,39 @@
  * details.
  */
 
-import {ReactNode} from 'react';
+import React, {ChangeEventHandler, ReactNode} from 'react';
+import {FormError} from '../hooks/useForm';
 export default function ObjectValidationFormBase({
-	activeValidation,
 	children,
+	disabled,
+	handleChange,
 	objectValidationTypes,
-	setActiveValidation,
+	setValues,
+	values,
 }: IProps): JSX.Element;
-interface IProps {
-	activeValidation: boolean;
-	children?: ReactNode;
-	objectValidationTypes: ObjectValidationType[];
-	setActiveValidation: (active: boolean) => void;
+export declare function useObjectValidationForm({
+	initialValues,
+	onSubmit,
+}: IUseObjectValidationForm): {
+	errors: FormError<ObjectValidation>;
+	handleChange: React.ChangeEventHandler<HTMLInputElement>;
+	handleSubmit: React.FormEventHandler<HTMLFormElement> &
+		React.MouseEventHandler<HTMLButtonElement>;
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
+};
+interface IUseObjectValidationForm {
+	initialValues: Partial<ObjectValidation>;
+	onSubmit: (validation: ObjectValidation) => void;
 }
+interface IProps {
+	children?: ReactNode;
+	disabled: boolean;
+	errors: ObjectValidationErrors;
+	handleChange: ChangeEventHandler<HTMLInputElement>;
+	objectValidationTypes: ObjectValidationType[];
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
+}
+export declare type ObjectValidationErrors = FormError<ObjectValidation>;
 export {};

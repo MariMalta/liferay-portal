@@ -31,8 +31,14 @@ import 'codemirror/addon/hint/xml-hint';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import './Editor.scss';
-export default function Editor({content}: EditorProps): JSX.Element;
+export default function Editor({
+	content,
+	disabled,
+	setValues,
+}: EditorProps): JSX.Element;
 interface EditorProps {
 	content: string;
+	disabled: boolean;
+	setValues: (values: Partial<ObjectValidation>) => void;
 }
 export {};

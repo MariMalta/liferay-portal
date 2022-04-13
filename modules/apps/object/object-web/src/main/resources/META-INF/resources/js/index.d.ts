@@ -50,13 +50,10 @@ type ObjectFieldSettingName =
 interface ObjectValidation {
 	active: boolean;
 	description?: string;
-	errorMessage: LocalizedValue<string>;
-	id?: number;
-	indexedLanguageId: Locale | null;
-	label: LocalizedValue<string>;
+	engine: ObjectValidationType;
+	errorLabel: LocalizedValue<string>;
+	name: LocalizedValue<string>;
 	script: string;
-	triggerEvent: string;
-	validationType: ObjectValidationType;
 }
 
 interface ObjectValidationType {

@@ -13,16 +13,23 @@
  */
 
 import ClayForm from '@clayui/form';
-import React, {useState} from 'react';
+import React, {ChangeEventHandler, useState} from 'react';
 
 import Editor from '../Editor/Editor';
 import InputLocalized from '../Form/InputLocalized/InputLocalized';
 import Select from '../Form/Select';
 import ObjectValidationFormBase from '../ObjectValidationFormBase';
 
-function BasicInfo({defaultLocale, disabled, errors, label, locales}: IBasicInfo) {
-	const [activeValidation, setActiveValidation] = useState<boolean>(false);
-	const [values, setValues] = useState({label: {}});
+function BasicInfo({
+	defaultLocale,
+	disabled,
+	errors,
+	handleChange,
+	label,
+	locales,
+	setValues,
+	values,
+}: IBasicInfo) {
 	const [locale, setSelectedLocale] = useState(
 		defaultLocale as {
 			label: string;
@@ -31,7 +38,7 @@ function BasicInfo({defaultLocale, disabled, errors, label, locales}: IBasicInfo
 	);
 
 	return (
-		<ClayForm className="lfr-objects__edit-object-field">
+		<ClayForm className="lfr-objects__edit-object-validation">
 			<div className="sheet">
 				<h2 className="sheet-title">{label}</h2>
 
@@ -41,35 +48,43 @@ function BasicInfo({defaultLocale, disabled, errors, label, locales}: IBasicInfo
 					label={Liferay.Language.get('label')}
 					locales={locales}
 					onSelectedLocaleChange={setSelectedLocale}
-					onTranslationsChange={(label) => setValues({label})}
+					onTranslationsChange={(label) => setValues({name: label})}
 					required
 					selectedLocale={locale}
-					translations={values.label as LocalizedValue<string>}
+					translations={values.name as LocalizedValue<string>}
 				/>
 
 				<ObjectValidationFormBase
-					activeValidation={activeValidation}
+					disabled={disabled}
 					errors={errors}
+					handleChange={handleChange}
 					objectValidationTypes={[
 						{
 							label: 'Groovy',
 						},
 					]}
-					setActiveValidation={setActiveValidation}
+					setValues={setValues}
+					values={values}
 				/>
 			</div>
 
 			<TriggerEventContainer
+				disabled={disabled}
 				eventTypes={[Liferay.Language.get('on-submission')]}
 			/>
 		</ClayForm>
 	);
 }
 
-function Conditions({content, defaultLocale, disabled, locales}: IConditions) {
+function Conditions({
+	content,
+	defaultLocale,
+	disabled,
+	locales,
+	setValues,
+	values,
+}: IConditions) {
 	const defaultContent = `<#-- Insert a Groovy Script to define your validation. -->`;
-
-	const [values, setValues] = useState({message: {}});
 
 	const [locale, setSelectedLocale] = useState(
 		defaultLocale as {
@@ -85,7 +100,11 @@ function Conditions({content, defaultLocale, disabled, locales}: IConditions) {
 					{Liferay.Language.get('groovy')}
 				</h2>
 
-				<Editor content={content || defaultContent} />
+				<Editor
+					content={content || defaultContent}
+					disabled={disabled}
+					setValues={setValues}
+				/>
 			</div>
 
 			<div className="mt-4 sheet">
@@ -98,17 +117,19 @@ function Conditions({content, defaultLocale, disabled, locales}: IConditions) {
 					label={Liferay.Language.get('message')}
 					locales={locales}
 					onSelectedLocaleChange={setSelectedLocale}
-					onTranslationsChange={(message) => setValues({message})}
+					onTranslationsChange={(message) =>
+						setValues({errorLabel: message})
+					}
 					required
 					selectedLocale={locale}
-					translations={values.message as LocalizedValue<string>}
+					translations={values.errorLabel as LocalizedValue<string>}
 				/>
 			</div>
 		</ClayForm>
 	);
 }
 
-function TriggerEventContainer({eventTypes}: ITriggerEventProps) {
+function TriggerEventContainer({disabled, eventTypes}: ITriggerEventProps) {
 	return (
 		<div className="mt-4 sheet">
 			<h2 className="sheet-title">
@@ -116,6 +137,7 @@ function TriggerEventContainer({eventTypes}: ITriggerEventProps) {
 			</h2>
 
 			<Select
+				disabled={disabled}
 				label={Liferay.Language.get('event')}
 				options={eventTypes}
 			/>
@@ -124,23 +146,30 @@ function TriggerEventContainer({eventTypes}: ITriggerEventProps) {
 }
 
 interface ITriggerEventProps {
+	disabled: boolean;
 	eventTypes: string[];
 }
 
 interface IBasicInfo {
 	defaultLocale: {label: string; symbol: string};
 	disabled: boolean;
-	errors: ObjectValidationErrors;
+	errors: any;
+	handleChange: ChangeEventHandler<HTMLInputElement>;
 	label: string;
 	locales: Array<any>;
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
 }
 
 interface IConditions {
 	content: string;
 	defaultLocale: {label: string; symbol: string};
 	disabled: boolean;
-	errors: ObjectValidationErrors;
+	errors: any;
+	handleChange: ChangeEventHandler<HTMLInputElement>;
 	locales: Array<any>;
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
 }
 
 export {BasicInfo, Conditions};

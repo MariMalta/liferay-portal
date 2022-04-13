@@ -54,12 +54,15 @@ function closeSidePanel() {
 	parentWindow.Liferay.fire('close-side-panel');
 }
 
-export default function EditObjectValidation({readOnly, script}: IProps) {
+export default function EditObjectValidation({
+	objectValidationRule: initialValues,
+	readOnly,
+}: IProps) {
 	const [activeIndex, setActiveIndex] = useState<number>(0);
 
-	const onSubmit = async ({id, ...objectValidation}: ObjectValidation) => {
+	const onSubmit = async (objectValidation: ObjectValidation) => {
 		const response = await fetch(
-			`/o/object-admin/v1.0/object-validations/${id}`,
+			'/o/object-admin/v1.0/object-validation-rules',
 			{
 				body: JSON.stringify(objectValidation),
 				headers: new Headers({
@@ -75,18 +78,13 @@ export default function EditObjectValidation({readOnly, script}: IProps) {
 			closeSidePanel();
 			parentWindow.Liferay.Util.openToast({
 				message: Liferay.Language.get(
-					'the-object-field-was-updated-successfully'
+					'the-object-validation-was-updated-successfully'
 				),
 				type: 'success',
 			});
-		} else {
-			const error = (await response.json()) as
-				| {type?: string}
-				| undefined;
-
-			const message =
-				(error?.type && ERRORS[error.type]) ??
-				Liferay.Language.get('an-error-occurred');
+		}
+		else {
+			const message = Liferay.Language.get('an-error-occurred');
 
 			parentWindow.Liferay.Util.openToast({message, type: 'danger'});
 		}
@@ -120,12 +118,15 @@ export default function EditObjectValidation({readOnly, script}: IProps) {
 						{TABS.map(({Component, label}, index) => (
 							<ClayTabs.TabPane key={index}>
 								<Component
-									content={script}
+									content={initialValues.script!}
 									defaultLocale={defaultLocale!}
 									disabled={readOnly}
 									errors={errors}
+									handleChange={handleChange}
 									label={label}
 									locales={locales}
+									setValues={setValues}
+									values={values}
 								/>
 							</ClayTabs.TabPane>
 						))}
@@ -141,7 +142,9 @@ export default function EditObjectValidation({readOnly, script}: IProps) {
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
 
-						<ClayButton>{Liferay.Language.get('save')}</ClayButton>
+						<ClayButton disabled={readOnly} onClick={handleSubmit}>
+							{Liferay.Language.get('save')}
+						</ClayButton>
 					</ClayButton.Group>
 				</SidePanelContent.Footer>
 			</SidePanelContent>
@@ -150,6 +153,6 @@ export default function EditObjectValidation({readOnly, script}: IProps) {
 }
 
 interface IProps {
+	objectValidationRule: ObjectValidation;
 	readOnly: boolean;
-	script: string;
 }

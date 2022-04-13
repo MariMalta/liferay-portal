@@ -12,19 +12,24 @@
  * details.
  */
 
-/// <reference types="react" />
-
+import {ChangeEventHandler} from 'react';
 declare function BasicInfo({
 	defaultLocale,
 	disabled,
+	errors,
+	handleChange,
 	label,
 	locales,
+	setValues,
+	values,
 }: IBasicInfo): JSX.Element;
 declare function Conditions({
 	content,
 	defaultLocale,
 	disabled,
 	locales,
+	setValues,
+	values,
 }: IConditions): JSX.Element;
 interface IBasicInfo {
 	defaultLocale: {
@@ -32,8 +37,12 @@ interface IBasicInfo {
 		symbol: string;
 	};
 	disabled: boolean;
+	errors: any;
+	handleChange: ChangeEventHandler<HTMLInputElement>;
 	label: string;
 	locales: Array<any>;
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
 }
 interface IConditions {
 	content: string;
@@ -42,6 +51,10 @@ interface IConditions {
 		symbol: string;
 	};
 	disabled: boolean;
+	errors: any;
+	handleChange: ChangeEventHandler<HTMLInputElement>;
 	locales: Array<any>;
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
 }
 export {BasicInfo, Conditions};

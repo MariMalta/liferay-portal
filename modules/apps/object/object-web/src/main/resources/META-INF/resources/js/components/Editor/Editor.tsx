@@ -52,12 +52,10 @@ import CodeMirror from 'codemirror';
 
 import './Editor.scss';
 
-export default function Editor({content}: EditorProps) {
+export default function Editor({content, disabled, setValues}: EditorProps) {
 	const [editor, setEditor] = useState<any>();
 	const [editorWrapper, setEditorWrapper] = useState<any>();
 	const [script, setScript] = useState(content);
-
-	
 
 	useEffect(() => {
 		setEditor(
@@ -70,13 +68,14 @@ export default function Editor({content}: EditorProps) {
 				inputStyle: 'contenteditable',
 				lineNumbers: true,
 				matchBrackets: true,
+				readOnly: disabled,
 				showHint: true,
 				tabSize: 2,
 				theme: 'blackboard',
 				viewportMargin: Infinity,
 			})
 		);
-	}, [editorWrapper]);
+	}, [disabled, editorWrapper]);
 
 	useEffect(() => {
 		if (!editor) {
@@ -95,10 +94,12 @@ export default function Editor({content}: EditorProps) {
 	}, [editor, setScript]);
 
 	useEffect(() => {
-		if (editor && editor.getValue() !== content) {
-			editor.setValue(content);
+		if (editor && editor.getValue() !== script) {
+			editor.setValue(script);
+
+			setValues({script});
 		}
-	}, [content, editor]);
+	}, [script, editor, setValues]);
 
 	return (
 		<div
@@ -110,4 +111,6 @@ export default function Editor({content}: EditorProps) {
 
 interface EditorProps {
 	content: string;
+	disabled: boolean;
+	setValues: (values: Partial<ObjectValidation>) => void;
 }

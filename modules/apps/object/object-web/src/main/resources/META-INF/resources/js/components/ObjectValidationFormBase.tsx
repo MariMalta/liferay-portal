@@ -13,7 +13,7 @@
  */
 
 import ClayForm, {ClayInput, ClayToggle} from '@clayui/form';
-import React, {ReactNode} from 'react';
+import React, {ChangeEventHandler, ReactNode} from 'react';
 
 import useForm, {FormError, invalidateRequired} from '../hooks/useForm';
 import CustomSelect from './Form/CustomSelect/CustomSelect';
@@ -23,17 +23,17 @@ const REQUIRED_MSG = Liferay.Language.get('required');
 const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId() as Liferay.Language.Locale;
 
 export default function ObjectValidationFormBase({
-	activeValidation,
 	children,
-	errors,
+	disabled,
+	handleChange,
 	objectValidationTypes,
-	setActiveValidation,
+	setValues,
+	values,
 }: IProps) {
 	return (
 		<>
 			<CustomSelect<ObjectValidationType>
 				disabled={true}
-				error={errors.validationType}
 				label={Liferay.Language.get('type')}
 				options={objectValidationTypes}
 				value="Groovy"
@@ -44,15 +44,22 @@ export default function ObjectValidationFormBase({
 					{Liferay.Language.get('description')}
 				</label>
 
-				<ClayInput component="textarea" id="description" type="text" />
+				<ClayInput
+					component="textarea"
+					disabled={disabled}
+					id="description"
+					onChange={handleChange}
+					type="text"
+				/>
 			</ClayForm.Group>
 
 			{children}
 			<ClayToggle
+				disabled={disabled}
 				label={Liferay.Language.get('active-validation')}
 				name="required"
-				onToggle={(active) => setActiveValidation(active)}
-				toggled={activeValidation}
+				onToggle={(active) => setValues({active})}
+				toggled={values.active}
 			/>
 		</>
 	);
@@ -65,10 +72,15 @@ export function useObjectValidationForm({
 	const validate = (validation: Partial<ObjectValidation>) => {
 		const errors: ObjectValidationErrors = {};
 
-		const label = validation.label?.[defaultLanguageId];
+		const label = validation.name?.[defaultLanguageId];
+		const errorMessage = validation.errorLabel?.[defaultLanguageId];
 
 		if (invalidateRequired(label)) {
-			errors.label = REQUIRED_MSG;
+			errors.name = REQUIRED_MSG;
+		}
+
+		if (invalidateRequired(errorMessage)) {
+			errors.errorLabel = REQUIRED_MSG;
 		}
 
 		return errors;
@@ -91,11 +103,13 @@ interface IUseObjectValidationForm {
 }
 
 interface IProps {
-	activeValidation: boolean;
 	children?: ReactNode;
+	disabled: boolean;
 	errors: ObjectValidationErrors;
+	handleChange: ChangeEventHandler<HTMLInputElement>;
 	objectValidationTypes: ObjectValidationType[];
-	setActiveValidation: (active: boolean) => void;
+	setValues: (values: Partial<ObjectValidation>) => void;
+	values: Partial<ObjectValidation>;
 }
 
 export type ObjectValidationErrors = FormError<ObjectValidation>;

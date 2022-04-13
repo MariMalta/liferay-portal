@@ -15,11 +15,11 @@
 /// <reference types="react" />
 
 export default function EditObjectValidation({
+	objectValidationRule: initialValues,
 	readOnly,
-	script,
 }: IProps): JSX.Element;
 interface IProps {
+	objectValidationRule: ObjectValidation;
 	readOnly: boolean;
-	script: string;
 }
 export {};
