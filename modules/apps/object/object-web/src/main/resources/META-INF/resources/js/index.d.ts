@@ -46,3 +46,16 @@ type ObjectFieldSettingName =
 	| 'maximumFileSize'
 	| 'maxLength'
 	| 'showCounter';
+
+interface ObjectValidation {
+	active: boolean;
+	description?: string;
+	engine: ObjectValidationType;
+	errorLabel: LocalizedValue<string>;
+	name: LocalizedValue<string>;
+	script: string;
+}
+
+interface ObjectValidationType {
+	label: string;
+}

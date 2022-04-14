@@ -655,32 +655,6 @@
 			});
 		},
 
-		selectFolder(folderData, namespace) {
-			const folderDataElement = document.getElementById(
-				namespace + folderData.idString
-			);
-
-			if (folderDataElement) {
-				folderDataElement.value = folderData.idValue;
-			}
-
-			const folderNameElement = document.getElementById(
-				namespace + folderData.nameString
-			);
-
-			if (folderNameElement) {
-				folderNameElement.value = this.unescape(folderData.nameValue);
-			}
-
-			const removeFolderButton = document.getElementById(
-				`${namespace}removeFolderButton`
-			);
-
-			if (removeFolderButton) {
-				this.toggleDisabled(removeFolderButton, false);
-			}
-		},
-
 		setCursorPosition(element, position) {
 			var instance = this;
 
@@ -1523,19 +1497,6 @@
 	Util.Window = Window;
 
 	Liferay.Util = Util;
-
-	Liferay.STATUS_CODE = {
-		BAD_REQUEST: 400,
-		INTERNAL_SERVER_ERROR: 500,
-		OK: 200,
-		SC_DUPLICATE_FILE_EXCEPTION: 490,
-		SC_FILE_ANTIVIRUS_EXCEPTION: 494,
-		SC_FILE_CUSTOM_EXCEPTION: 499,
-		SC_FILE_EXTENSION_EXCEPTION: 491,
-		SC_FILE_NAME_EXCEPTION: 492,
-		SC_FILE_SIZE_EXCEPTION: 493,
-		SC_UPLOAD_REQUEST_SIZE_EXCEPTION: 495,
-	};
 
 	// 0-200: Theme Developer
 	// 200-400: Portlet Developer
