@@ -62,7 +62,7 @@ export default function EditObjectValidation({
 
 	const onSubmit = async (objectValidation: ObjectValidation) => {
 		const response = await fetch(
-			'/o/object-admin/v1.0/object-validation-rules',
+			`/o/object-admin/v1.0/object-validation-rules/${objectValidation.id}`,
 			{
 				body: JSON.stringify(objectValidation),
 				headers: new Headers({

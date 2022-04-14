@@ -52,6 +52,7 @@ interface ObjectValidation {
 	description?: string;
 	engine: ObjectValidationType;
 	errorLabel: LocalizedValue<string>;
+	id: number;
 	name: LocalizedValue<string>;
 	script: string;
 }
