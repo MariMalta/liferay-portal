@@ -14,14 +14,26 @@
 
 /// <reference types="react" />
 
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
-	objectValidationRuleElements,
-	readOnly,
-}: IProps): JSX.Element;
-interface IProps {
-	objectValidationRule: ObjectValidation;
-	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
+import '../Editor.scss';
+export declare function ElementsSidebarPanel({
+	elementsList,
+	inputChannel,
+}: IElementsSidebarPanel): JSX.Element;
+interface IElementsSidebarPanel {
+	elementsList: IElement[];
+	inputChannel: inputChannelObject;
+}
+interface IElement {
+	items: IItem[];
+	label: string;
+}
+interface IItem {
+	content: string;
+	label: string;
+	repeatable: boolean;
+	tooltip: string;
+}
+interface inputChannelObject {
+	sendData: Function;
 }
 export {};
