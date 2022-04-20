@@ -56,6 +56,7 @@ function closeSidePanel() {
 
 export default function EditObjectValidation({
 	objectValidationRule: initialValues,
+	objectValidationRuleElements,
 	readOnly,
 }: IProps) {
 	const [activeIndex, setActiveIndex] = useState<number>(0);
@@ -154,5 +155,6 @@ export default function EditObjectValidation({
 
 interface IProps {
 	objectValidationRule: ObjectValidation;
+	objectValidationRuleElements: ObjectValidationRuleElement[];
 	readOnly: boolean;
 }
