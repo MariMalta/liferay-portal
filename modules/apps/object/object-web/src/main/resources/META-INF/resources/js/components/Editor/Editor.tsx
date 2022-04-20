@@ -52,7 +52,12 @@ import CodeMirror from 'codemirror';
 
 import './Editor.scss';
 
-export default function Editor({content, disabled, inputChannel, setValues}: EditorProps) {
+export default function Editor({
+	content,
+	disabled,
+	inputChannel,
+	setValues,
+}: EditorProps) {
 	const defaultContent = `<#-- Insert a Groovy Script to define your validation. -->`;
 
 	const [editor, setEditor] = useState<any>();

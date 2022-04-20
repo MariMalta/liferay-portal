@@ -14,13 +14,13 @@
 
 // @ts-ignore
 
-import { Collapse } from '@liferay/layout-content-page-editor-web';
+import {Collapse} from '@liferay/layout-content-page-editor-web';
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { ButtonList } from './ButtonList';
+import {ButtonList} from './ButtonList';
 
-export function CollapsableButtonList({ items, label, onButtonClick }: IElement) {
+export function CollapsableButtonList({items, label, onButtonClick}: IElement) {
 	return (
 		<div className="collapsable-button-list">
 			<Collapse label={label} open>
@@ -49,6 +49,4 @@ interface IItem {
 	tooltip: string;
 }
 
-type onButtonClickType = (
-	item: IItem
-) => void;
+type onButtonClickType = (item: IItem) => void;

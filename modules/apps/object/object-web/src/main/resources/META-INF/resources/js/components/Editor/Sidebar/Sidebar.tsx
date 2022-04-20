@@ -14,10 +14,11 @@
 
 import React from 'react';
 
-import { ElementsSidebarPanel } from './ElementsSidebarPanel';
+import {ElementsSidebarPanel} from './ElementsSidebarPanel';
 
 export default function Sidebar({
-	elementsList = [], inputChannel,
+	elementsList = [],
+	inputChannel,
 }: IElementsSidebarPanel) {
 	return (
 		<div className="editor-sidebar">

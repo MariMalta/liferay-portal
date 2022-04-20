@@ -15,9 +15,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { Button } from './Button';
+import {Button} from './Button';
 
-export function ButtonList({ items, onButtonClick }: IElement) {
+export function ButtonList({items, onButtonClick}: IElement) {
 	return (
 		<>
 			{items.map((item) => (
@@ -29,7 +29,7 @@ export function ButtonList({ items, onButtonClick }: IElement) {
 				/>
 			))}
 		</>
-	)
+	);
 }
 
 ButtonList.propTypes = {
@@ -49,6 +49,4 @@ interface IItem {
 	tooltip: string;
 }
 
-type onButtonClickType = (
-	item: IItem
-) => void;
+type onButtonClickType = (item: IItem) => void;

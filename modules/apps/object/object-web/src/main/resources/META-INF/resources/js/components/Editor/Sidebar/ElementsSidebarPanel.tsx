@@ -14,15 +14,18 @@
 
 import React from 'react';
 
-import { CollapsableButtonList } from './CollapsableButtonList';
+import {CollapsableButtonList} from './CollapsableButtonList';
 
-import '../Editor.scss'
+import '../Editor.scss';
 
-export function ElementsSidebarPanel({ elementsList, inputChannel }: IElementsSidebarPanel) {
+export function ElementsSidebarPanel({
+	elementsList,
+	inputChannel,
+}: IElementsSidebarPanel) {
 	elementsList = elementsList.map((group) => ({
 		...group,
 		items: group.items.map((item) =>
-			item.repeatable ? { ...item, label: `${item.label}*` } : item
+			item.repeatable ? {...item, label: `${item.label}*`} : item
 		),
 	}));
 
@@ -30,20 +33,16 @@ export function ElementsSidebarPanel({ elementsList, inputChannel }: IElementsSi
 
 	return (
 		<div className="px-3">
-			<h5 className="my-3">
-				{Liferay.Language.get('elements')}
-			</h5>
+			<h5 className="my-3">{Liferay.Language.get('elements')}</h5>
 
-			{
-				elementsList.map(({ items, label }) => (
-					<CollapsableButtonList
-						items={items}
-						key={label}
-						label={label}
-						onButtonClick={onButtonClick}
-					/>
-				))
-			}
+			{elementsList.map(({items, label}) => (
+				<CollapsableButtonList
+					items={items}
+					key={label}
+					label={label}
+					onButtonClick={onButtonClick}
+				/>
+			))}
 		</div>
 	);
 }
