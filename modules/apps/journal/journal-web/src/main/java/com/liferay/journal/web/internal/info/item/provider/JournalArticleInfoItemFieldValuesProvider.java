@@ -185,13 +185,12 @@ public class JournalArticleInfoItemFieldValuesProvider
 			return StringPool.BLANK;
 		}
 
-		String groupFriendlyURL = _portal.getGroupFriendlyURL(
-			_layoutSetLocalService.getLayoutSet(
-				journalArticle.getGroupId(), layout.isPrivateLayout()),
-			themeDisplay, false, false);
-
 		return StringBundler.concat(
-			groupFriendlyURL, JournalArticleConstants.CANONICAL_URL_SEPARATOR,
+			_portal.getGroupFriendlyURL(
+				_layoutSetLocalService.getLayoutSet(
+					journalArticle.getGroupId(), layout.isPrivateLayout()),
+				themeDisplay, false, false),
+			JournalArticleConstants.CANONICAL_URL_SEPARATOR,
 			journalArticle.getUrlTitle(themeDisplay.getLocale()));
 	}
 
@@ -335,6 +334,8 @@ public class JournalArticleInfoItemFieldValuesProvider
 			InfoField.builder(
 			).infoFieldType(
 				TextInfoFieldType.INSTANCE
+			).namespace(
+				StringPool.BLANK
 			).name(
 				fieldName
 			).labelInfoLocalizedValue(

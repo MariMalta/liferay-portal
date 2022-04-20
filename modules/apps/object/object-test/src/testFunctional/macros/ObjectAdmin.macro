@@ -118,7 +118,7 @@ definition {
 		LexiconEntry.gotoAdd();
 
 		Type(
-			locator1 = "ObjectAdmin#OBJECT_FIELDS_LABEL_INPUT",
+			locator1 = "ObjectField#LABEL_INPUT",
 			value1 = "${fieldLabel}");
 
 		if (isSet(fieldName)) {
@@ -185,7 +185,14 @@ definition {
 			key_picklistOption = "${picklistOption}",
 			locator1 = "ObjectAdmin#ENTRY_PICKLIST_OPTION");
 
-		Button.clickSave();
+		if (IsElementPresent(key_text = "${saveName}", locator1 = "Button#ANY")) {
+			Click(
+				key_text = "${saveName}",
+				locator1 = "Button#ANY");
+		}
+		else {
+			Button.clickSave();
+		}
 
 		WaitForSPARefresh();
 	}
@@ -432,13 +439,19 @@ definition {
 	}
 
 	macro assertLabelFieldRequired {
-		AssertElementPresent(locator1 = "ObjectAdmin#LABEL_FIELD_REQUIRED");
+		AssertElementPresent(locator1 = "ObjectField#LABEL_ERROR_REQUIRED");
 	}
 
 	macro assertNoItemsWereFound {
 		AssertTextEquals(
 			locator1 = "Message#EMPTY_INFO",
 			value1 = "No items were found.");
+	}
+
+	macro assertNoResultsWereFound {
+		AssertTextEquals(
+			locator1 = "Message#EMPTY_STATE_INFO",
+			value1 = "No Results Found");
 	}
 
 	macro assertNotPossibleAddFieldOnBlockWithoutChooseOptionField {
@@ -450,7 +463,7 @@ definition {
 
 		AssertElementPresent(locator1 = "ObjectAdmin#OBJECT_LAYOUTS_FIELD_INPUT_HAS_REQUIRED_ERROR");
 
-		AssertElementPresent(locator1 = "ObjectAdmin#OBJECT_FIELDS_REQUIRED_ERROR_MESSAGE");
+		AssertElementPresent(locator1 = "ObjectAdmin#REQUIRED_ERROR_MESSAGE");
 	}
 
 	macro assertObjectActions {
@@ -540,7 +553,7 @@ definition {
 	macro assertObjectLayoutRelationshipFieldRequiredError {
 		AssertElementPresent(locator1 = "ObjectAdmin#OBJECT_LAYOUTS_RELATIONSHIP_FIELD_HAD_REQUIRED_ERROR");
 
-		AssertElementPresent(locator1 = "ObjectAdmin#OBJECT_FIELDS_REQUIRED_ERROR_MESSAGE");
+		AssertElementPresent(locator1 = "ObjectAdmin#REQUIRED_ERROR_MESSAGE");
 	}
 
 	macro assertObjectNameFieldRequired {
@@ -574,7 +587,7 @@ definition {
 	}
 
 	macro assertTypeFieldRequired {
-		AssertElementPresent(locator1 = "ObjectAdmin#TYPE_FIELD_REQUIRED");
+		AssertElementPresent(locator1 = "ObjectField#TYPE_ERROR_REQUIRED");
 	}
 
 	macro assertUpdateEntryModalIsNotPresent {
@@ -1013,12 +1026,6 @@ definition {
 		AssertElementPresent(locator1 = "ObjectAdmin#FIELDS_DETAILS_TITLE");
 	}
 
-	macro viewFieldErrorMessage {
-		AssertTextEquals(
-			locator1 = "ObjectAdmin#OBJECT_FIELDS_REQUIRED_ERROR_MESSAGE",
-			value1 = "${message}");
-	}
-
 	macro viewFieldValueDisabled {
 		AssertElementPresent(
 			key_fieldValue = "${fieldValue}",
@@ -1047,6 +1054,12 @@ definition {
 				key_optionName = "${optionNameNotPresent}",
 				locator1 = "ObjectAdmin#VIEW_OPTION_TITLE_FIELD");
 		}
+	}
+
+	macro viewPicklistOptionsOnFields {
+		AssertElementPresent(
+			key_optionName = "${optionName}",
+			locator1 = "ObjectAdmin#VIEW_PICKLIST_OPTIONS");
 	}
 
 	macro viewRequiredAlert {

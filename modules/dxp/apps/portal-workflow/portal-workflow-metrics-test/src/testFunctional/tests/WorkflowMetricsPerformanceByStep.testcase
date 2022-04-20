@@ -240,13 +240,17 @@ definition {
 
 		Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-		KaleoDesigner.selectNode(nodeNodeLabel = "review");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "review2",
+			nodeLabel = "review",
+			nodeType = "task",
+			update = "true");
 
-		KaleoDesigner.editNodeName(nodeName = "review2");
-
-		KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-		KaleoDesigner.editNodeName(nodeName = "update2");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "update2",
+			nodeLabel = "update",
+			nodeType = "task",
+			update = "true");
 
 		Button.clickUpdate();
 
@@ -509,13 +513,17 @@ definition {
 
 		Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-		KaleoDesigner.selectNode(nodeNodeLabel = "review");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "review2",
+			nodeLabel = "review",
+			nodeType = "task",
+			update = "true");
 
-		KaleoDesigner.editNodeName(nodeName = "review2");
-
-		KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-		KaleoDesigner.editNodeName(nodeName = "update2");
+		WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+			nodeID = "update2",
+			nodeLabel = "update",
+			nodeType = "task",
+			update = "true");
 
 		Button.clickUpdate();
 
@@ -579,13 +587,17 @@ definition {
 
 			Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-			KaleoDesigner.selectNode(nodeNodeLabel = "review");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+				nodeID = "review2",
+				nodeLabel = "review",
+				nodeType = "task",
+				update = "true");
 
-			KaleoDesigner.editNodeName(nodeName = "review2");
-
-			KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-			KaleoDesigner.editNodeName(nodeName = "update2");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeID(
+				nodeID = "update2",
+				nodeLabel = "update",
+				nodeType = "task",
+				update = "true");
 
 			Button.clickUpdate();
 		}
@@ -1110,13 +1122,17 @@ definition {
 
 			Workflow.gotoEditWorkflowDefinition(workflowDefinitionTitle = "Single Approver");
 
-			KaleoDesigner.selectNode(nodeNodeLabel = "review");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeName(
+				nodeLabel = "review",
+				nodeName = "review2",
+				nodeType = "task",
+				update = "true");
 
-			KaleoDesigner.editNodeName(nodeName = "review2");
-
-			KaleoDesigner.selectNode(nodeNodeLabel = "update");
-
-			KaleoDesigner.editNodeName(nodeName = "update2");
+			WorkflowMetricsAllItemsList.selectAndChangeNodeName(
+				nodeLabel = "update",
+				nodeName = "update2",
+				nodeType = "task",
+				update = "true");
 
 			Button.clickUpdate();
 		}
@@ -1245,6 +1261,7 @@ definition {
 	}
 
 	@description = "LPS-100677 - Verify that searching steps containing non-ascii chars is possible"
+	@ignore = "true"
 	@priority = "3"
 	test UserCanSearchNonAsciiChars {
 		property portal.acceptance = "true";

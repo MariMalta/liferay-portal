@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -73,12 +72,11 @@ public class LayoutSEOCanonicalURLProviderImpl
 			Layout layout, ThemeDisplay themeDisplay)
 		throws PortalException {
 
-		String canonicalURL = _portal.getCanonicalURL(
-			_portal.getLayoutFullURL(layout, themeDisplay), themeDisplay,
-			layout, false, false);
-
 		Map<Locale, String> alternateURLs = _portal.getAlternateURLs(
-			canonicalURL, themeDisplay, layout);
+			_portal.getCanonicalURL(
+				_portal.getLayoutFullURL(layout, themeDisplay), themeDisplay,
+				layout, false, false),
+			themeDisplay, layout);
 
 		LayoutSEOEntry layoutSEOEntry =
 			_layoutSEOEntryLocalService.fetchLayoutSEOEntry(
@@ -185,9 +183,6 @@ public class LayoutSEOCanonicalURLProviderImpl
 	private ConfigurationProvider _configurationProvider;
 
 	private FriendlyURLMapperProvider _friendlyURLMapperProvider;
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private LayoutSEOEntryLocalService _layoutSEOEntryLocalService;

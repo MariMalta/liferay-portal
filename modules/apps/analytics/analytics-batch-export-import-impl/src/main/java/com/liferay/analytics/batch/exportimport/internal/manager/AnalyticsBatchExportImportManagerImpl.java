@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
@@ -255,14 +256,12 @@ public class AnalyticsBatchExportImportManagerImpl
 			_analyticsConfigurationTracker.getAnalyticsConfiguration(companyId);
 
 		options.setLocation(
-			_http.addParameter(
+			HttpComponentsUtil.addParameter(
 				analyticsConfiguration.liferayAnalyticsEndpointURL() +
 					"/dxp-batch-entities",
 				"resourceName", resourceName));
 
-		try {
-			InputStream inputStream = _http.URLtoInputStream(options);
-
+		try (InputStream inputStream = _http.URLtoInputStream(options)) {
 			Http.Response response = options.getResponse();
 
 			if (response.getResponseCode() ==
@@ -416,9 +415,7 @@ public class AnalyticsBatchExportImportManagerImpl
 
 		options.setPost(true);
 
-		try {
-			InputStream inputStream = _http.URLtoInputStream(options);
-
+		try (InputStream inputStream = _http.URLtoInputStream(options)) {
 			Http.Response response = options.getResponse();
 
 			if (response.getResponseCode() ==

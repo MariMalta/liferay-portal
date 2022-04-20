@@ -23,7 +23,6 @@ export default function ObjectFieldFormBase({
 	objectField: values,
 	objectFieldTypes,
 	setValues,
-	showDocumentsAndMediaOption,
 }: IProps): JSX.Element;
 export declare function useObjectFieldForm({
 	initialValues,
@@ -39,7 +38,8 @@ export declare function useObjectFieldForm({
 		}
 	>;
 	handleChange: React.ChangeEventHandler<HTMLInputElement>;
-	handleSubmit: React.FormEventHandler<HTMLFormElement>;
+	handleSubmit: React.FormEventHandler<HTMLFormElement> &
+		React.MouseEventHandler<HTMLButtonElement>;
 	setValues: (values: Partial<ObjectField>) => void;
 	values: Partial<ObjectField>;
 };
@@ -56,7 +56,6 @@ interface IProps {
 	objectField: Partial<ObjectField>;
 	objectFieldTypes: ObjectFieldType[];
 	setValues: (values: Partial<ObjectField>) => void;
-	showDocumentsAndMediaOption: boolean;
 }
 export declare type ObjectFieldErrors = FormError<
 	ObjectField &

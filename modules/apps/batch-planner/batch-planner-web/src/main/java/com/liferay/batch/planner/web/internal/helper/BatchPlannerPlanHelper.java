@@ -91,14 +91,13 @@ public class BatchPlannerPlanHelper {
 	}
 
 	public BatchPlannerPlan addImportBatchPlannerPlan(
-			PortletRequest portletRequest, String importFileURI)
+			PortletRequest portletRequest, String name, String importFileURI)
 		throws PortalException {
 
 		String externalType = ParamUtil.getString(
 			portletRequest, "externalType", "CSV");
 		String internalClassName = ParamUtil.getString(
 			portletRequest, "internalClassName");
-		String name = ParamUtil.getString(portletRequest, "name");
 		String taskItemDelegateName = ParamUtil.getString(
 			portletRequest, "taskItemDelegateName");
 		boolean template = ParamUtil.getBoolean(portletRequest, "template");
@@ -116,6 +115,10 @@ public class BatchPlannerPlanHelper {
 			_batchPlannerPolicyService.addBatchPlannerPolicy(
 				batchPlannerPlan.getBatchPlannerPlanId(), "csvSeparator",
 				ParamUtil.getString(portletRequest, "csvSeparator"));
+			_batchPlannerPolicyService.addBatchPlannerPolicy(
+				batchPlannerPlan.getBatchPlannerPlanId(),
+				"csvEnclosingCharacter",
+				ParamUtil.getString(portletRequest, "csvEnclosingCharacter"));
 		}
 
 		_batchPlannerPolicyService.addBatchPlannerPolicy(
@@ -243,7 +246,8 @@ public class BatchPlannerPlanHelper {
 	private List<BatchPlannerMapping> _getExportBatchPlannerMappings(
 		PortletRequest portletRequest) {
 
-		String[] fieldNames = portletRequest.getParameterValues("fieldName");
+		String[] fieldNames = ParamUtil.getStringValues(
+			portletRequest, "fieldName");
 
 		if (fieldNames == null) {
 			return Collections.emptyList();

@@ -21,6 +21,7 @@ import com.liferay.layout.security.permission.resource.LayoutContentModelResourc
 import com.liferay.layout.type.controller.BaseLayoutTypeControllerImpl;
 import com.liferay.petra.io.unsync.UnsyncStringWriter;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.NoSuchLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -36,7 +37,7 @@ import com.liferay.portal.kernel.servlet.PipingServletResponse;
 import com.liferay.portal.kernel.servlet.TransferHeadersHelper;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.Constants;
-import com.liferay.portal.kernel.util.Http;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
@@ -122,6 +123,17 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 			}
 		}
 
+		if (!layout.isPublished()) {
+			if (hasUpdatePermissions == null) {
+				hasUpdatePermissions = _hasUpdatePermissions(
+					themeDisplay.getPermissionChecker(), layout);
+			}
+
+			if (!hasUpdatePermissions) {
+				throw new NoSuchLayoutException();
+			}
+		}
+
 		String page = getViewPage();
 
 		if (layoutMode.equals(Constants.EDIT)) {
@@ -182,18 +194,18 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 					"p_l_back_url");
 
 				if (Validator.isNotNull(backURL)) {
-					layoutFullURL = _http.addParameter(
+					layoutFullURL = HttpComponentsUtil.addParameter(
 						layoutFullURL, "p_l_back_url", backURL);
 				}
 
-				layoutFullURL = _http.addParameter(
+				layoutFullURL = HttpComponentsUtil.addParameter(
 					layoutFullURL, "p_l_mode", Constants.EDIT);
 
 				long segmentsExperienceId = ParamUtil.getLong(
 					httpServletRequest, "segmentsExperienceId", -1);
 
 				if (segmentsExperienceId != -1) {
-					layoutFullURL = _http.setParameter(
+					layoutFullURL = HttpComponentsUtil.setParameter(
 						layoutFullURL, "segmentsExperienceId",
 						segmentsExperienceId);
 				}
@@ -340,9 +352,6 @@ public class ContentLayoutTypeController extends BaseLayoutTypeControllerImpl {
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ContentLayoutTypeController.class);
-
-	@Reference
-	private Http _http;
 
 	@Reference
 	private LayoutLocalService _layoutLocalService;

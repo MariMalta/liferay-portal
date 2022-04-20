@@ -655,38 +655,18 @@
 			});
 		},
 
-		selectFolder(folderData, namespace) {
-			const folderDataElement = document.getElementById(
-				namespace + folderData.idString
-			);
-
-			if (folderDataElement) {
-				folderDataElement.value = folderData.idValue;
-			}
-
-			const folderNameElement = document.getElementById(
-				namespace + folderData.nameString
-			);
-
-			if (folderNameElement) {
-				folderNameElement.value = this.unescape(folderData.nameValue);
-			}
-
-			const removeFolderButton = document.getElementById(
-				`${namespace}removeFolderButton`
-			);
-
-			if (removeFolderButton) {
-				this.toggleDisabled(removeFolderButton, false);
-			}
-		},
-
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/setSelectionRange}
+		 */
 		setCursorPosition(element, position) {
 			var instance = this;
 
 			instance.setSelectionRange(element, position, position);
 		},
 
+		/**
+		 * @deprecated As of Cavanaugh (7.4.x), replaced by {@link https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement/setSelectionRange}
+		 */
 		setSelectionRange(element, selectionStart, selectionEnd) {
 			element = Util.getDOM(element);
 
@@ -708,29 +688,6 @@
 				textRange.moveEnd('character', selectionStart);
 
 				textRange.select();
-			}
-		},
-
-		showCapsLock(event, spanId) {
-			const span = document.getElementById(spanId);
-
-			if (span) {
-				var keyCode = event.keyCode ? event.keyCode : event.which;
-
-				var shiftKeyCode = keyCode === 16;
-
-				var shiftKey = event.shiftKey ? event.shiftKey : shiftKeyCode;
-
-				var display = 'none';
-
-				if (
-					(keyCode >= 65 && keyCode <= 90 && !shiftKey) ||
-					(keyCode >= 97 && keyCode <= 122 && shiftKey)
-				) {
-					display = '';
-				}
-
-				span.style.display = display;
 			}
 		},
 
@@ -1523,19 +1480,6 @@
 	Util.Window = Window;
 
 	Liferay.Util = Util;
-
-	Liferay.STATUS_CODE = {
-		BAD_REQUEST: 400,
-		INTERNAL_SERVER_ERROR: 500,
-		OK: 200,
-		SC_DUPLICATE_FILE_EXCEPTION: 490,
-		SC_FILE_ANTIVIRUS_EXCEPTION: 494,
-		SC_FILE_CUSTOM_EXCEPTION: 499,
-		SC_FILE_EXTENSION_EXCEPTION: 491,
-		SC_FILE_NAME_EXCEPTION: 492,
-		SC_FILE_SIZE_EXCEPTION: 493,
-		SC_UPLOAD_REQUEST_SIZE_EXCEPTION: 495,
-	};
 
 	// 0-200: Theme Developer
 	// 200-400: Portlet Developer

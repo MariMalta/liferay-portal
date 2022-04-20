@@ -40,7 +40,6 @@ import com.liferay.info.list.provider.item.selector.criterion.InfoListProviderIt
 import com.liferay.info.list.renderer.DefaultInfoListRendererContext;
 import com.liferay.info.list.renderer.InfoListRenderer;
 import com.liferay.info.list.renderer.InfoListRendererTracker;
-import com.liferay.info.pagination.Pagination;
 import com.liferay.info.type.WebImage;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.criteria.InfoListItemSelectorReturnType;
@@ -244,18 +243,16 @@ public class GetCollectionFieldMVCResourceCommand
 			activePage = 1;
 		}
 
-		Pagination pagination = _collectionPaginationHelper.getPagination(
-			activePage, listCount, displayAllPages, displayAllItems,
-			numberOfItems, numberOfItemsPerPage, numberOfPages, paginationType);
-
-		defaultLayoutListRetrieverContext.setPagination(pagination);
-
-		long[] segmentsEntryIds = _segmentsEntryRetriever.getSegmentsEntryIds(
-			_portal.getScopeGroupId(httpServletRequest),
-			_portal.getUserId(httpServletRequest),
-			_requestContextMapper.map(httpServletRequest));
-
-		defaultLayoutListRetrieverContext.setSegmentsEntryIds(segmentsEntryIds);
+		defaultLayoutListRetrieverContext.setPagination(
+			_collectionPaginationHelper.getPagination(
+				activePage, listCount, displayAllPages, displayAllItems,
+				numberOfItems, numberOfItemsPerPage, numberOfPages,
+				paginationType));
+		defaultLayoutListRetrieverContext.setSegmentsEntryIds(
+			_segmentsEntryRetriever.getSegmentsEntryIds(
+				_portal.getScopeGroupId(httpServletRequest),
+				_portal.getUserId(httpServletRequest),
+				_requestContextMapper.map(httpServletRequest)));
 
 		// LPS-111037
 
@@ -451,7 +448,11 @@ public class GetCollectionFieldMVCResourceCommand
 
 			InfoField infoField = infoFieldValue.getInfoField();
 
-			displayObjectJSONObject.put(infoField.getName(), value);
+			displayObjectJSONObject.put(
+				infoField.getName(), value
+			).put(
+				infoField.getUniqueId(), value
+			);
 		}
 
 		InfoItemReference infoItemReference =

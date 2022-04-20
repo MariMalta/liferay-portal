@@ -1,28 +1,18 @@
 @component-name = "portal-commerce"
 definition {
 
+	property osgi.module.configuration.file.names = "com.liferay.release.feature.flag.web.internal.configuration.ReleaseFeatureFlagConfiguration.config";
+	property osgi.module.configurations = "disabledReleaseFeatureFlags=[&quot;DISABLE_PRIVATE_LAYOUTS&quot;]";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Order Management";
 
 	setUp {
-		TestCase.setUpPortalInstance();
-
-		User.firstLoginPG();
+		CommerceConfiguration.commerceSetUp();
 	}
 
 	tearDown {
-		Navigator.openURL();
-
-		if (IsElementPresent(locator1 = "UserBar#USER_AVATAR_IMAGE")) {
-			User.logoutPG();
-		}
-
-		User.firstLoginPG();
-
-		CommerceConfiguration.commerceAdminTearDown();
-
-		CommerceConfiguration.commerceInitializersTearDown();
+		CommerceConfiguration.commerceTearDown();
 	}
 
 	@description = "This is a test for COMMERCE-6207. UI inventory items lifecycle"
@@ -855,11 +845,11 @@ definition {
 			category = "Inventory Management",
 			portlet = "Warehouses");
 
-		var channelIds = CommerceJSONChannelsAPI._getCommerceChannelIds();
+		var commerceChannelIds = CommerceJSONChannelsAPI._getCommerceChannelIds();
 
-		for (var channelId : list "${channelIds}") {
-			var channel1 = StringUtil.extractFirst("${channelIds}", ",");
-			var channel2 = StringUtil.extractLast("${channelIds}", ",");
+		for (var commerceChannelId : list "${commerceChannelIds}") {
+			var commerceChannel1 = StringUtil.extractFirst("${commerceChannelIds}", ",");
+			var commerceChannel2 = StringUtil.extractLast("${commerceChannelIds}", ",");
 		}
 
 		Click(

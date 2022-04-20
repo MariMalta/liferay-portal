@@ -54,10 +54,12 @@ import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectEntryService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.object.service.ObjectRelationshipService;
 import com.liferay.object.web.internal.constants.ObjectWebKeys;
 import com.liferay.object.web.internal.display.context.helper.ObjectRequestHelper;
 import com.liferay.object.web.internal.item.selector.ObjectEntryItemSelectorReturnType;
@@ -113,24 +115,28 @@ public class ObjectEntryDisplayContext {
 		DDMFormRenderer ddmFormRenderer, HttpServletRequest httpServletRequest,
 		ItemSelector itemSelector,
 		ObjectDefinitionLocalService objectDefinitionLocalService,
+		ObjectDefinitionService objectDefinitionService,
 		ObjectEntryService objectEntryService,
 		ObjectFieldBusinessTypeServicesTracker
 			objectFieldBusinessTypeServicesTracker,
 		ObjectFieldLocalService objectFieldLocalService,
 		ObjectLayoutLocalService objectLayoutLocalService,
 		ObjectRelationshipLocalService objectRelationshipLocalService,
+		ObjectRelationshipService objectRelationshipService,
 		ObjectScopeProviderRegistry objectScopeProviderRegistry,
 		boolean readOnly) {
 
 		_ddmFormRenderer = ddmFormRenderer;
 		_itemSelector = itemSelector;
 		_objectDefinitionLocalService = objectDefinitionLocalService;
+		_objectDefinitionService = objectDefinitionService;
 		_objectEntryService = objectEntryService;
 		_objectFieldBusinessTypeServicesTracker =
 			objectFieldBusinessTypeServicesTracker;
 		_objectFieldLocalService = objectFieldLocalService;
 		_objectLayoutLocalService = objectLayoutLocalService;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
+		_objectRelationshipService = objectRelationshipService;
 		_objectScopeProviderRegistry = objectScopeProviderRegistry;
 		_readOnly = readOnly;
 
@@ -159,18 +165,27 @@ public class ObjectEntryDisplayContext {
 		for (ObjectLayoutTab objectLayoutTab :
 				objectLayout.getObjectLayoutTabs()) {
 
-			if (objectLayoutTab.getObjectRelationshipId() > 0) {
-				ObjectRelationship objectRelationship =
-					_objectRelationshipLocalService.getObjectRelationship(
-						objectLayoutTab.getObjectRelationshipId());
+			try {
+				if (objectLayoutTab.getObjectRelationshipId() > 0) {
+					ObjectRelationship objectRelationship =
+						_objectRelationshipService.getObjectRelationship(
+							objectLayoutTab.getObjectRelationshipId());
 
-				ObjectDefinition objectDefinition =
-					_objectDefinitionLocalService.getObjectDefinition(
-						objectRelationship.getObjectDefinitionId2());
+					ObjectDefinition objectDefinition =
+						_objectDefinitionService.getObjectDefinition(
+							objectRelationship.getObjectDefinitionId2());
 
-				if (!objectDefinition.isActive()) {
-					continue;
+					if (!objectDefinition.isActive()) {
+						continue;
+					}
 				}
+			}
+			catch (PortalException portalException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(portalException);
+				}
+
+				continue;
 			}
 
 			navigationItemList.add(
@@ -310,12 +325,12 @@ public class ObjectEntryDisplayContext {
 			_objectRelationshipLocalService.getObjectRelationship(
 				objectLayoutTab.getObjectRelationshipId());
 
-		ObjectDefinition objectDefinition =
+		ObjectDefinition objectDefinition2 =
 			_objectDefinitionLocalService.getObjectDefinition(
 				objectRelationship.getObjectDefinitionId2());
 
 		infoItemItemSelectorCriterion.setItemType(
-			objectDefinition.getClassName());
+			objectDefinition2.getClassName());
 
 		return PortletURLBuilder.create(
 			_itemSelector.getItemSelectorURL(
@@ -323,6 +338,15 @@ public class ObjectEntryDisplayContext {
 				liferayPortletResponse.getNamespace() +
 					"selectRelatedModalEntry",
 				infoItemItemSelectorCriterion)
+		).setParameter(
+			"objectDefinitionId",
+			() -> {
+				ObjectDefinition objectDefinition1 =
+					_objectDefinitionLocalService.getObjectDefinition(
+						objectRelationship.getObjectDefinitionId1());
+
+				return objectDefinition1.getObjectDefinitionId();
+			}
 		).buildString();
 	}
 
@@ -525,12 +549,19 @@ public class ObjectEntryDisplayContext {
 
 		if (objectLayoutTab == null) {
 			for (ObjectField objectField : objectFields) {
-				if (!_isActive(objectField)) {
-					continue;
-				}
+				try {
+					if (!_isActive(objectField)) {
+						continue;
+					}
 
-				ddmForm.addDDMFormField(
-					_getDDMFormField(objectField, readOnly));
+					ddmForm.addDDMFormField(
+						_getDDMFormField(objectField, readOnly));
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException);
+					}
+				}
 			}
 		}
 		else {
@@ -712,8 +743,23 @@ public class ObjectEntryDisplayContext {
 							ddmFormField.getType(),
 							DDMFormFieldTypeConstants.FIELDSET)) {
 
-						_setDDMFormFieldValueValue(
-							ddmFormField.getName(), ddmFormFieldValue, values);
+						long value = GetterUtil.getLong(
+							values.get(ddmFormField.getName()));
+
+						if (StringUtil.equals(
+								ddmFormField.getType(),
+								"object-relationship") &&
+							(value == 0)) {
+
+							_setDDMFormFieldValueValue(
+								ddmFormField.getName(), ddmFormFieldValue,
+								Collections.emptyMap());
+						}
+						else {
+							_setDDMFormFieldValueValue(
+								ddmFormField.getName(), ddmFormFieldValue,
+								values);
+						}
 					}
 
 					return ddmFormFieldValue;
@@ -787,26 +833,33 @@ public class ObjectEntryDisplayContext {
 			for (ObjectLayoutColumn objectLayoutColumn :
 					objectLayoutRow.getObjectLayoutColumns()) {
 
-				Stream<ObjectField> stream = objectFields.stream();
+				try {
+					Stream<ObjectField> stream = objectFields.stream();
 
-				Optional<ObjectField> objectFieldOptional = stream.filter(
-					objectField ->
-						objectField.getObjectFieldId() ==
-							objectLayoutColumn.getObjectFieldId()
-				).findFirst();
+					Optional<ObjectField> objectFieldOptional = stream.filter(
+						objectField ->
+							objectField.getObjectFieldId() ==
+								objectLayoutColumn.getObjectFieldId()
+					).findFirst();
 
-				if (objectFieldOptional.isPresent()) {
-					ObjectField objectField = objectFieldOptional.get();
+					if (objectFieldOptional.isPresent()) {
+						ObjectField objectField = objectFieldOptional.get();
 
-					if (!_isActive(objectField)) {
-						continue;
+						if (!_isActive(objectField)) {
+							continue;
+						}
+
+						_objectFieldNames.put(
+							objectLayoutColumn.getObjectFieldId(),
+							objectField.getName());
+						nestedDDMFormFields.add(
+							_getDDMFormField(objectField, readOnly));
 					}
-
-					_objectFieldNames.put(
-						objectLayoutColumn.getObjectFieldId(),
-						objectField.getName());
-					nestedDDMFormFields.add(
-						_getDDMFormField(objectField, readOnly));
+				}
+				catch (PortalException portalException) {
+					if (_log.isDebugEnabled()) {
+						_log.debug(portalException);
+					}
 				}
 			}
 		}
@@ -867,7 +920,7 @@ public class ObjectEntryDisplayContext {
 						objectField.getObjectFieldId());
 
 			ObjectDefinition relatedObjectDefinition =
-				_objectDefinitionLocalService.getObjectDefinition(
+				_objectDefinitionService.getObjectDefinition(
 					objectRelationship.getObjectDefinitionId1());
 
 			return relatedObjectDefinition.isActive();
@@ -929,6 +982,7 @@ public class ObjectEntryDisplayContext {
 	private final DDMFormRenderer _ddmFormRenderer;
 	private final ItemSelector _itemSelector;
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
+	private final ObjectDefinitionService _objectDefinitionService;
 	private ObjectEntry _objectEntry;
 	private final ObjectEntryService _objectEntryService;
 	private final ObjectFieldBusinessTypeServicesTracker
@@ -938,6 +992,7 @@ public class ObjectEntryDisplayContext {
 	private final ObjectLayoutLocalService _objectLayoutLocalService;
 	private final ObjectRelationshipLocalService
 		_objectRelationshipLocalService;
+	private final ObjectRelationshipService _objectRelationshipService;
 	private final ObjectRequestHelper _objectRequestHelper;
 	private final ObjectScopeProviderRegistry _objectScopeProviderRegistry;
 	private final boolean _readOnly;

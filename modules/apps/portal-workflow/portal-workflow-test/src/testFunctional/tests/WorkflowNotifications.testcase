@@ -89,7 +89,7 @@ definition {
 
 		CommerceNavigator.gotoMiniCart();
 
-		Button.click(button = "Review Order");
+		Button.click(button = "View Details");
 
 		Button.click(button = "Submit");
 
@@ -102,9 +102,7 @@ definition {
 			urlAppend = "web/minium",
 			userEmailAddress = "buyer@liferay.com");
 
-		CommerceNavigator.gotoMiniumSidebarItem(
-			menuItem = "Notifications",
-			userMenu = "true");
+		Workflow.openNotifications();
 
 		Notifications.viewSuccessfulPublication(
 			contentBody = "for review in the workflow.",
@@ -166,7 +164,7 @@ definition {
 
 		CommerceNavigator.gotoMiniCart();
 
-		Button.click(button = "Review Order");
+		Button.click(button = "View Details");
 
 		Button.click(button = "Submit");
 

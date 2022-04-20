@@ -15,29 +15,8 @@
 import ClayForm from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import classNames from 'classnames';
+import {FieldFeedback} from 'data-engine-js-components-web';
 import React, {ReactNode} from 'react';
-
-function ErrorFeedback({className, error}: IErrorFeedbackProps) {
-	return (
-		<ClayForm.FeedbackGroup className={classNames(className)}>
-			<ClayForm.FeedbackItem>
-				<span>{error}</span>
-			</ClayForm.FeedbackItem>
-		</ClayForm.FeedbackGroup>
-	);
-}
-
-function FeedbackMessage({feedbackMessage}: IFeedbackMessageProps) {
-	return (
-		<ClayForm.FeedbackGroup>
-			<ClayForm.FeedbackItem>
-				<ClayForm.FeedbackIndicator symbol="exclamation-full" />
-
-				{feedbackMessage}
-			</ClayForm.FeedbackItem>
-		</ClayForm.FeedbackGroup>
-	);
-}
 
 function RequiredMask() {
 	return (
@@ -57,14 +36,20 @@ export default function FieldBase({
 	children,
 	className,
 	disabled,
-	error,
-	feedbackMessage,
+	errorMessage,
+	helpMessage,
 	id,
 	label,
 	required,
+	warningMessage,
 }: IProps) {
 	return (
-		<ClayForm.Group className={classNames(className, {'has-error': error})}>
+		<ClayForm.Group
+			className={classNames(className, {
+				'has-error': errorMessage,
+				'has-warning': warningMessage && !errorMessage,
+			})}
+		>
 			<label className={classNames({disabled})} htmlFor={id}>
 				{label}
 
@@ -73,31 +58,23 @@ export default function FieldBase({
 
 			{children}
 
-			{error && <ErrorFeedback error={error} />}
-
-			{feedbackMessage && (
-				<FeedbackMessage feedbackMessage={feedbackMessage} />
-			)}
+			<FieldFeedback
+				errorMessage={errorMessage}
+				helpMessage={helpMessage}
+				warningMessage={warningMessage}
+			/>
 		</ClayForm.Group>
 	);
-}
-
-interface IErrorFeedbackProps {
-	className?: string;
-	error: string;
-}
-
-interface IFeedbackMessageProps {
-	feedbackMessage: string;
 }
 
 interface IProps {
 	children: ReactNode;
 	className?: string;
 	disabled?: boolean;
-	error?: string;
-	feedbackMessage?: string;
+	errorMessage?: string;
+	helpMessage?: string;
 	id?: string;
 	label: string;
 	required?: boolean;
+	warningMessage?: string;
 }

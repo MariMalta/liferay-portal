@@ -111,9 +111,7 @@ definition {
 
 		AssertElementNotPresent(locator1 = "Portlet#MODAL_TITLE");
 
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "No Items were found.");
+		ObjectAdmin.assertNoResultsWereFound();
 	}
 
 	@description = "LPS-135394 - Verify it is possible to create a View"
@@ -311,6 +309,15 @@ definition {
 			position = "3");
 	}
 
+	@description = "LPS-146028 - Verify that the user can duplicate a object View"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test CanDuplicateObjectView {
+
+		// TODO LPS-151589 CanDuplicateObjectView pending implementation
+
+	}
+
 	@description = "LPS-135394 - Verify the Name is required when creating a View"
 	@priority = "4"
 	test CannotLeaveNameFieldEmpty {
@@ -329,7 +336,7 @@ definition {
 
 		Button.clickSave();
 
-		AssertElementPresent(locator1 = "ObjectCustomViews#CUSTOM_VIEW_FIELD_REQUIRED");
+		AssertElementPresent(locator1 = "ObjectAdmin#REQUIRED_ERROR_MESSAGE");
 	}
 
 	@description = "LPS-135394 - Verify that it is not possible to save another View as default"
@@ -699,7 +706,7 @@ definition {
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObject149239");
 
-		for (var columnName : list "Author,Created Date,Modified Date,Status,ID") {
+		for (var columnName : list "Author,Creation Date,Modified Date,Workflow Status,ID") {
 			ObjectPortlet.assertEntryColumnPresent(column = "${columnName}");
 		}
 	}
@@ -759,7 +766,7 @@ definition {
 
 		ObjectAdmin.goToCustomObject(objectName = "CustomObject147771");
 
-		for (var columnName : list "Author,Created Date,Custom Field") {
+		for (var columnName : list "Author,Creation Date,Custom Field") {
 			ObjectPortlet.assertEntryColumnPresent(column = "${columnName}");
 		}
 
@@ -834,7 +841,7 @@ definition {
 		WaitForPageLoad();
 
 		ObjectCustomViews.viewColumnsOrder(
-			colunmName = "Created Date",
+			colunmName = "Creation Date",
 			position = "1");
 
 		ObjectCustomViews.viewColumnsOrder(
@@ -844,6 +851,24 @@ definition {
 		ObjectCustomViews.viewColumnsOrder(
 			colunmName = "ID",
 			position = "3");
+	}
+
+	@description = "LPS-146028 - Verify that the columns present at the View Builder are ordered correctly"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test DuplicatedObjectViewColumnsAreCorrectlyOrdered {
+
+		// TODO LPS-151590 DuplicatedObjectViewColumnsAreCorrectlyOrdered pending implementation
+
+	}
+
+	@description = "LPS-146028 - Verify that the fields present at the Default Sort are ordered correctly"
+	@ignore = "Test Stub"
+	@priority = "4"
+	test DuplicatedObjectViewFieldsAreCorrectlyOrdered {
+
+		// TODO LPS-151591 DuplicatedObjectViewFieldsAreCorrectlyOrdered pending implementation
+
 	}
 
 	@description = "LPS-135394 - Verify the empty state for the View Builder tab"
@@ -885,9 +910,7 @@ definition {
 
 		ObjectCustomViews.goToViewsTab();
 
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "No Items were found.");
+		ObjectAdmin.assertNoResultsWereFound();
 	}
 
 	@description = "LPS-135394 - Verify the Author, Creation Date, Modified Date, Workflow Status, ID columns (Metadata columns) are displayed to be selected"
@@ -937,9 +960,7 @@ definition {
 
 		Search.searchCP(searchTerm = "ObjectTest202");
 
-		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "No Items were found.");
+		ObjectAdmin.assertNoResultsWereFound();
 	}
 
 	@description = "LPS-135394 - Verify the no result message when searching for a column"

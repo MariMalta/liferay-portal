@@ -117,6 +117,30 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>lib/development/asm-tree.jar</file-name>
+				<version>7.0</version>
+				<project-name>ASM</project-name>
+				<project-url>http://asm.ow2.io</project-url>
+				<licenses>
+					<license>
+						<license-name>ASM License</license-name>
+						<license-url>http://asm.ow2.org/license.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>lib/development/asm.jar</file-name>
+				<version>7.0</version>
+				<project-name>ASM</project-name>
+				<project-url>http://asm.ow2.io</project-url>
+				<licenses>
+					<license>
+						<license-name>ASM License</license-name>
+						<license-url>http://asm.ow2.org/license.html</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>lib/development/bnd-repository.jar</file-name>
 				<version>5.3.0</version>
 				<project-name>Bndtools</project-name>
@@ -1047,66 +1071,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/asm-analysis.jar</file-name>
-				<version>7.0</version>
-				<project-name>ASM</project-name>
-				<project-url>http://asm.ow2.io</project-url>
-				<licenses>
-					<license>
-						<license-name>ASM License</license-name>
-						<license-url>http://asm.ow2.org/license.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/asm-commons.jar</file-name>
-				<version>7.0</version>
-				<project-name>ASM</project-name>
-				<project-url>http://asm.ow2.io</project-url>
-				<licenses>
-					<license>
-						<license-name>ASM License</license-name>
-						<license-url>http://asm.ow2.org/license.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/asm-tree.jar</file-name>
-				<version>7.0</version>
-				<project-name>ASM</project-name>
-				<project-url>http://asm.ow2.io</project-url>
-				<licenses>
-					<license>
-						<license-name>ASM License</license-name>
-						<license-url>http://asm.ow2.org/license.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/asm-util.jar</file-name>
-				<version>7.0</version>
-				<project-name>ASM</project-name>
-				<project-url>http://asm.ow2.io</project-url>
-				<licenses>
-					<license>
-						<license-name>ASM License</license-name>
-						<license-url>http://asm.ow2.org/license.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/asm.jar</file-name>
-				<version>7.0</version>
-				<project-name>ASM</project-name>
-				<project-url>http://asm.ow2.io</project-url>
-				<licenses>
-					<license>
-						<license-name>ASM License</license-name>
-						<license-url>http://asm.ow2.org/license.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/commons-beanutils.jar</file-name>
 				<version>1.9.4</version>
 				<project-name>Commons Beanutils</project-name>
@@ -1231,7 +1195,7 @@
 			</library>
 			<library>
 				<file-name>lib/portal/hibernate-core.jar</file-name>
-				<version>3.6.10.LIFERAY-PATCHED-6</version>
+				<version>5.6.7.Final</version>
 				<project-name>Hibernate</project-name>
 				<project-url>http://www.hibernate.org</project-url>
 				<licenses>
@@ -1530,18 +1494,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/mimepull.jar</file-name>
-				<version>1.3</version>
-				<project-name>MIME pull</project-name>
-				<project-url>http://mimepull.java.net</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.1</license-name>
-						<license-url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/persistence.jar</file-name>
 				<version>2.2.1</version>
 				<project-name>Java Persistence</project-name>
@@ -1562,30 +1514,6 @@
 					<license>
 						<license-name>Apache License 2.0</license-name>
 						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/saaj-api.jar</file-name>
-				<version>1.3</version>
-				<project-name>SAAJ</project-name>
-				<project-url>http://saaj.dev.java.net</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.0</license-name>
-						<license-url>http://glassfish.java.net/public/CDDLv1.0.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/saaj-impl.jar</file-name>
-				<version>1.3</version>
-				<project-name>SAAJ</project-name>
-				<project-url>http://saaj.dev.java.net</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.0</license-name>
-						<license-url>http://glassfish.java.net/public/CDDLv1.0.html</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -1628,21 +1556,6 @@
 				</comments>
 			</library>
 			<library>
-				<file-name>lib/portal/spring-aspects.jar</file-name>
-				<version>5.2.20</version>
-				<project-name>Spring</project-name>
-				<project-url>http://www.springframework.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-				<comments>
-					This does not include missing OSGi headers. See LPS-49575.
-				</comments>
-			</library>
-			<library>
 				<file-name>lib/portal/spring-beans.jar</file-name>
 				<version>5.2.20</version>
 				<project-name>Spring</project-name>
@@ -1659,21 +1572,6 @@
 			</library>
 			<library>
 				<file-name>lib/portal/spring-context.jar</file-name>
-				<version>5.2.20</version>
-				<project-name>Spring</project-name>
-				<project-url>http://www.springframework.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-				<comments>
-					This does not include missing OSGi headers. See LPS-49575.
-				</comments>
-			</library>
-			<library>
-				<file-name>lib/portal/spring-context-support.jar</file-name>
 				<version>5.2.20</version>
 				<project-name>Spring</project-name>
 				<project-url>http://www.springframework.org</project-url>
@@ -1733,38 +1631,8 @@
 				</comments>
 			</library>
 			<library>
-				<file-name>lib/portal/spring-jms.jar</file-name>
-				<version>5.2.20</version>
-				<project-name>Spring</project-name>
-				<project-url>http://www.springframework.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-				<comments>
-					This does not include missing OSGi headers. See LPS-49575.
-				</comments>
-			</library>
-			<library>
 				<file-name>lib/portal/spring-orm.jar</file-name>
-				<version>4.3.22.LIFERAY-PATCHED-1</version>
-				<project-name>Spring</project-name>
-				<project-url>http://www.springframework.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-				<comments>
-					This does not include missing OSGi headers. See LPS-49575.
-				</comments>
-			</library>
-			<library>
-				<file-name>lib/portal/spring-oxm.jar</file-name>
-				<version>5.2.20</version>
+				<version>5.2.20.LIFERAY-PATCHED-1</version>
 				<project-name>Spring</project-name>
 				<project-url>http://www.springframework.org</project-url>
 				<licenses>
@@ -1808,37 +1676,10 @@
 				</comments>
 			</library>
 			<library>
-				<file-name>lib/portal/spring-webmvc.jar</file-name>
-				<version>5.2.20</version>
-				<project-name>Spring</project-name>
-				<project-url>http://www.springframework.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-				<comments>
-					This does not include missing OSGi headers. See LPS-49575.
-				</comments>
-			</library>
-			<library>
 				<file-name>lib/portal/portletmvc4spring-framework.jar</file-name>
 				<version>5.2.0</version>
 				<project-name>PortletMVC4Spring</project-name>
 				<project-url>https://github.com/liferay/portletmvc4spring</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/stax.jar</file-name>
-				<version>1.0.1</version>
-				<project-name>JSR 173 Streaming API for XML</project-name>
-				<project-url>http://jcp.org/en/jsr/detail?id=173</project-url>
 				<licenses>
 					<license>
 						<license-name>Apache License 2.0</license-name>
@@ -1855,18 +1696,6 @@
 					<license>
 						<license-name>CDDL 1.1</license-name>
 						<license-url>http://web.archive.org/web/20090305064954/http://www.sun.com/cddl/cddl.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/streambuffer.jar</file-name>
-				<version>0.9</version>
-				<project-name>XML Stream Buffer</project-name>
-				<project-url>http://java.net/projects/xmlstreambuffer</project-url>
-				<licenses>
-					<license>
-						<license-name>CDDL 1.0</license-name>
-						<license-url>http://glassfish.java.net/public/CDDLv1.0.html</license-url>
 					</license>
 				</licenses>
 			</library>

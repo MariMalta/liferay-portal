@@ -2302,25 +2302,6 @@ sendPasswordCaptchaEnabled=&quot;false&quot;</echo>
 								<if>
 									<equals arg1="${database.type}" arg2="mysql" />
 									<then>
-										<copy
-											file="${test.app.server.lib.portal.dir}/${jdbc.mysql.driver}"
-											tofile="${app.server.lib.global.dir}/${jdbc.mysql.driver}"
-										/>
-
-										<replace
-											file="${app.server.lib.global.dir}/module.xml"
-										>
-											<replacetoken><![CDATA[<module name="com.liferay.portal" xmlns="urn:jboss:module:1.0">]]></replacetoken>
-											<replacevalue>
-												<![CDATA[
-													<module name="com.liferay.portal" xmlns="urn:jboss:module:1.0">
-														<resources>
-															<resource-root path="mysql.jar" />
-														</resources>
-												]]>
-											</replacevalue>
-										</replace>
-
 										<replace
 											file="${app.server.dir}/standalone/configuration/standalone.xml"
 										>
@@ -2343,25 +2324,6 @@ sendPasswordCaptchaEnabled=&quot;false&quot;</echo>
 									<elseif>
 										<equals arg1="${database.type}" arg2="mariadb" />
 										<then>
-											<copy
-												file="${test.app.server.lib.portal.dir}/${jdbc.mariadb.driver}"
-												tofile="${app.server.lib.global.dir}/${jdbc.mariadb.driver}"
-											/>
-
-											<replace
-												file="${app.server.lib.global.dir}/module.xml"
-											>
-												<replacetoken><![CDATA[<module name="com.liferay.portal" xmlns="urn:jboss:module:1.0">]]></replacetoken>
-												<replacevalue>
-													<![CDATA[
-														<module name="com.liferay.portal" xmlns="urn:jboss:module:1.0">
-															<resources>
-																<resource-root path="mysql.jar" />
-															</resources>
-													]]>
-												</replacevalue>
-											</replace>
-
 											<replace
 												file="${app.server.dir}/standalone/configuration/standalone.xml"
 											>
@@ -2713,73 +2675,11 @@ jdbc.default.password=${database.password}</echo>
 		</sequential>
 	</macrodef>
 
-	<macrodef name="prepare-jboss-module-configuration">
-		<sequential>
-			<local name="module.configuration.path" />
-
-			<if>
-				<not>
-					<available file="${app.server.lib.global.dir}/module.xml" />
-				</not>
-				<then>
-					<property name="module.configuration.path" value="tools/servers/jboss/modules/module.xml" />
-				</then>
-				<else>
-					<property name="module.configuration.path" value="${app.server.lib.global.dir}/module.xml" />
-				</else>
-			</if>
-
-			<local name="module.configuration.content" />
-
-			<loadfile
-				property="module.configuration.content"
-				srcFile="${module.configuration.path}"
-			>
-				<filterchain>
-					<filterreader classname="org.apache.tools.ant.filters.LineContains">
-						<param type="contains" value="resource-root" />
-						<param type="contains" value="petra" />
-					</filterreader>
-				</filterchain>
-			</loadfile>
-
-			<local name="petra.jar.files" />
-
-			<antelope:stringutil if:set="module.configuration.content" property="petra.jar.files" string="${module.configuration.content}">
-				<antelope:replace regex="\s*&lt;resource-root path=&quot;" replacement="" />
-			</antelope:stringutil>
-
-			<antelope:stringutil if:set="petra.jar.files" property="petra.jar.files" string="${petra.jar.files}">
-				<antelope:replace regex="&quot;\s/&gt;[\n\r]*" replacement="," />
-			</antelope:stringutil>
-
-			<for if:set="petra.jar.files" list="${petra.jar.files}" param="petra.jar.file">
-				<sequential>
-					<if>
-						<not>
-							<available file="${app.server.lib.global.dir}/@{petra.jar.file}" />
-						</not>
-						<then>
-							<local name="regex" />
-
-							<property name="regex" value="\s*&lt;resource-root path=&quot;@{petra.jar.file}&quot;\s/&gt;" />
-
-							<replaceregexp
-								file="${module.configuration.path}"
-								match="${regex}"
-								replace=""
-							/>
-						</then>
-					</if>
-				</sequential>
-			</for>
-		</sequential>
-	</macrodef>
-
 	<macrodef name="prepare-liferay-online-properties">
 		<sequential>
 			<echo append="true" file="portal-impl/src/portal-ext.properties">
-include-and-override=portal-liferay-online.properties
+include-and-override=portal-liferay-online-config.properties
+include-and-override=portal-liferay-online-database-partition.properties
 include-and-override=portal-liferay-online-limit.properties</echo>
 
 			<replace
@@ -6308,10 +6208,30 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 	<macrodef name="start-docker-database">
 		<sequential>
+			<trycatch property="start.docker.database.error">
+				<try>
+					<retry retrycount="2">
+						<sequential>
+							<start-docker-database-cmd />
+						</sequential>
+					</retry>
+				</try>
+				<catch>
+					<echo>Unable to start the Docker database container.</echo>
+
+					<fail>${start.docker.database.error}</fail>
+				</catch>
+			</trycatch>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="start-docker-database-cmd">
+		<sequential>
 			<get-database-property property.name="database.host" />
 			<get-database-property property.name="database.docker.database.options" />
 			<get-database-property property.name="database.docker.image" />
 			<get-database-property property.name="database.docker.run.options" />
+			<get-database-property property.name="database.version" />
 
 			<property name="database.docker.database.options" value="" />
 			<property name="database.docker.run.options" value="" />
@@ -6321,10 +6241,20 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 			</start-docker-container>
 
 			<if>
-				<equals arg1="${database.type}" arg2="db2" />
+				<and>
+					<equals arg1="${database.type}" arg2="db2" />
+					<equals arg1="${database.version}" arg2="11.5.6" />
+				</and>
 				<then>
-					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/opt/ibm/db2/V11.1/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2set DB2COMM=tcpip')" =~ "" ]]</property>
+					<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '~/sqllib/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
 				</then>
+				<elseif>
+					<equals arg1="${database.type}" arg2="db2" />
+					<then>
+						<property name="docker.database.wait.condition">[[ "$(/bin/su - db2inst1 -c '/opt/ibm/db2/V11.1/bin/db2 db2start')" =~ "SQL1026N" ]]</property>
+					</then>
+				</elseif>
 				<elseif>
 					<or>
 						<equals arg1="${database.type}" arg2="mariadb" />
@@ -6713,6 +6643,25 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 	</macrodef>
 
 	<macrodef name="stop-docker-database">
+		<sequential>
+			<trycatch property="stop.docker.database.error">
+				<try>
+					<retry retrycount="2">
+						<sequential>
+							<stop-docker-database-cmd />
+						</sequential>
+					</retry>
+				</try>
+				<catch>
+					<echo>Unable to stop the Docker database container.</echo>
+
+					<fail>${stop.docker.database.error}</fail>
+				</catch>
+			</trycatch>
+		</sequential>
+	</macrodef>
+
+	<macrodef name="stop-docker-database-cmd">
 		<sequential>
 			<get-database-property property.name="database.host" />
 
@@ -8817,6 +8766,17 @@ virtualHostname="localhost"
 					src="${test.build.license.xml.zip.url}"
 				/>
 			</then>
+			<elseif>
+				<contains string="${test.build.license.xml.zip.url}" substring="${project.dir}" />
+				<then>
+					<mkdir dir="${liferay.home}/deploy" />
+
+					<copy
+						file="${test.build.license.xml.zip.url}"
+						tofile="${liferay.home}/deploy/license.xml"
+					/>
+				</then>
+			</elseif>
 		</if>
 	</target>
 
@@ -10953,6 +10913,11 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 					test.base.dir.name=${test.base.dir.name}
 				</echo>
 			</then>
+			<else>
+				<echo append="true" file="${test.ext.properties.file}">
+					test.base.dir.name=${basedir.unix}/portal-web/test/functional/com/liferay/portalweb/
+				</echo>
+			</else>
 		</if>
 
 		<if>
@@ -11079,6 +11044,24 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 			<then>
 				<echo append="true" file="${test.ext.properties.file}">
 					test.pause.on.failure=${test.pause.on.failure}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="test.released.release.bundle.version" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					test.released.release.bundle.version=${test.released.release.bundle.version}
+				</echo>
+			</then>
+		</if>
+
+		<if>
+			<isset property="test.released.test.portal.bundle.zip.url" />
+			<then>
+				<echo append="true" file="${test.ext.properties.file}">
+					test.released.test.portal.bundle.zip.url=${test.released.test.portal.bundle.zip.url}
 				</echo>
 			</then>
 		</if>
@@ -11297,6 +11280,11 @@ auto.deploy.dest.dir=C:/WINDOWS/system32/config/systemprofile/liferay/websphere-
 					test.base.dir.name=${test.base.dir.name}
 				</echo>
 			</then>
+			<else>
+				<echo append="true" file="${test.ext.properties.file}">
+					test.base.dir.name=${basedir.unix}/portal-web/test/functional/com/liferay/portalweb/
+				</echo>
+			</else>
 		</if>
 
 		<get-testcase-property property.name="test.skip.tear.down" />
@@ -11927,28 +11915,75 @@ ANT_OPTS=${env.ANT_OPTS}</echo>
 		</if>
 
 		<if>
-			<or>
-				<equals arg1="${app.server.type}" arg2="jboss" />
-				<equals arg1="${app.server.type}" arg2="wildfly" />
-			</or>
-			<then>
-				<prepare-jboss-module-configuration />
-
-				<print-file file.name="${app.server.lib.global.dir}/module.xml" />
-			</then>
-		</if>
-
-		<if>
-			<or>
-				<equals arg1="${app.server.type}" arg2="weblogic" />
-				<equals arg1="${app.server.type}" arg2="websphere" />
-			</or>
+			<equals arg1="${app.server.type}" arg2="weblogic" />
 			<then>
 				<ant antfile="build-test-elasticsearch7.xml" target="get-sidecar-binaries" />
 			</then>
 		</if>
 
 		<lstopwatch action="total" name="prepare.bundles.${app.server.name}" />
+	</target>
+
+	<target name="prepare-upgrade-original-bundle-test-environment">
+		<property location="${app.server.parent.dir}/../" name="test.release.bundle.parent.dir" />
+
+		<delete dir="${test.release.bundle.parent.dir}/bundles-original/data" />
+
+		<move
+			file="${test.release.bundle.parent.dir}/bundles/data"
+			tofile="${test.release.bundle.parent.dir}/bundles-original/data"
+		/>
+
+		<delete dir="${test.release.bundle.parent.dir}/bundles-original/data/elasticsearch7" />
+
+		<delete dir="${test.release.bundle.parent.dir}/bundles" />
+
+		<move
+			file="${test.release.bundle.parent.dir}/bundles-original"
+			tofile="${test.release.bundle.parent.dir}/bundles"
+		/>
+
+		<set-tomcat-version-number liferay.portal.bundle="${liferay.portal.bundle}" />
+
+		<prepare-custom-properties
+			custom.properties="upgrade.database.auto.run=true"
+			properties.file="${app.server.tomcat.classes.portal.dir}/portal-ext.properties"
+		/>
+	</target>
+
+	<target name="prepare-upgrade-released-bundle-test-environment">
+		<property location="${app.server.parent.dir}/../" name="test.release.bundle.parent.dir" />
+
+		<delete dir="${test.release.bundle.parent.dir}/bundles-original" />
+
+		<move
+			file="${test.release.bundle.parent.dir}/bundles"
+			tofile="${test.release.bundle.parent.dir}/bundles-original"
+		/>
+
+		<set-tomcat-version-number liferay.portal.bundle="${test.released.release.bundle.version}" />
+
+		<antcall inheritAll="false" target="prepare-test-bundle">
+			<param name="app.server.type" value="tomcat" />
+			<param name="test.app.server.bin.dir" value="${app.server.tomcat.bin.dir}" />
+			<param name="test.build.bundle.zip.url" value="${test.released.test.portal.bundle.zip.url}" />
+		</antcall>
+
+		<antcall target="deploy-license-xml">
+			<param name="test.build.license.xml.zip.url" value="${test.license.xml.url}" />
+		</antcall>
+
+		<get-test-app-server-lib-portal-dir />
+
+		<antcall inheritAll="false" target="copy-optional-jars">
+			<param name="todir" value="${test.app.server.lib.portal.dir}" />
+		</antcall>
+
+		<antcall target="prepare-osgi-module-configurations" />
+		<antcall target="prepare-portal-properties" />
+		<antcall target="prepare-portal-ext-properties" />
+		<antcall target="prepare-portlet-ext-properties" />
+		<antcall target="prepare-system-ext-properties" />
 	</target>
 
 	<target name="prepare-virtual-host-name-properties">
@@ -12057,12 +12092,16 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 						<get-database-property property.name="database.password" />
 						<get-database-property property.name="database.schema" />
 						<get-database-property property.name="database.username" />
+						<get-database-property property.name="database.version" />
 
 						<property location="create.sh" name="create.sh.file.path" />
 						<property location="create.sql" name="create.sql.file.path" />
 
 						<if>
-							<equals arg1="${database.type}" arg2="db2" />
+							<and>
+								<equals arg1="${database.type}" arg2="db2" />
+								<equals arg1="${database.version}" arg2="11.5.6" />
+							</and>
 							<then>
 								<get-testcase-property property.name="databases.size" />
 
@@ -12070,11 +12109,11 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 									<![CDATA[
 										#!/bin/bash
 
-										db2 disconnect lportal
+										su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 disconnect lportal'
 
-										db2 drop db lportal
+										su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 drop db lportal'
 
-										db2 -f/tmp/create.sql -st
+										su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 -f/tmp/create.sql -st'
 									]]>
 								</echo>
 
@@ -12083,12 +12122,41 @@ cluster.link.bind.addr["cluster-link-udp"]=127.0.0.1</echo>
 									<then>
 										<echo file="${create.sh.file.path}">
 											<![CDATA[
-												db2 drop db lportal${databases.size}
+												su - db2inst1 -c '/database/config/db2inst1/sqllib/bin/db2 drop db lportal${databases.size}'
 											]]>
 										</echo>
 									</then>
 								</if>
 							</then>
+							<elseif>
+								<equals arg1="${database.type}" arg2="db2" />
+								<then>
+									<get-testcase-property property.name="databases.size" />
+
+									<echo file="${create.sh.file.path}">
+										<![CDATA[
+											#!/bin/bash
+
+											db2 disconnect lportal
+
+											db2 drop db lportal
+
+											db2 -f/tmp/create.sql -st
+										]]>
+									</echo>
+
+									<if>
+										<isset property="databases.size" />
+										<then>
+											<echo file="${create.sh.file.path}">
+												<![CDATA[
+													db2 drop db lportal${databases.size}
+												]]>
+											</echo>
+										</then>
+									</if>
+								</then>
+							</elseif>
 							<elseif>
 								<or>
 									<equals arg1="${database.type}" arg2="mariadb" />
@@ -12390,38 +12458,70 @@ database.partition.enabled=true</echo>
 				<get-database-property property.name="database.password" />
 				<get-database-property property.name="database.schema" />
 				<get-database-property property.name="database.username" />
+				<get-database-property property.name="database.version" />
 
 				<property location="import-database.sh" name="import.database.sh.file.path" />
 
 				<if>
-					<equals arg1="${database.type}" arg2="db2" />
+					<and>
+						<equals arg1="${database.type}" arg2="db2" />
+						<equals arg1="${database.version}" arg2="11.5.6" />
+					</and>
 					<then>
 						<echo file="${import.database.sh.file.path}">
 							<![CDATA[
 								#!/bin/bash
 
-								echo "db2 restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 replace existing"
+								echo "db2 restore database lportal user ${database.username} using ${database.password} from /sqllib/bin/db2 replace existing"
 
-								output=$(db2 restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 replace existing)
+								output=$(db2 restore database lportal user ${database.username} using ${database.password} from /sqllib/bin/db2 replace existing)
 
 								exit_code=$?
 
+								echo "${output}"
+
 								if [[ (${exit_code} != "0") && ($output == *"SQL2555I"*) ]]
 								then
-									echo "$output"
-
 									exit 0
 								else
-									echo "$output"
-
 									exit ${exit_code}
 								fi
 							]]>
 						</echo>
 
-						<property name="docker.database.dest.path" value="/opt/ibm/db2" />
+						<property name="docker.database.dest.path" value="/sqllib/bin/db2" />
 						<property name="import.database.src.path" value="${liferay.home}/." />
 					</then>
+					<elseif>
+						<equals arg1="${database.type}" arg2="db2" />
+						<then>
+							<echo file="${import.database.sh.file.path}">
+								<![CDATA[
+									#!/bin/bash
+
+									echo "db2 restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 replace existing"
+
+									output=$(db2 restore database lportal user ${database.username} using ${database.password} from /opt/ibm/db2 replace existing)
+
+									exit_code=$?
+
+									if [[ (${exit_code} != "0") && ($output == *"SQL2555I"*) ]]
+									then
+										echo "$output"
+
+										exit 0
+									else
+										echo "$output"
+
+										exit ${exit_code}
+									fi
+								]]>
+							</echo>
+
+							<property name="docker.database.dest.path" value="/opt/ibm/db2" />
+							<property name="import.database.src.path" value="${liferay.home}/." />
+						</then>
+					</elseif>
 					<elseif>
 						<equals arg1="${database.type}" arg2="mariadb" />
 						<then>
@@ -14007,7 +14107,16 @@ module.framework.properties.blacklist.portal.profile.names=${blacklist.portal.pr
 			</then>
 		</if>
 
-		<antcall target="start-app-server-preserve-liferay-home" />
+		<get-testcase-property property.name="skip.start.app.server" />
+
+		<if>
+			<not>
+				<equals arg1="${skip.start.app.server}" arg2="true" />
+			</not>
+			<then>
+				<antcall target="start-app-server-preserve-liferay-home" />
+			</then>
+		</if>
 
 		<get-testcase-property property.name="app.server.bundles.size" />
 

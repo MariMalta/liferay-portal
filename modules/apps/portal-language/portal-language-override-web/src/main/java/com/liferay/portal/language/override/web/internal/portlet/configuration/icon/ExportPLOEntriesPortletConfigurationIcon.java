@@ -47,7 +47,8 @@ public class ExportPLOEntriesPortletConfigurationIcon
 	@Override
 	public String getMessage(PortletRequest portletRequest) {
 		return LanguageUtil.get(
-			getResourceBundle(getLocale(portletRequest)), "export");
+			getResourceBundle(getLocale(portletRequest)),
+			"export-all-translations");
 	}
 
 	@Override
@@ -62,6 +63,11 @@ public class ExportPLOEntriesPortletConfigurationIcon
 		resourceURL.setResourceID("exportPLOEntries");
 
 		return resourceURL.toString();
+	}
+
+	@Override
+	public double getWeight() {
+		return 200;
 	}
 
 	@Override

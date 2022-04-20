@@ -16,7 +16,6 @@ package com.liferay.journal.web.internal.asset.model;
 
 import com.liferay.asset.display.page.portlet.AssetDisplayPageFriendlyURLProvider;
 import com.liferay.asset.display.page.util.AssetDisplayPageUtil;
-import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.asset.kernel.model.DDMFormValuesReader;
@@ -59,7 +58,7 @@ import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HtmlParser;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.HttpComponentsUtil;
 import com.liferay.portal.kernel.util.JavaConstants;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
@@ -382,7 +381,7 @@ public class JournalArticleAssetRenderer
 
 			if (Validator.isNotNull(friendlyURL)) {
 				if (!_article.isApproved()) {
-					friendlyURL = HttpUtil.addParameter(
+					friendlyURL = HttpComponentsUtil.addParameter(
 						friendlyURL, "version", _article.getId());
 				}
 
@@ -396,17 +395,16 @@ public class JournalArticleAssetRenderer
 			return noSuchEntryRedirect;
 		}
 
-		String groupFriendlyURL = PortalUtil.getGroupFriendlyURL(
-			LayoutSetLocalServiceUtil.getLayoutSet(
-				_article.getGroupId(), layout.isPrivateLayout()),
-			themeDisplay, false, false);
-
 		String friendlyURL = StringBundler.concat(
-			groupFriendlyURL, JournalArticleConstants.CANONICAL_URL_SEPARATOR,
+			PortalUtil.getGroupFriendlyURL(
+				LayoutSetLocalServiceUtil.getLayoutSet(
+					_article.getGroupId(), layout.isPrivateLayout()),
+				themeDisplay, false, false),
+			JournalArticleConstants.CANONICAL_URL_SEPARATOR,
 			_article.getUrlTitle(themeDisplay.getLocale()));
 
 		if (!_article.isApproved()) {
-			friendlyURL = HttpUtil.addParameter(
+			friendlyURL = HttpComponentsUtil.addParameter(
 				friendlyURL, "version", _article.getId());
 		}
 
@@ -620,11 +618,12 @@ public class JournalArticleAssetRenderer
 		AssetRendererFactory<JournalArticle> assetRendererFactory =
 			getAssetRendererFactory();
 
-		AssetEntry assetEntry = assetRendererFactory.getAssetEntry(
-			JournalArticle.class.getName(), article.getResourcePrimKey());
-
 		if (Validator.isNull(article.getLayoutUuid()) &&
-			!AssetDisplayPageUtil.hasAssetDisplayPage(groupId, assetEntry)) {
+			!AssetDisplayPageUtil.hasAssetDisplayPage(
+				groupId,
+				assetRendererFactory.getAssetEntry(
+					JournalArticle.class.getName(),
+					article.getResourcePrimKey()))) {
 
 			return false;
 		}
