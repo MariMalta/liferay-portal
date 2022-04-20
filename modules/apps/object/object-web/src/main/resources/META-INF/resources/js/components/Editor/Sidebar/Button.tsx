@@ -26,33 +26,37 @@ export function Button({label, onClick, tooltip}: IItem) {
 	return (
 		<ClayButton
 			borderless
-			className="ddm_template_editor__App-sidebar-button font-weight-semi-bold my-1 py-0 text-left text-truncate w-100"
+			className="ddm_template_editor__App-sidebar-button elements-button font-weight-semi-bold my-1 py-0 text-left w-100"
 			displayType="unstyled"
 			key={label}
 			onClick={onClick}
 			small
 		>
-			{label}
+			<div className="label-container">
+				<span className="element-label text-truncate">{label}</span>
+			</div>
 
-			<ClayPopover
-				alignPosition="left"
-				disableScroll
-				header={label}
-				show={showPreview}
-				trigger={
-					<ClayIcon
-						className="preview-icon"
-						onBlur={() => setShowPreview(false)}
-						onFocus={() => setShowPreview(true)}
-						onMouseLeave={() => setShowPreview(false)}
-						onMouseOver={() => setShowPreview(true)}
-						symbol="info-circle-open"
-						tabIndex={0}
-					/>
-				}
-			>
-				<div dangerouslySetInnerHTML={{__html: tooltip}} />
-			</ClayPopover>
+			<div className="popover-container">
+				<ClayPopover
+					alignPosition="left"
+					disableScroll
+					header={label}
+					show={showPreview}
+					trigger={
+						<ClayIcon
+							className="preview-icon"
+							onBlur={() => setShowPreview(false)}
+							onFocus={() => setShowPreview(true)}
+							onMouseLeave={() => setShowPreview(false)}
+							onMouseOver={() => setShowPreview(true)}
+							symbol="info-panel-closed"
+							tabIndex={0}
+						/>
+					}
+				>
+					<div dangerouslySetInnerHTML={{__html: tooltip}} />
+				</ClayPopover>
+			</div>
 		</ClayButton>
 	);
 }
