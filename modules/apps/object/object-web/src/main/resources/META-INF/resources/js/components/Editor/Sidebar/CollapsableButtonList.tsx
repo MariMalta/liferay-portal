@@ -45,7 +45,6 @@ interface IElement {
 interface IItem {
 	content: string;
 	label: string;
-	repeatable: boolean;
 	tooltip: string;
 }
 

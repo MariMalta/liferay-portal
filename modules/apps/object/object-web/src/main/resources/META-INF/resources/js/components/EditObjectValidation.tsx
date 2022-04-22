@@ -59,6 +59,7 @@ export default function EditObjectValidation({
 	objectValidationRuleElements,
 	readOnly,
 }: IProps) {
+	console.log('objectValidationRuleElements', objectValidationRuleElements)
 	const [activeIndex, setActiveIndex] = useState<number>(0);
 
 	const onSubmit = async (objectValidation: ObjectValidation) => {
@@ -126,6 +127,7 @@ export default function EditObjectValidation({
 									errors={errors}
 									handleChange={handleChange}
 									locales={locales}
+									objectValidationRuleElements={objectValidationRuleElements}
 									setValues={setValues}
 									values={values}
 								/>

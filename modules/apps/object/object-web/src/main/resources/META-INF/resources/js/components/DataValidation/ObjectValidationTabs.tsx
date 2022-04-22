@@ -27,100 +27,100 @@ import {getTranslations} from './utils';
 
 import '../Editor/Editor.scss';
 
-const elementsList = [
-	{
-		items: [
-			{
-				content:
-					'<#if (title.getData())??>\n\t${title.getData()}\n</#if>',
-				label: 'Title',
-				repeatable: false,
-				tooltip: '<p>Title</p>',
-			},
-		],
-		label: 'Fields',
-	},
-	{
-		items: [
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Imageeeeeeeeeeeee',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
+// const elementsList = [
+// 	{
+// 		items: [
+// 			{
+// 				content:
+// 					'<#if (title.getData())??>\n\t${title.getData()}\n</#if>',
+// 				label: 'Title',
+// 				repeatable: false,
+// 				tooltip: '<p>Title</p>',
+// 			},
+// 		],
+// 		label: 'Fields',
+// 	},
+// 	{
+// 		items: [
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Imageeeeeeeeeeeee',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
 
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
 
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
 
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
 
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
-		],
-		label: 'Operators',
-	},
-	{
-		items: [
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
-		],
-		label: 'Operators',
-	},
-	{
-		items: [
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
-		],
-		label: 'Operators',
-	},
-	{
-		items: [
-			{
-				content:
-					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
-				label: 'Author Profile Image',
-				repeatable: false,
-				tooltip: '<p>Author Profile</p>',
-			},
-		],
-		label: 'Operators',
-	},
-];
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
+// 		],
+// 		label: 'Operators',
+// 	},
+// 	{
+// 		items: [
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
+// 		],
+// 		label: 'Operators',
+// 	},
+// 	{
+// 		items: [
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
+// 		],
+// 		label: 'Operators',
+// 	},
+// 	{
+// 		items: [
+// 			{
+// 				content:
+// 					'<#if (authorProfileImage.getData())?? && authorProfileImage.getData() != "">\n\t<img src="${authorProfileImage.getData()}" />\n</#if>',
+// 				label: 'Author Profile Image',
+// 				repeatable: false,
+// 				tooltip: '<p>Author Profile</p>',
+// 			},
+// 		],
+// 		label: 'Operators',
+// 	},
+// ];
 
 function BasicInfo({
 	componentLabel,
@@ -193,6 +193,7 @@ function Conditions({
 	disabled,
 	errors,
 	locales,
+	objectValidationRuleElements,
 	setValues,
 	values,
 }: IConditions) {
@@ -235,8 +236,8 @@ function Conditions({
 					/>
 
 					<Sidebar
-						elementsList={elementsList}
 						inputChannel={inputChannel}
+						objectValidationRuleElements={objectValidationRuleElements}
 					/>
 				</div>
 			</div>
@@ -296,12 +297,24 @@ interface IBasicInfo {
 	values: Partial<ObjectValidation>;
 }
 
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
+	label: string;
+}
+
+interface ObjectValidationRuleElementItem {
+	content: string;
+	label: string;
+	tooltip: string;
+}
+
 interface IConditions {
 	defaultLocale: {label: string; symbol: string};
 	disabled: boolean;
 	errors: ObjectValidationErrors;
 	handleChange: ChangeEventHandler<HTMLInputElement>;
 	locales: Array<any>;
+	objectValidationRuleElements: ObjectValidationRuleElement[];
 	setValues: (values: Partial<ObjectValidation>) => void;
 	values: Partial<ObjectValidation>;
 }

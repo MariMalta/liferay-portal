@@ -19,23 +19,16 @@ import {CollapsableButtonList} from './CollapsableButtonList';
 import '../Editor.scss';
 
 export function ElementsSidebarPanel({
-	elementsList,
 	inputChannel,
+	objectValidationRuleElements,
 }: IElementsSidebarPanel) {
-	elementsList = elementsList.map((group) => ({
-		...group,
-		items: group.items.map((item) =>
-			item.repeatable ? {...item, label: `${item.label}*`} : item
-		),
-	}));
-
-	const onButtonClick = (item: IItem) => inputChannel.sendData(item.content);
+	const onButtonClick = (item: ObjectValidationRuleElementItem) => inputChannel.sendData(item.content);
 
 	return (
 		<div className="px-3">
 			<h5 className="my-3">{Liferay.Language.get('elements')}</h5>
 
-			{elementsList.map(({items, label}) => (
+			{objectValidationRuleElements.map(({items, label}) => (
 				<CollapsableButtonList
 					items={items}
 					key={label}
@@ -47,21 +40,21 @@ export function ElementsSidebarPanel({
 	);
 }
 
-interface IElementsSidebarPanel {
-	elementsList: IElement[];
-	inputChannel: inputChannelObject;
-}
-
-interface IElement {
-	items: IItem[];
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
 	label: string;
 }
 
-interface IItem {
+interface ObjectValidationRuleElementItem {
 	content: string;
 	label: string;
-	repeatable: boolean;
 	tooltip: string;
+}
+
+interface IElementsSidebarPanel {
+	className?: string;
+	inputChannel: inputChannelObject;
+	objectValidationRuleElements: ObjectValidationRuleElement[];
 }
 
 interface inputChannelObject {

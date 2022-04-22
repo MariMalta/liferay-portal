@@ -14,28 +14,14 @@
 
 /// <reference types="react" />
 
-import PropTypes from 'prop-types';
-export declare function CollapsableButtonList({
-	items,
-	label,
-	onButtonClick,
-}: IElement): JSX.Element;
-export declare namespace CollapsableButtonList {
-	var propTypes: {
-		items: PropTypes.Requireable<(object | null)[]>;
-		label: PropTypes.Validator<string>;
-		onButtonClick: PropTypes.Validator<(...args: any[]) => any>;
-	};
+export default function EditObjectValidation({
+	objectValidationRule: initialValues,
+	objectValidationRuleElements,
+	readOnly,
+}: IProps): JSX.Element;
+interface IProps {
+	objectValidationRule: ObjectValidation;
+	objectValidationRuleElements: ObjectValidationRuleElement[];
+	readOnly: boolean;
 }
-interface IElement {
-	items: IItem[];
-	label: string;
-	onButtonClick: onButtonClickType;
-}
-interface IItem {
-	content: string;
-	label: string;
-	tooltip: string;
-}
-declare type onButtonClickType = (item: IItem) => void;
 export {};

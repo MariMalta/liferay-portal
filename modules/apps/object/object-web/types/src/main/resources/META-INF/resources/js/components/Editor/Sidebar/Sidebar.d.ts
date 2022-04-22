@@ -15,23 +15,22 @@
 /// <reference types="react" />
 
 export default function Sidebar({
-	elementsList,
 	inputChannel,
+	objectValidationRuleElements,
 }: IElementsSidebarPanel): JSX.Element;
-interface IElementsSidebarPanel {
-	className?: string;
-	elementsList: IElement[];
-	inputChannel: inputChannelObject;
-}
-interface IElement {
-	items: IItem[];
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
 	label: string;
 }
-interface IItem {
+interface ObjectValidationRuleElementItem {
 	content: string;
 	label: string;
-	repeatable: boolean;
 	tooltip: string;
+}
+interface IElementsSidebarPanel {
+	className?: string;
+	inputChannel: inputChannelObject;
+	objectValidationRuleElements: ObjectValidationRuleElement[];
 }
 interface inputChannelObject {
 	sendData: Function;

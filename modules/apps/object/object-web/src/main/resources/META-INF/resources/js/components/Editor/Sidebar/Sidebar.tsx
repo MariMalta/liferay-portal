@@ -17,35 +17,34 @@ import React from 'react';
 import {ElementsSidebarPanel} from './ElementsSidebarPanel';
 
 export default function Sidebar({
-	elementsList = [],
 	inputChannel,
+	objectValidationRuleElements,
 }: IElementsSidebarPanel) {
 	return (
 		<div className="editor-sidebar">
 			<ElementsSidebarPanel
-				elementsList={elementsList}
 				inputChannel={inputChannel}
+				objectValidationRuleElements={objectValidationRuleElements}
 			/>
 		</div>
 	);
 }
 
-interface IElementsSidebarPanel {
-	className?: string;
-	elementsList: IElement[];
-	inputChannel: inputChannelObject;
-}
-
-interface IElement {
-	items: IItem[];
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
 	label: string;
 }
 
-interface IItem {
+interface ObjectValidationRuleElementItem {
 	content: string;
 	label: string;
-	repeatable: boolean;
 	tooltip: string;
+}
+
+interface IElementsSidebarPanel {
+	className?: string;
+	inputChannel: inputChannelObject;
+	objectValidationRuleElements: ObjectValidationRuleElement[];
 }
 
 interface inputChannelObject {
