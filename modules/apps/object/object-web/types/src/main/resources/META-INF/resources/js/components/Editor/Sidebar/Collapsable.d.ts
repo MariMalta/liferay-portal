@@ -12,17 +12,13 @@
  * details.
  */
 
-/// <reference types="react" />
-
-import {ObjectValidation, ObjectValidationRuleElement} from '../';
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
-	objectValidationRuleElements,
-	readOnly,
-}: IProps): JSX.Element;
-interface IProps {
-	objectValidationRule: ObjectValidation;
-	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
+import React from 'react';
+export declare function Collapsable({
+	children,
+	label,
+}: ICollapsable): JSX.Element;
+interface ICollapsable {
+	children: React.ReactNode;
+	label: string;
 }
 export {};

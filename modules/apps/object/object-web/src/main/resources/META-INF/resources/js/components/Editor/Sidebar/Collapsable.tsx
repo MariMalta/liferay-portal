@@ -12,17 +12,21 @@
  * details.
  */
 
-/// <reference types="react" />
+// @ts-ignore
 
-import {ObjectValidation, ObjectValidationRuleElement} from '../';
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
-	objectValidationRuleElements,
-	readOnly,
-}: IProps): JSX.Element;
-interface IProps {
-	objectValidationRule: ObjectValidation;
-	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
+import {Collapse} from '@liferay/layout-content-page-editor-web';
+import React from 'react';
+
+export function Collapsable({children, label}: ICollapsable) {
+	return (
+		<div className="lfr-objects__object-editor-sidebar-collapsable-button-list">
+			<Collapse label={label} open>
+				{children}
+			</Collapse>
+		</div>
+	);
 }
-export {};
+interface ICollapsable {
+	children: React.ReactNode;
+	label: string;
+}

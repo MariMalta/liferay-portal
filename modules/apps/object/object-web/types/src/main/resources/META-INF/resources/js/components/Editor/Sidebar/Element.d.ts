@@ -14,15 +14,15 @@
 
 /// <reference types="react" />
 
-import {ObjectValidation, ObjectValidationRuleElement} from '../';
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
-	objectValidationRuleElements,
-	readOnly,
-}: IProps): JSX.Element;
+import {ObjectValidationRuleElementItem} from '../../..';
+export declare function ElementItem({
+	label,
+	onClick,
+	tooltip,
+}: ObjectValidationRuleElementItem): JSX.Element;
+export default function Element({items, onItemClick}: IProps): JSX.Element;
 interface IProps {
-	objectValidationRule: ObjectValidation;
-	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
+	items: ObjectValidationRuleElementItem[];
+	onItemClick: (item: ObjectValidationRuleElementItem) => void;
 }
 export {};

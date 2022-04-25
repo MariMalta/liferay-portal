@@ -12,8 +12,9 @@
  * details.
  */
 
-type ObjectFieldBusinessType = 'Attachment' | 'LongText' | 'Picklist' | 'Text';
+import {MouseEventHandler} from 'react';
 
+type ObjectFieldBusinessType = 'Attachment' | 'LongText' | 'Picklist' | 'Text';
 interface ObjectFieldType {
 	businessType: ObjectFieldBusinessType;
 	dbType: string;
@@ -52,11 +53,23 @@ type ObjectFieldSettingName =
 interface ObjectValidation {
 	active: boolean;
 	description?: string;
-	engine: ObjectValidationType;
+	engine: string;
 	errorLabel: LocalizedValue<string>;
 	id: number;
 	name: any;
 	script: string;
+}
+
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
+	label: string;
+}
+
+interface ObjectValidationRuleElementItem {
+	content?: string;
+	label: string;
+	onClick?: MouseEventHandler;
+	tooltip: string;
 }
 
 interface ObjectValidationType {

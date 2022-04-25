@@ -12,17 +12,33 @@
  * details.
  */
 
-/// <reference types="react" />
+import {useState} from 'react';
 
-import {ObjectValidation, ObjectValidationRuleElement} from '../';
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
-	objectValidationRuleElements,
-	readOnly,
-}: IProps): JSX.Element;
-interface IProps {
-	objectValidationRule: ObjectValidation;
-	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
+export function useChannel(): inputChannelObject {
+	const [channel] = useState(() => {
+		const listeners = new Set();
+
+		return {
+			onData(callback: Function): Function {
+				listeners.add(callback);
+
+				return () => {
+					listeners.delete(callback);
+				};
+			},
+
+			sendData(data: string): void {
+				listeners.forEach((callback: any) => {
+					callback(data);
+				});
+			},
+		};
+	});
+
+	return channel;
 }
-export {};
+
+interface inputChannelObject {
+	onData: Function;
+	sendData: Function;
+}
