@@ -12,7 +12,7 @@
  * details.
  */
 
-import React from 'react';
+import React, {useMemo} from 'react';
 
 import {
 	ObjectValidationRuleElement,
@@ -40,10 +40,14 @@ export default function Sidebar({
 		label: metadata.label[defaultLanguageId],
 		tooltip: 'placeholder',
 	}));
-
-	objectValidationRuleElements[0].items = objectValidationRuleElements[0].items.concat(
-		metadatas
+	
+	const memoizedValue = useMemo(
+		() => objectValidationRuleElements[0].items.concat(metadatas),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[METADATAS]
 	);
+
+	objectValidationRuleElements[0].items = memoizedValue;
 
 	return (
 		<div className="lfr-objects__object-editor-sidebar">
