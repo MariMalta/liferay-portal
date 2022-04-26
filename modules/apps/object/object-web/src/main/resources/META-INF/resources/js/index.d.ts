@@ -13,7 +13,6 @@
  */
 
 type ObjectFieldBusinessType = 'Attachment' | 'LongText' | 'Picklist' | 'Text';
-
 interface ObjectFieldType {
 	businessType: ObjectFieldBusinessType;
 	dbType: string;
@@ -52,11 +51,22 @@ type ObjectFieldSettingName =
 interface ObjectValidation {
 	active: boolean;
 	description?: string;
-	engine: ObjectValidationType;
+	engine: string;
 	errorLabel: LocalizedValue<string>;
 	id: number;
 	name: any;
 	script: string;
+}
+
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
+	label: string;
+}
+
+interface ObjectValidationRuleElementItem {
+	content?: string;
+	label: string;
+	tooltip: string;
 }
 
 interface ObjectValidationType {
