@@ -50,7 +50,6 @@ import 'codemirror/mode/htmlmixed/htmlmixed';
 
 import CodeMirror from 'codemirror';
 
-
 import './Editor.scss';
 
 import './Sidebar/Sidebar.scss';

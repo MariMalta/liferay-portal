@@ -66,7 +66,6 @@ interface ObjectValidationRuleElement {
 interface ObjectValidationRuleElementItem {
 	content?: string;
 	label: string;
-	onClick?: () => {};
 	tooltip: string;
 }
 

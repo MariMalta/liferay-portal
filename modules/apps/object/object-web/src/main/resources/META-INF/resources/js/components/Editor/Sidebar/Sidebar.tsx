@@ -14,11 +14,6 @@
 
 import React, {useMemo} from 'react';
 
-import {
-	ObjectValidationRuleElement,
-	ObjectValidationRuleElementItem,
-} from '../../..';
-
 import '../Editor.scss';
 
 import './Sidebar.scss';

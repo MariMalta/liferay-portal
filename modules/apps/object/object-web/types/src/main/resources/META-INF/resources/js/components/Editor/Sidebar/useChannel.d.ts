@@ -12,16 +12,9 @@
  * details.
  */
 
-/// <reference types="react" />
-
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
-	objectValidationRuleElements,
-	readOnly,
-}: IProps): JSX.Element;
-interface IProps {
-	objectValidationRule: ObjectValidation;
-	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
+export declare function useChannel(): inputChannelObject;
+interface inputChannelObject {
+	onData: Function;
+	sendData: Function;
 }
 export {};

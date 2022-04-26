@@ -17,7 +17,6 @@ import ClayTabs from '@clayui/tabs';
 import {fetch} from 'frontend-js-web';
 import React, {useState} from 'react';
 
-import {ObjectValidation, ObjectValidationRuleElement} from '../';
 import {BasicInfo, Conditions} from './DataValidation/ObjectValidationTabs';
 import {useObjectValidationForm} from './ObjectValidationFormBase';
 import SidePanelContent from './SidePanelContent';

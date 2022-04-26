@@ -14,14 +14,17 @@
 
 /// <reference types="react" />
 
-export default function EditObjectValidation({
-	objectValidationRule: initialValues,
+import '../Editor.scss';
+import './Sidebar.scss';
+export default function Sidebar({
+	inputChannel,
 	objectValidationRuleElements,
-	readOnly,
 }: IProps): JSX.Element;
 interface IProps {
-	objectValidationRule: ObjectValidation;
+	className?: string;
+	inputChannel: {
+		sendData: Function;
+	};
 	objectValidationRuleElements: ObjectValidationRuleElement[];
-	readOnly: boolean;
 }
 export {};

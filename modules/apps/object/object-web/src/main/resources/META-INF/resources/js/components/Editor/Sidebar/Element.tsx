@@ -15,13 +15,13 @@
 import ClayButton from '@clayui/button';
 import ClayIcon from '@clayui/icon';
 import ClayPopover from '@clayui/popover';
-import React, {useState} from 'react';
+import React, {MouseEventHandler, useState} from 'react';
 
 export function ElementItem({
 	label,
 	onClick,
 	tooltip,
-}: ObjectValidationRuleElementItem) {
+}: IElementItem) {
 	const [showPreview, setShowPreview] = useState(false);
 
 	return (
@@ -81,4 +81,7 @@ export default function Element({items, onItemClick}: IProps) {
 interface IProps {
 	items: ObjectValidationRuleElementItem[];
 	onItemClick: (item: ObjectValidationRuleElementItem) => void;
+}
+interface IElementItem extends ObjectValidationRuleElementItem {
+	onClick?: MouseEventHandler;
 }
