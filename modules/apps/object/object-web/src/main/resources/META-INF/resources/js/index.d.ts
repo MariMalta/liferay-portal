@@ -52,6 +52,7 @@ interface ObjectValidation {
 	active: boolean;
 	description?: string;
 	engine: string;
+	engineLabel: string;
 	errorLabel: LocalizedValue<string>;
 	id: number;
 	name: any;
@@ -70,5 +71,5 @@ interface ObjectValidationRuleElementItem {
 }
 
 interface ObjectValidationType {
-	label: string;
+	label?: string;
 }

@@ -36,7 +36,7 @@ export default function ObjectValidationFormBase({
 				disabled={true}
 				label={Liferay.Language.get('type')}
 				options={objectValidationTypes}
-				value="Groovy"
+				value={values.engineLabel}
 			/>
 
 			<ClayForm.Group>

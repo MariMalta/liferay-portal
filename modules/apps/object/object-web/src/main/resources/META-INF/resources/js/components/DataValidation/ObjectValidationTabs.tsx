@@ -66,7 +66,7 @@ function BasicInfo({
 					handleChange={handleChange}
 					objectValidationTypes={[
 						{
-							label: 'Groovy',
+							label: values.engineLabel,
 						},
 					]}
 					setValues={setValues}
@@ -103,11 +103,7 @@ function Conditions({
 		<ClayForm>
 			<div className="lfr-objects__object-data-validation-alt-sheet">
 				<div className="lfr-objects__object-data-validation-title-divider">
-					<h2 className="sheet-title">
-						{values.engine === 'groovy'
-							? Liferay.Language.get('groovy')
-							: Liferay.Language.get('ddm')}
-					</h2>
+					<h2 className="sheet-title">{values.engineLabel}</h2>
 				</div>
 
 				<div className="lfr-objects__object-data-validation-editor-container">
@@ -161,6 +157,7 @@ function TriggerEventContainer({disabled, eventTypes}: ITriggerEventProps) {
 				disabled={disabled}
 				label={Liferay.Language.get('event')}
 				options={eventTypes}
+				value={0}
 			/>
 		</div>
 	);

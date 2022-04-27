@@ -28,7 +28,7 @@ export default function CustomSelect<T extends IItem = IItem>({
 }: IProps<T>): JSX.Element;
 interface IItem {
 	description?: string;
-	label: string;
+	label?: string;
 	value?: string;
 }
 interface IProps<T extends IItem = IItem> {
