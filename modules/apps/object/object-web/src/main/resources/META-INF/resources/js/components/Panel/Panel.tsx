@@ -61,6 +61,7 @@ const PanelBody: React.FC<IPanelBodyProps> = ({children, className}) => {
 interface IPanelHeaderProps extends React.HTMLAttributes<HTMLElement> {
 	contentLeft?: React.ReactNode;
 	contentRight?: React.ReactNode;
+	displayCollapse?: boolean;
 	displayDrag?: boolean;
 	title: string;
 }
@@ -68,6 +69,7 @@ interface IPanelHeaderProps extends React.HTMLAttributes<HTMLElement> {
 const PanelHeader: React.FC<IPanelHeaderProps> = ({
 	contentLeft,
 	contentRight,
+	displayCollapse,
 	displayDrag,
 	title,
 }) => {
@@ -106,7 +108,7 @@ const PanelHeader: React.FC<IPanelHeaderProps> = ({
 					</span>
 				)}
 
-				<ClayButtonWithIcon
+				{displayCollapse && <ClayButtonWithIcon
 					displayType="unstyled"
 					onClick={() =>
 						dispatch({
@@ -115,7 +117,7 @@ const PanelHeader: React.FC<IPanelHeaderProps> = ({
 						})
 					}
 					symbol={expanded ? 'angle-down' : 'angle-right'}
-				/>
+				/>}
 			</div>
 		</div>
 	);
