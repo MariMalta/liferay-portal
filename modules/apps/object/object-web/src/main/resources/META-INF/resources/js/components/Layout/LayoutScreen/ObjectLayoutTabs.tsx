@@ -95,6 +95,7 @@ const ObjectLayoutTabs: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 										/>
 									</>
 								}
+								displayDrag
 								title={name[defaultLanguageId]}
 							/>
 

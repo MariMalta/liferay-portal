@@ -95,6 +95,7 @@ const ObjectLayoutBox: React.FC<IObjectLayoutBoxProps> = ({
 							/>
 						</>
 					}
+					displayDrag
 					title={label}
 				/>
 
