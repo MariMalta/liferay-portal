@@ -90,7 +90,7 @@ const layoutReducer = (state: TState, action: TAction) => {
 			const newObjectLayoutTab = {
 				name,
 				objectLayoutBoxes: [],
-				objectLayoutFrameworkBox: [],
+				objectLayoutFrameworkBoxes: [],
 				objectRelationshipId,
 				priority: 0,
 			};
@@ -148,7 +148,7 @@ const layoutReducer = (state: TState, action: TAction) => {
 
 			newState.objectLayout.objectLayoutTabs[
 				tabIndex
-			].objectLayoutFrameworkBox.push({
+			].objectLayoutFrameworkBoxes.push({
 				collapsable: false,
 				name,
 				priority: 0,
