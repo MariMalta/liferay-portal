@@ -46,6 +46,7 @@ export enum TYPES {
 	ADD_OBJECT_FIELDS = 'ADD_OBJECT_FIELDS',
 	ADD_OBJECT_LAYOUT = 'ADD_OBJECT_LAYOUT',
 	ADD_OBJECT_LAYOUT_BOX = 'ADD_OBJECT_LAYOUT_BOX',
+	ADD_OBJECT_LAYOUT_FRAMEWORK_BOX = 'ADD_OBJECT_LAYOUT_FRAMEWORK_BOX',
 	ADD_OBJECT_LAYOUT_FIELD = 'ADD_OBJECT_LAYOUT_FIELD',
 	ADD_OBJECT_LAYOUT_TAB = 'ADD_OBJECT_LAYOUT_TAB',
 	ADD_OBJECT_RELATIONSHIPS = 'ADD_OBJECT_RELATIONSHIPS',
@@ -89,6 +90,7 @@ const layoutReducer = (state: TState, action: TAction) => {
 			const newObjectLayoutTab = {
 				name,
 				objectLayoutBoxes: [],
+				objectLayoutFrameworkBox: [],
 				objectRelationshipId,
 				priority: 0,
 			};
@@ -136,6 +138,24 @@ const layoutReducer = (state: TState, action: TAction) => {
 				objectLayoutRows: [],
 				priority: 0,
 			});
+
+			return newState;
+		}
+		case TYPES.ADD_OBJECT_LAYOUT_FRAMEWORK_BOX: {
+			const {name, tabIndex,type} = action.payload;
+
+			const newState = {...state};
+
+			newState.objectLayout.objectLayoutTabs[
+				tabIndex
+			].objectLayoutFrameworkBox.push({
+				collapsable: false,
+				name,
+				priority: 0,
+				type,
+			});
+
+			console.log(newState);
 
 			return newState;
 		}

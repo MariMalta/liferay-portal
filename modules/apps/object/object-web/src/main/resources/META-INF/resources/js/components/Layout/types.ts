@@ -25,6 +25,7 @@ export type TObjectLayout = {
 export type TObjectLayoutTab = {
 	name: TName;
 	objectLayoutBoxes: TObjectLayoutBox[];
+	objectLayoutFrameworkBox: TObjectLayoutFrameworkBox [];
 	objectRelationshipId: number;
 	priority: number;
 };
@@ -34,6 +35,14 @@ export type TObjectLayoutBox = {
 	name: TName;
 	objectLayoutRows: TObjectLayoutRow[];
 	priority: number;
+	type?:string;
+};
+
+export type TObjectLayoutFrameworkBox = {
+	collapsable: boolean;
+	name: TName;
+	priority: number;
+	type?: string;
 };
 
 export type TObjectLayoutRow = {

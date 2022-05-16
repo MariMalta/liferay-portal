@@ -92,9 +92,10 @@ const ObjectLayoutTabs: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 															),
 														},
 														tabIndex,
+														type: 'categorization',
 													},
 													type:
-														TYPES.ADD_OBJECT_LAYOUT_BOX,
+														TYPES.ADD_OBJECT_LAYOUT_FRAMEWORK_BOX,
 												});
 											}}
 											deleteElement={() => {
@@ -123,13 +124,14 @@ const ObjectLayoutTabs: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 													collapsable,
 													name,
 													objectLayoutRows,
+													type,
 												},
 												boxIndex
 											) => (
 												<ObjectLayoutBox
 													boxIndex={boxIndex}
 													collapsable={collapsable}
-													displayAddButton
+													displayAddButton={!type}
 													key={`box_${boxIndex}`}
 													label={
 														name[defaultLanguageId]
