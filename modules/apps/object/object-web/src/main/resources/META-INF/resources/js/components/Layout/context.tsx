@@ -46,7 +46,6 @@ export enum TYPES {
 	ADD_OBJECT_FIELDS = 'ADD_OBJECT_FIELDS',
 	ADD_OBJECT_LAYOUT = 'ADD_OBJECT_LAYOUT',
 	ADD_OBJECT_LAYOUT_BOX = 'ADD_OBJECT_LAYOUT_BOX',
-	ADD_OBJECT_LAYOUT_FRAMEWORK_BOX = 'ADD_OBJECT_LAYOUT_FRAMEWORK_BOX',
 	ADD_OBJECT_LAYOUT_FIELD = 'ADD_OBJECT_LAYOUT_FIELD',
 	ADD_OBJECT_LAYOUT_TAB = 'ADD_OBJECT_LAYOUT_TAB',
 	ADD_OBJECT_RELATIONSHIPS = 'ADD_OBJECT_RELATIONSHIPS',
@@ -90,7 +89,6 @@ const layoutReducer = (state: TState, action: TAction) => {
 			const newObjectLayoutTab = {
 				name,
 				objectLayoutBoxes: [],
-				objectLayoutFrameworkBoxes: [],
 				objectRelationshipId,
 				priority: 0,
 			};
@@ -126,36 +124,47 @@ const layoutReducer = (state: TState, action: TAction) => {
 			};
 		}
 		case TYPES.ADD_OBJECT_LAYOUT_BOX: {
-			const {name, tabIndex} = action.payload;
+			const {name, tabIndex, type} = action.payload;
 
 			const newState = {...state};
 
-			newState.objectLayout.objectLayoutTabs[
-				tabIndex
-			].objectLayoutBoxes.push({
-				collapsable: false,
-				name,
-				objectLayoutRows: [],
-				priority: 0,
-			});
+			const objectLayoutBoxes =
+				newState.objectLayout.objectLayoutTabs[tabIndex]
+					.objectLayoutBoxes;
 
-			return newState;
-		}
-		case TYPES.ADD_OBJECT_LAYOUT_FRAMEWORK_BOX: {
-			const {name, tabIndex,type} = action.payload;
+			if (type === 'regular') {
+				const frameworkIndex = objectLayoutBoxes.findIndex(
+					(box) => box.type !== 'regular'
+				);
 
-			const newState = {...state};
-
-			newState.objectLayout.objectLayoutTabs[
-				tabIndex
-			].objectLayoutFrameworkBoxes.push({
-				collapsable: false,
-				name,
-				priority: 0,
-				type,
-			});
-
-			console.log(newState);
+				if (frameworkIndex >= 0) {
+					objectLayoutBoxes.splice(frameworkIndex, 0, {
+						collapsable: false,
+						name,
+						objectLayoutRows: [],
+						priority: 0,
+						type,
+					});
+				}
+				else {
+					objectLayoutBoxes.push({
+						collapsable: false,
+						name,
+						objectLayoutRows: [],
+						priority: 0,
+						type,
+					});
+				}
+			}
+			else {
+				objectLayoutBoxes.push({
+					collapsable: false,
+					name,
+					objectLayoutRows: [],
+					priority: 0,
+					type,
+				});
+			}
 
 			return newState;
 		}

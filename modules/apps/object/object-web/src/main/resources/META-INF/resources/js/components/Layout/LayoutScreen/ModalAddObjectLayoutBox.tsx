@@ -50,6 +50,7 @@ const ModalAddObjectLayoutBox: React.FC<IModalAddObjectLayoutBoxProps> = ({
 					[defaultLanguageId]: values.name,
 				},
 				tabIndex,
+				type: 'regular',
 			},
 			type: TYPES.ADD_OBJECT_LAYOUT_BOX,
 		});
