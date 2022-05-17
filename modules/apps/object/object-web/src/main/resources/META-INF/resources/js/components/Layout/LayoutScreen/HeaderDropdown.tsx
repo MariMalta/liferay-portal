@@ -25,6 +25,22 @@ const HeaderDropdown: FC<IHeaderDropdown> = ({
 	const [active, setActive] = useState<boolean>(false);
 	const [{isViewOnly}] = useContext(LayoutContext);
 
+	const items = [
+		{
+			disable: isViewOnly,
+			label: Liferay.Language.get('delete'),
+			onClick: deleteElement,
+		},
+	];
+
+	if (addCategorization) {
+		items.push({
+			disable: isViewOnly,
+			label: Liferay.Language.get('add-categorization'),
+			onClick: addCategorization,
+		});
+	}
+
 	return (
 		<ClayDropDown
 			active={active}
@@ -37,21 +53,11 @@ const HeaderDropdown: FC<IHeaderDropdown> = ({
 			}
 		>
 			<ClayDropDown.ItemList>
-				<ClayDropDown.Item
-					disabled={isViewOnly}
-					onClick={deleteElement}
-				>
-					{Liferay.Language.get('delete')}
-				</ClayDropDown.Item>
-
-				{addCategorization && (
-					<ClayDropDown.Item
-						disabled={isViewOnly}
-						onClick={addCategorization}
-					>
-						{Liferay.Language.get('add-categorization')}
+				{items.map((item, index) => (
+					<ClayDropDown.Item {...item} key={index}>
+						{item.label}
 					</ClayDropDown.Item>
-				)}
+				))}
 			</ClayDropDown.ItemList>
 		</ClayDropDown>
 	);
