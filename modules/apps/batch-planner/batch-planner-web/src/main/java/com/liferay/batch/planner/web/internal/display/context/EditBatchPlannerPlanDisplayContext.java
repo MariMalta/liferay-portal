@@ -142,8 +142,9 @@ public class EditBatchPlannerPlanDisplayContext {
 				new SelectOption(
 					String.format(
 						"%s (%s - %s)",
-						internalClassNameParts
-							[internalClassNameParts.length - 1],
+						_resolveInternalClassName(
+							internalClassNameParts
+								[internalClassNameParts.length - 1]),
 						internalClassNameParts
 							[internalClassNameParts.length - 2],
 						entry.getValue()),
@@ -212,6 +213,16 @@ public class EditBatchPlannerPlanDisplayContext {
 		}
 
 		return templateSelectOptions;
+	}
+
+	private String _resolveInternalClassName(String internalClassName) {
+		int index = internalClassName.indexOf(StringPool.POUND);
+
+		if (index < 0) {
+			return internalClassName;
+		}
+
+		return internalClassName.substring(index + 1);
 	}
 
 	private final List<SelectOption> _internalClassNameSelectOptions;

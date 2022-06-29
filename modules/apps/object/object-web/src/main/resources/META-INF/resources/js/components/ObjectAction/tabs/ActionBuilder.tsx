@@ -12,26 +12,48 @@
  * details.
  */
 
-import ClayForm, {ClayToggle} from '@clayui/form';
+import ClayAlert from '@clayui/alert';
+import ClayForm, {ClayCheckbox, ClaySelect, ClayToggle} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
+import {ClayTooltipProvider} from '@clayui/tooltip';
 import {
 	Card,
-	CodeMirrorEditor,
+	CodeEditor,
 	CustomItem,
 	ExpressionBuilder,
 	FormCustomSelect,
-	FormError,
 	Input,
+	SelectWithOption,
+	invalidateRequired,
 } from '@liferay/object-js-components-web';
 import {fetch} from 'frontend-js-web';
 import React, {useEffect, useMemo, useState} from 'react';
 
+import PredefinedValuesTable from '../PredefinedValuesTable';
+
 import './ActionBuilder.scss';
+import {ActionError} from '../index';
+
+const HEADERS = new Headers({
+	'Accept': 'application/json',
+	'Content-Type': 'application/json',
+});
+
+let objectsOptionsList: Array<
+	(
+		| React.ComponentProps<typeof ClaySelect.Option>
+		| React.ComponentProps<typeof ClaySelect.OptGroup>
+	) & {
+		options?: Array<React.ComponentProps<typeof ClaySelect.Option>>;
+		type?: 'group';
+	}
+>;
 
 export default function ActionBuilder({
 	errors,
-	ffNotificationTemplates,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionsRelationshipsURL,
 	setValues,
 	validateExpressionURL,
 	values,
@@ -47,6 +69,56 @@ export default function ActionBuilder({
 				values.parameters?.notificationTemplateId
 		)?.label;
 	}, [notificationTemplates, values.parameters]);
+
+	const [relationships, setRelationships] = useState<
+		ObjectDefinitionsRelationship[]
+	>([]);
+
+	const [
+		currentObjectDefinitionFields,
+		setCurrentObjectDefinitionFields,
+	] = useState<ObjectField[]>([]);
+
+	const fetchObjectDefinitions = async () => {
+		const response = await fetch(objectDefinitionsRelationshipsURL);
+
+		const relationships = (await response.json()) as ObjectDefinitionsRelationship[];
+		const relatedObjects: SelectItem[] = [];
+		const nonRelatedObjects: SelectItem[] = [];
+
+		relationships?.forEach((object) => {
+			const {id, label} = object;
+
+			const target = object.related ? relatedObjects : nonRelatedObjects;
+
+			target.push({label, value: id});
+		});
+
+		objectsOptionsList = [];
+
+		if (!values.parameters?.objectDefinitionId) {
+			objectsOptionsList.push({
+				disabled: true,
+				label: Liferay.Language.get('choose-an-object'),
+				selected: true,
+				value: '',
+			});
+		}
+		const fillSelect = (label: string, options: SelectItem[]) => {
+			if (options.length) {
+				objectsOptionsList.push({label, options, type: 'group'});
+			}
+		};
+
+		fillSelect(Liferay.Language.get('related-objects'), relatedObjects);
+
+		fillSelect(
+			Liferay.Language.get('non-related-objects'),
+			nonRelatedObjects
+		);
+
+		setRelationships(relationships);
+	};
 
 	const actionExecutors = useMemo(() => {
 		const executors = new Map<string, string>();
@@ -67,6 +139,16 @@ export default function ActionBuilder({
 
 		return triggers;
 	}, [objectActionTriggers]);
+
+	const objectFieldsMap = useMemo(() => {
+		const fields = new Map<string, ObjectField>();
+
+		currentObjectDefinitionFields.forEach((field) => {
+			fields.set(field.name, field);
+		});
+
+		return fields;
+	}, [currentObjectDefinitionFields]);
 
 	useEffect(() => {
 		if (values.objectActionExecutorKey === 'notification') {
@@ -100,8 +182,178 @@ export default function ActionBuilder({
 		setValues({conditionExpression});
 	};
 
+	const fetchObjectDefinitionFields = async () => {
+		const response = await fetch(
+			`/o/object-admin/v1.0/object-definitions/${values.parameters?.objectDefinitionId}/object-fields`,
+			{
+				headers: HEADERS,
+				method: 'GET',
+			}
+		);
+
+		const {items} = (await response.json()) as {items: ObjectField[]};
+
+		const allFields: ObjectField[] = [];
+
+		items.forEach((field) => {
+			if (
+				field.businessType !== 'Aggregation' &&
+				field.businessType !== 'Relationship' &&
+				!field.system
+			) {
+				allFields.push(field);
+			}
+		});
+
+		setCurrentObjectDefinitionFields(allFields);
+
+		const {
+			predefinedValues = [],
+		} = values.parameters as ObjectActionParameters;
+
+		const newPredefinedValues: PredefinedValue[] = [];
+
+		allFields.forEach((field) => {
+			let hasValue;
+			predefinedValues.forEach((item) => {
+				if (item.name === field.name) {
+					hasValue = item;
+
+					return;
+				}
+			});
+
+			if (hasValue) {
+				newPredefinedValues.push(hasValue);
+			}
+			else if (field.required) {
+				newPredefinedValues.push({
+					inputAsValue: false,
+					name: field.name,
+					value: '',
+				});
+			}
+		});
+		setValues({
+			parameters: {
+				...values.parameters,
+				predefinedValues: newPredefinedValues,
+			},
+		});
+	};
+
+	const handleSelectObject = async ({
+		target: {value},
+	}: React.ChangeEvent<HTMLSelectElement>) => {
+		const objectDefinitionId = parseInt(value, 10);
+
+		const object = relationships.find(({id}) => id === objectDefinitionId);
+
+		const parameters: ObjectActionParameters = {
+			objectDefinitionId,
+			predefinedValues: [],
+		};
+
+		if (object?.related) {
+			parameters.relatedObjectEntries = false;
+		}
+
+		const response = await fetch(
+			`/o/object-admin/v1.0/object-definitions/${objectDefinitionId}/object-fields`,
+			{
+				headers: HEADERS,
+				method: 'GET',
+			}
+		);
+
+		const {items} = (await response.json()) as {items: ObjectField[]};
+
+		const allFields: ObjectField[] = [];
+
+		items.forEach((field) => {
+			if (
+				field.businessType !== 'Aggregation' &&
+				field.businessType !== 'Relationship' &&
+				!field.system
+			) {
+				allFields.push(field);
+
+				if (field.required) {
+					(parameters.predefinedValues as PredefinedValue[]).push({
+						inputAsValue: false,
+						name: field.name,
+						value: '',
+					});
+				}
+			}
+		});
+
+		setCurrentObjectDefinitionFields(allFields);
+
+		const normalizedParameters = {...values.parameters};
+
+		delete normalizedParameters.relatedObjectEntries;
+
+		setValues({
+			parameters: {
+				...normalizedParameters,
+				...parameters,
+			},
+		});
+	};
+
+	useEffect(() => {
+		if (values.objectActionExecutorKey === 'add-object-entry') {
+			fetchObjectDefinitions();
+			fetchObjectDefinitionFields();
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []);
+
+	const hasEmptyValues = values.parameters?.predefinedValues?.some((item) =>
+		invalidateRequired(item.value)
+	);
+
+	const predefinedValuesAlertMessage =
+		!hasEmptyValues && Object.keys(errors).length > 1
+			? Liferay.Language.get('syntax-error')
+			: Liferay.Language.get(
+					'required-fields-must-have-predefined-values'
+			  );
+
 	return (
 		<>
+			{Liferay.FeatureFlags['LPS-152180'] && (
+				<ClayAlert
+					className="lfr-objects__side-panel-content-container"
+					displayType="info"
+					title={`${Liferay.Language.get('info')}:`}
+				>
+					{Liferay.Language.get(
+						'create-conditions-and-predefined-values-using-expressions'
+					) + ' '}
+
+					<a
+						className="alert-link"
+						href="https://learn.liferay.com/dxp/latest/en/building-applications/objects/creating-and-managing-objects/expression-builder-validations-reference.html"
+						target="_blank"
+					>
+						{Liferay.Language.get('click-here-for-documentation')}
+					</a>
+				</ClayAlert>
+			)}
+
+			{Object.keys(errors).length > 1 && (
+				<ClayAlert
+					className="lfr-objects__side-panel-content-container"
+					displayType="danger"
+					onClose={() => {}}
+					title={`${Liferay.Language.get('error')}:`}
+				>
+					{predefinedValuesAlertMessage}
+				</ClayAlert>
+			)}
+
 			<Card title={Liferay.Language.get('trigger')}>
 				<Card
 					title={Liferay.Language.get('when[object]')}
@@ -163,6 +415,7 @@ export default function ActionBuilder({
 									'openExpressionBuilderModal',
 									{
 										onSave: handleSave,
+										required: true,
 										source: values.conditionExpression,
 										validateExpressionURL,
 									}
@@ -185,12 +438,15 @@ export default function ActionBuilder({
 					<div className="lfr-object__action-builder-then">
 						<FormCustomSelect
 							error={errors.objectActionExecutorKey}
-							onChange={({value}) =>
+							onChange={({value}) => {
+								if (value === 'add-object-entry') {
+									fetchObjectDefinitions();
+								}
 								setValues({
 									objectActionExecutorKey: value,
 									parameters: {},
-								})
-							}
+								});
+							}}
 							options={objectActionExecutors}
 							placeholder={Liferay.Language.get(
 								'choose-an-action'
@@ -200,28 +456,95 @@ export default function ActionBuilder({
 							)}
 						/>
 
-						{ffNotificationTemplates &&
-							values.objectActionExecutorKey ===
-								'notification' && (
-								<FormCustomSelect
-									className="lfr-object__action-builder-notification-then"
-									error={errors.objectActionExecutorKey}
-									label={Liferay.Language.get('notification')}
-									onChange={({value}) => {
-										setValues({
-											parameters: {
-												...values.parameters,
-												notificationTemplateId: value,
-											},
-										});
-									}}
-									options={notificationTemplates}
-									required
-									value={notificationTemplateId}
+						{values.objectActionExecutorKey ===
+							'add-object-entry' && (
+							<>
+								on
+								<SelectWithOption
+									aria-label={Liferay.Language.get(
+										'choose-an-object'
+									)}
+									error={errors.objectDefinitionId}
+									onChange={handleSelectObject}
+									options={objectsOptionsList}
+									value={
+										values.parameters?.objectDefinitionId
+									}
 								/>
-							)}
+								{values.parameters?.relatedObjectEntries !==
+									undefined && (
+									<>
+										<ClayCheckbox
+											checked={
+												values.parameters
+													.relatedObjectEntries ===
+												true
+											}
+											disabled={false}
+											label={Liferay.Language.get(
+												'also-relate-entries'
+											)}
+											onChange={({target: {checked}}) => {
+												setValues({
+													parameters: {
+														...values.parameters,
+														relatedObjectEntries: checked,
+													},
+												});
+											}}
+										/>
+										<ClayTooltipProvider>
+											<div
+												data-tooltip-align="top"
+												title={Liferay.Language.get(
+													'automatically-relate-object-entries-involved-in-the-action'
+												)}
+											>
+												<ClayIcon
+													className=".lfr-object__action-builder-tooltip-icon"
+													symbol="question-circle-full"
+												/>
+											</div>
+										</ClayTooltipProvider>
+									</>
+								)}
+							</>
+						)}
+
+						{values.objectActionExecutorKey === 'notification' && (
+							<FormCustomSelect
+								className="lfr-object__action-builder-notification-then"
+								error={errors.objectActionExecutorKey}
+								label={Liferay.Language.get('notification')}
+								onChange={({value}) => {
+									setValues({
+										parameters: {
+											...values.parameters,
+											notificationTemplateId: value,
+										},
+									});
+								}}
+								options={notificationTemplates}
+								required
+								value={notificationTemplateId}
+							/>
+						)}
 					</div>
 				</Card>
+
+				{values.objectActionExecutorKey === 'add-object-entry' &&
+					values.parameters?.objectDefinitionId && (
+						<PredefinedValuesTable
+							currentObjectDefinitionFields={
+								currentObjectDefinitionFields
+							}
+							errors={errors as {[key: string]: string}}
+							objectFieldsMap={objectFieldsMap}
+							setValues={setValues}
+							validateExpressionURL={validateExpressionURL}
+							values={values}
+						/>
+					)}
 
 				{values.objectActionExecutorKey === 'webhook' && (
 					<>
@@ -258,7 +581,8 @@ export default function ActionBuilder({
 				)}
 
 				{values.objectActionExecutorKey === 'groovy' && (
-					<CodeMirrorEditor
+					<CodeEditor
+						error={errors.script}
 						fixed
 						mode="groovy"
 						onChange={(script) =>
@@ -278,13 +602,18 @@ export default function ActionBuilder({
 }
 
 interface IProps {
-	errors: FormError<ObjectAction & ObjectActionParameters>;
-	ffNotificationTemplates: boolean;
+	errors: ActionError;
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionsRelationshipsURL: string;
 	setValues: (values: Partial<ObjectAction>) => void;
 	validateExpressionURL: string;
 	values: Partial<ObjectAction>;
+}
+
+interface SelectItem {
+	label: string;
+	value: number;
 }
 
 type TNotificationTemplate = {

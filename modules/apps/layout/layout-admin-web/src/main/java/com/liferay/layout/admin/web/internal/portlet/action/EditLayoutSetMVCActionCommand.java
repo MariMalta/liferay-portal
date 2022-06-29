@@ -20,7 +20,6 @@ import com.liferay.client.extension.service.ClientExtensionEntryRelLocalService;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.portal.kernel.model.Group;
-import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSet;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -122,6 +121,35 @@ public class EditLayoutSetMVCActionCommand extends BaseMVCActionCommand {
 		}
 	}
 
+	private void _addClientExtensionEntryRel(
+			String cetExternalReferenceCode, LayoutSet layoutSet, String type,
+			long userId)
+		throws Exception {
+
+		if (Validator.isNotNull(cetExternalReferenceCode)) {
+			ClientExtensionEntryRel clientExtensionEntryRel =
+				_clientExtensionEntryRelLocalService.
+					fetchClientExtensionEntryRelByExternalReferenceCode(
+						layoutSet.getCompanyId(), cetExternalReferenceCode);
+
+			if (clientExtensionEntryRel == null) {
+				_clientExtensionEntryRelLocalService.
+					deleteClientExtensionEntryRels(
+						_portal.getClassNameId(LayoutSet.class),
+						layoutSet.getLayoutSetId(), type);
+
+				_clientExtensionEntryRelLocalService.addClientExtensionEntryRel(
+					userId, _portal.getClassNameId(LayoutSet.class),
+					layoutSet.getLayoutSetId(), cetExternalReferenceCode, type);
+			}
+		}
+		else {
+			_clientExtensionEntryRelLocalService.deleteClientExtensionEntryRels(
+				_portal.getClassNameId(LayoutSet.class),
+				layoutSet.getLayoutSetId(), type);
+		}
+	}
+
 	private void _updateClientExtensions(
 			ActionRequest actionRequest, LayoutSet layoutSet,
 			ThemeDisplay themeDisplay)
@@ -134,34 +162,10 @@ public class EditLayoutSetMVCActionCommand extends BaseMVCActionCommand {
 		String themeFaviconCETExternalReferenceCode = ParamUtil.getString(
 			actionRequest, "themeFaviconCETExternalReferenceCode");
 
-		if (Validator.isNotNull(themeFaviconCETExternalReferenceCode)) {
-			ClientExtensionEntryRel clientExtensionEntryRel =
-				_clientExtensionEntryRelLocalService.
-					fetchClientExtensionEntryRelByExternalReferenceCode(
-						layoutSet.getCompanyId(),
-						themeFaviconCETExternalReferenceCode);
-
-			if (clientExtensionEntryRel == null) {
-				_clientExtensionEntryRelLocalService.
-					deleteClientExtensionEntryRels(
-						_portal.getClassNameId(LayoutSet.class),
-						layoutSet.getLayoutSetId(),
-						ClientExtensionEntryConstants.TYPE_THEME_FAVICON);
-
-				_clientExtensionEntryRelLocalService.addClientExtensionEntryRel(
-					themeDisplay.getUserId(),
-					_portal.getClassNameId(LayoutSet.class),
-					layoutSet.getLayoutSetId(),
-					themeFaviconCETExternalReferenceCode,
-					ClientExtensionEntryConstants.TYPE_THEME_FAVICON);
-			}
-		}
-		else {
-			_clientExtensionEntryRelLocalService.deleteClientExtensionEntryRels(
-				_portal.getClassNameId(LayoutSet.class),
-				layoutSet.getLayoutSetId(),
-				ClientExtensionEntryConstants.TYPE_THEME_FAVICON);
-		}
+		_addClientExtensionEntryRel(
+			themeFaviconCETExternalReferenceCode, layoutSet,
+			ClientExtensionEntryConstants.TYPE_THEME_FAVICON,
+			themeDisplay.getUserId());
 
 		_clientExtensionEntryRelLocalService.deleteClientExtensionEntryRels(
 			themeDisplay.getCompanyId(), layoutSet.getLayoutSetId(),
@@ -174,7 +178,8 @@ public class EditLayoutSetMVCActionCommand extends BaseMVCActionCommand {
 				globalCSSCETExternalReferenceCodes) {
 
 			_clientExtensionEntryRelLocalService.addClientExtensionEntryRel(
-				themeDisplay.getUserId(), _portal.getClassNameId(Layout.class),
+				themeDisplay.getUserId(),
+				_portal.getClassNameId(LayoutSet.class),
 				layoutSet.getLayoutSetId(), globalCSSCETExternalReferenceCode,
 				ClientExtensionEntryConstants.TYPE_GLOBAL_CSS);
 		}
@@ -190,7 +195,8 @@ public class EditLayoutSetMVCActionCommand extends BaseMVCActionCommand {
 				globalJSCETExternalReferenceCodes) {
 
 			_clientExtensionEntryRelLocalService.addClientExtensionEntryRel(
-				themeDisplay.getUserId(), _portal.getClassNameId(Layout.class),
+				themeDisplay.getUserId(),
+				_portal.getClassNameId(LayoutSet.class),
 				layoutSet.getLayoutSetId(), globalJSCETExternalReferenceCode,
 				ClientExtensionEntryConstants.TYPE_GLOBAL_JS);
 		}
@@ -198,13 +204,10 @@ public class EditLayoutSetMVCActionCommand extends BaseMVCActionCommand {
 		String themeCSSCETExternalReferenceCode = ParamUtil.getString(
 			actionRequest, "themeCSSCETExternalReferenceCode");
 
-		if (Validator.isNotNull(themeCSSCETExternalReferenceCode)) {
-			_clientExtensionEntryRelLocalService.addClientExtensionEntryRel(
-				themeDisplay.getUserId(),
-				_portal.getClassNameId(LayoutSet.class),
-				layoutSet.getLayoutSetId(), themeCSSCETExternalReferenceCode,
-				ClientExtensionEntryConstants.TYPE_THEME_CSS);
-		}
+		_addClientExtensionEntryRel(
+			themeCSSCETExternalReferenceCode, layoutSet,
+			ClientExtensionEntryConstants.TYPE_THEME_CSS,
+			themeDisplay.getUserId());
 	}
 
 	private void _updateLogo(

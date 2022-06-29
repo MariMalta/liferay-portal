@@ -27,20 +27,33 @@ interface ObjectAction {
 	name: string;
 	objectActionExecutorKey: string;
 	objectActionTriggerKey: string;
-	parameters?: {
-		notificationTemplateId?: number;
-		script?: string;
-		secret?: string;
-		url?: string;
-	};
+	objectDefinitionsRelationshipsURL: string;
+	parameters?: ObjectActionParameters;
+	predefinedValues: Map<string, string>[];
+	script?: string;
 }
 
 interface ObjectActionParameters {
-	secret: string;
-	url: string;
+	notificationTemplateId?: number;
+	objectDefinitionId?: number;
+	predefinedValues?: PredefinedValue[];
+	relatedObjectEntries?: boolean;
+	script?: string;
+	secret?: string;
+	url?: string;
 }
 
-type ObjectFieldBusinessType = 'Attachment' | 'LongText' | 'Picklist' | 'Text';
+type ObjectFieldBusinessType =
+	| 'Attachment'
+	| 'LongText'
+	| 'Picklist'
+	| 'Relationship'
+	| 'Text'
+	| 'Aggregation'
+	| 'LongInteger'
+	| 'Integer'
+	| 'Decimal'
+	| 'PrecisionDecimal';
 interface ObjectFieldType {
 	businessType: ObjectFieldBusinessType;
 	dbType: string;
@@ -50,7 +63,7 @@ interface ObjectFieldType {
 interface ObjectField {
 	DBType: string;
 	businessType: ObjectFieldBusinessType;
-	defaultValue: number;
+	defaultValue?: string;
 	externalReferenceCode?: string;
 	id?: number;
 	indexed: boolean;
@@ -58,12 +71,36 @@ interface ObjectField {
 	indexedLanguageId: Locale | null;
 	label: LocalizedValue<string>;
 	listTypeDefinitionId: number;
-	name?: string;
+	name: string;
 	objectFieldSettings?: ObjectFieldSetting[];
 	relationshipType?: unknown;
 	required: boolean;
 	state: boolean;
 	system?: boolean;
+}
+
+interface ObjectDefinition {
+	active: boolean;
+	dateCreated: string;
+	dateModified: string;
+	id: number;
+	label: LocalizedValue<string>;
+	name: string;
+	objectActions: [];
+	objectFields: ObjectField[];
+	objectLayouts: [];
+	objectViews: [];
+	panelCategoryKey: string;
+	pluralLabel: LocalizedValue<string>;
+	portlet: boolean;
+	scope: string;
+	status: {
+		code: number;
+		label: string;
+		label_i18n: string;
+	};
+	system: boolean;
+	titleObjectFieldId: number;
 }
 
 interface ObjectFieldSetting {
@@ -78,7 +115,10 @@ type ObjectFieldSettingName =
 	| 'maxLength'
 	| 'showCounter'
 	| 'showFilesInDocumentsAndMedia'
-	| 'storageDLFolderPath';
+	| 'storageDLFolderPath'
+	| 'relationship'
+	| 'function'
+	| 'summarizeField';
 
 interface ObjectValidation {
 	active: boolean;
@@ -105,9 +145,29 @@ interface ObjectRelationship {
 	type: string;
 }
 
-interface PickListItems extends ItemIdName {}
+interface PickListItem {
+	key: string;
+	name: string;
+}
 
 type ObjectValidationType = {
 	label: string;
 	name: string;
 };
+
+interface PredefinedValue {
+	inputAsValue: boolean;
+	name: string;
+	value: string;
+}
+
+interface LabelValueObject {
+	label: string;
+	value: string;
+}
+
+interface ObjectDefinitionsRelationship {
+	id: number;
+	label: string;
+	related?: boolean;
+}

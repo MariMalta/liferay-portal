@@ -14,22 +14,23 @@
 
 /// <reference types="react" />
 
-import {CustomItem, FormError} from '@liferay/object-js-components-web';
+import {CustomItem} from '@liferay/object-js-components-web';
 import './ActionBuilder.scss';
+import {ActionError} from '../index';
 export default function ActionBuilder({
 	errors,
-	ffNotificationTemplates,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionsRelationshipsURL,
 	setValues,
 	validateExpressionURL,
 	values,
 }: IProps): JSX.Element;
 interface IProps {
-	errors: FormError<ObjectAction & ObjectActionParameters>;
-	ffNotificationTemplates: boolean;
+	errors: ActionError;
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionsRelationshipsURL: string;
 	setValues: (values: Partial<ObjectAction>) => void;
 	validateExpressionURL: string;
 	values: Partial<ObjectAction>;

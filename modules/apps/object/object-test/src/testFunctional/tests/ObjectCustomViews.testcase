@@ -27,7 +27,7 @@ definition {
 	@description = "LPS-135394 - Verify it is possible to add a column for the View"
 	@priority = "5"
 	test CanAddColumn {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147765",
@@ -302,7 +302,7 @@ definition {
 	@description = "LPS-135394 - Verify it is possible to delete a column for the View by unselecting it"
 	@priority = "5"
 	test CanDeleteColumnByUnselect {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147768",
@@ -335,7 +335,7 @@ definition {
 	@description = "LPS-135394 - Verify it is possible to delete a column for the View through the delete button"
 	@priority = "5"
 	test CanDeleteColumnThroughDeleteButton {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147767",
@@ -385,13 +385,7 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
-		Click.clickAtNotVisible(
-			key_columnOption = "Author",
-			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "Author");
 
 		Button.clickSave();
 
@@ -481,7 +475,7 @@ definition {
 	@description = "LPS-135394 - Verify it is possible to drag the columns"
 	@priority = "5"
 	test CanDragColumns {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147769",
@@ -735,17 +729,7 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
-		Click.clickAtNotVisible(
-			key_columnOption = "Author",
-			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-
-		Click.clickAtNotVisible(
-			key_columnOption = "Creation Date",
-			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "Author,Creation Date");
 
 		ObjectCustomViews.searchOnViewBuilder(columnName = "Author");
 
@@ -780,7 +764,7 @@ definition {
 
 		ObjectCustomViews.assertColumnVisibleOnAddColumnModal(columnOption = "Author");
 
-		ObjectCustomViews.assertColumnNotVisibleOnAddColumnModal(columnOption = "Creation Date");
+		ObjectCustomViews.assertColumnNotPresentOnAddColumnModal(columnOption = "Creation Date");
 	}
 
 	@description = "LPS-144472 - Verify it is possible to search columns to a New Default Sort modal"
@@ -898,17 +882,9 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
 		var listColumns = "Author,Creation Date,Modified Date";
 
-		for (var columnName : list "${listColumns}") {
-			Click.clickAtNotVisible(
-				key_columnOption = "${columnName}",
-				locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-		}
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "${listColumns}");
 
 		ObjectCustomViews.goToDefaultSortTab();
 
@@ -1052,7 +1028,7 @@ definition {
 	@description = "LPS-147792 - Verify it is possible to see the column label as the alias on the view builder column list"
 	@priority = "5"
 	test CanSeeRenamedColumnOnViewBuilder {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 152068",
@@ -1241,13 +1217,7 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
-		Click.clickAtNotVisible(
-			key_columnOption = "Author",
-			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "Author");
 
 		ObjectCustomViews.assertColumnPresent(columnName = "Author");
 
@@ -1373,7 +1343,7 @@ definition {
 	@description = "LPS-144902 - Verify if the entries from an object in a table view defined as default are presented correctly"
 	@priority = "5"
 	test CanViewEntries {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147770",
@@ -1485,7 +1455,7 @@ definition {
 	@description = "LPS-143190 - Verify that the metadata values are correctly displayed on a Custom View"
 	@priority = "5"
 	test CanViewMetadataValues {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 149239",
@@ -1535,7 +1505,7 @@ definition {
 	@description = "LPS-144902 - Verify if selected Columns on custom view are presented correctly during visualization"
 	@priority = "5"
 	test CanViewOnlySelectedColumns {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147771",
@@ -1591,7 +1561,7 @@ definition {
 	@description = "LPS-144902 - Verify if the Columns on the custom view are presented following the predefined order during visualization"
 	@priority = "5"
 	test ColumnsAreOrdered {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147772",
@@ -1659,7 +1629,6 @@ definition {
 	}
 
 	@description = "LPS-146028 - Verify that the columns present at the View Builder are ordered correctly"
-	@ignore = "Test Stub"
 	@priority = "4"
 	test DuplicatedObjectViewColumnsAreCorrectlyOrdered {
 		ObjectAdmin.addObjectViaAPI(
@@ -1681,15 +1650,7 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
-		for (var columnOption : list "Author,Creation Date,Modified Date,Workflow Status,ID") {
-			Click.clickAtNotVisible(
-				key_columnOption = "${columnOption}",
-				locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-		}
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "Author,Creation Date,Modified Date,Workflow Status,ID");
 
 		Button.clickSave();
 
@@ -1760,15 +1721,7 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
-		for (var columnOption : list "Custom Field A,Custom Field B") {
-			Click.clickAtNotVisible(
-				key_columnOption = "${columnOption}",
-				locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-		}
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "Custom Field A,Custom Field B");
 
 		Button.clickSave();
 
@@ -1884,7 +1837,7 @@ definition {
 	@description = "LPS-135394 - Verify the Author, Creation Date, Modified Date, Workflow Status, ID columns (Metadata columns) are displayed to be selected"
 	@priority = "5"
 	test MetadataColumnsDisplayed {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		ObjectAdmin.addObjectViaAPI(
 			labelName = "Custom Object 147764",
@@ -1952,13 +1905,7 @@ definition {
 
 		ObjectCustomViews.goToViewsBuilderTab();
 
-		LexiconEntry.gotoAdd();
-
-		Click.clickAtNotVisible(
-			key_columnOption = "Author",
-			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
-
-		ObjectCustomViews.saveColumnsModal();
+		ObjectCustomViews.addColumnsViaUI(addColumns = "Author");
 
 		ObjectCustomViews.searchOnViewBuilder(columnName = "Teste");
 

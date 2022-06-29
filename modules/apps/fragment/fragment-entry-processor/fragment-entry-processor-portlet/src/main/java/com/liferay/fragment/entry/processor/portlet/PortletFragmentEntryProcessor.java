@@ -140,10 +140,6 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
-		Document document = _getDocument(html);
-
-		_validateFragmentEntryHTMLDocument(document);
-
 		HttpServletRequest httpServletRequest =
 			fragmentEntryProcessorContext.getHttpServletRequest();
 
@@ -152,15 +148,15 @@ public class PortletFragmentEntryProcessor implements FragmentEntryProcessor {
 				FragmentWebKeys.FRAGMENT_ENTRY_LINK, fragmentEntryLink);
 		}
 
-		String editableValues = fragmentEntryLink.getEditableValues();
-
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			editableValues);
-
-		if (Validator.isNotNull(jsonObject.getString("portletId"))) {
+		if (fragmentEntryLink.isTypePortlet()) {
 			return _renderWidgetHTML(
-				editableValues, fragmentEntryProcessorContext);
+				fragmentEntryLink.getEditableValues(),
+				fragmentEntryProcessorContext);
 		}
+
+		Document document = _getDocument(html);
+
+		_validateFragmentEntryHTMLDocument(document);
 
 		Set<String> processedPortletIds = new HashSet<>();
 

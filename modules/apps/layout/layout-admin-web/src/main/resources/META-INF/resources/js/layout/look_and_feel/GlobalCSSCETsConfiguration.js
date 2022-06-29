@@ -36,16 +36,6 @@ export default function GlobalCSSCETsConfiguration({
 		);
 	};
 
-	const getDropDownItems = (globalCSSCET) => {
-		return [
-			{
-				label: Liferay.Language.get('delete'),
-				onClick: () => deleteGlobalCSSCET(globalCSSCET),
-				symbolLeft: 'trash',
-			},
-		];
-	};
-
 	const handleClick = () => {
 		openSelectionModal({
 			multiple: true,
@@ -132,15 +122,10 @@ export default function GlobalCSSCETsConfiguration({
 								</ClayTable.Cell>
 
 								<ClayTable.Cell>
-									<ClayDropDownWithItems
-										items={getDropDownItems(globalCSSCET)}
-										trigger={
-											<ClayButtonWithIcon
-												displayType="unstyled"
-												small
-												symbol="ellipsis-v"
-											/>
-										}
+									<OptionsButton
+										globalCSSCET={globalCSSCET}
+										onDeleteButtonClick={deleteGlobalCSSCET}
+										portletNamespace={portletNamespace}
 									/>
 								</ClayTable.Cell>
 							</ClayTable.Row>
@@ -153,5 +138,40 @@ export default function GlobalCSSCETsConfiguration({
 				</p>
 			)}
 		</>
+	);
+}
+
+function OptionsButton({globalCSSCET, onDeleteButtonClick, portletNamespace}) {
+	const buttonId = `${portletNamespace}_GlobalCSSCETsConfigurationOptionsButton_${globalCSSCET.cetExternalReferenceCode}`;
+	const [active, setActive] = useState(false);
+
+	const getDropDownItems = (globalCSSCET) => {
+		return [
+			{
+				label: Liferay.Language.get('delete'),
+				onClick: () => onDeleteButtonClick(globalCSSCET),
+				symbolLeft: 'trash',
+			},
+		];
+	};
+
+	return (
+		<ClayDropDownWithItems
+			active={active}
+			items={getDropDownItems(globalCSSCET)}
+			menuElementAttrs={{'aria-labelledby': buttonId, 'role': 'menu'}}
+			onActiveChange={setActive}
+			trigger={
+				<ClayButtonWithIcon
+					aria-expanded={active.toString()}
+					aria-haspopup="true"
+					aria-label={Liferay.Language.get('show-options')}
+					displayType="unstyled"
+					id={buttonId}
+					small
+					symbol="ellipsis-v"
+				/>
+			}
+		/>
 	);
 }

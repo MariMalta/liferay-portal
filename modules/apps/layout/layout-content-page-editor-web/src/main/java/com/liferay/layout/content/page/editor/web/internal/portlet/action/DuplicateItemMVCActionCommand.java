@@ -14,11 +14,14 @@
 
 package com.liferay.layout.content.page.editor.web.internal.portlet.action;
 
+import com.liferay.fragment.contributor.FragmentCollectionContributorTracker;
+import com.liferay.fragment.entry.processor.constants.FragmentEntryProcessorConstants;
 import com.liferay.fragment.exception.NoSuchEntryLinkException;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.processor.PortletRegistry;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
 import com.liferay.fragment.service.FragmentEntryLinkService;
+import com.liferay.fragment.service.FragmentEntryLocalService;
 import com.liferay.layout.content.page.editor.constants.ContentPageEditorPortletKeys;
 import com.liferay.layout.content.page.editor.web.internal.exception.NoninstanceablePortletException;
 import com.liferay.layout.content.page.editor.web.internal.util.FragmentEntryLinkManager;
@@ -308,6 +311,15 @@ public class DuplicateItemMVCActionCommand
 				namespace);
 		}
 
+		if (fragmentEntryLink.isTypeInput()) {
+			JSONObject freemarkerFragmentEntryProcessorJSONObject =
+				editableValuesJSONObject.getJSONObject(
+					FragmentEntryProcessorConstants.
+						KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR);
+
+			freemarkerFragmentEntryProcessorJSONObject.remove("inputFieldId");
+		}
+
 		FragmentEntryLink duplicatedFragmentEntryLink =
 			_fragmentEntryLinkService.addFragmentEntryLink(
 				fragmentEntryLink.getGroupId(),
@@ -318,7 +330,8 @@ public class DuplicateItemMVCActionCommand
 				fragmentEntryLink.getHtml(), fragmentEntryLink.getJs(),
 				fragmentEntryLink.getConfiguration(),
 				editableValuesJSONObject.toString(), namespace, 0,
-				fragmentEntryLink.getRendererKey(), serviceContext);
+				fragmentEntryLink.getRendererKey(), fragmentEntryLink.getType(),
+				serviceContext);
 
 		return duplicatedFragmentEntryLink.getFragmentEntryLinkId();
 	}
@@ -353,6 +366,10 @@ public class DuplicateItemMVCActionCommand
 	}
 
 	@Reference
+	private FragmentCollectionContributorTracker
+		_fragmentCollectionContributorTracker;
+
+	@Reference
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
 
 	@Reference
@@ -360,6 +377,9 @@ public class DuplicateItemMVCActionCommand
 
 	@Reference
 	private FragmentEntryLinkService _fragmentEntryLinkService;
+
+	@Reference
+	private FragmentEntryLocalService _fragmentEntryLocalService;
 
 	@Reference
 	private Portal _portal;

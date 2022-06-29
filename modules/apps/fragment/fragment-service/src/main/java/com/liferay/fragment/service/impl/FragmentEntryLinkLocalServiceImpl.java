@@ -16,6 +16,7 @@ package com.liferay.fragment.service.impl;
 
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.fragment.constants.FragmentEntryLinkConstants;
+import com.liferay.fragment.entry.processor.constants.FragmentEntryProcessorConstants;
 import com.liferay.fragment.listener.FragmentEntryLinkListener;
 import com.liferay.fragment.listener.FragmentEntryLinkListenerTracker;
 import com.liferay.fragment.model.FragmentCollection;
@@ -86,7 +87,7 @@ public class FragmentEntryLinkLocalServiceImpl
 			long fragmentEntryId, long segmentsExperienceId, long plid,
 			String css, String html, String js, String configuration,
 			String editableValues, String namespace, int position,
-			String rendererKey, ServiceContext serviceContext)
+			String rendererKey, int type, ServiceContext serviceContext)
 		throws PortalException {
 
 		User user = _userLocalService.getUser(userId);
@@ -161,6 +162,7 @@ public class FragmentEntryLinkLocalServiceImpl
 
 		fragmentEntryLink.setEditableValues(editableValues);
 		fragmentEntryLink.setPosition(position);
+		fragmentEntryLink.setType(type);
 		fragmentEntryLink.setLastPropagationDate(
 			serviceContext.getCreateDate(new Date()));
 
@@ -466,7 +468,7 @@ public class FragmentEntryLinkLocalServiceImpl
 			long userId, long fragmentEntryLinkId,
 			long originalFragmentEntryLinkId, long fragmentEntryId, long plid,
 			String css, String html, String js, String configuration,
-			String editableValues, String namespace, int position,
+			String editableValues, String namespace, int position, int type,
 			ServiceContext serviceContext)
 		throws PortalException {
 
@@ -496,6 +498,7 @@ public class FragmentEntryLinkLocalServiceImpl
 		}
 
 		fragmentEntryLink.setPosition(position);
+		fragmentEntryLink.setType(type);
 
 		return fragmentEntryLinkPersistence.update(fragmentEntryLink);
 	}
@@ -563,6 +566,7 @@ public class FragmentEntryLinkLocalServiceImpl
 
 		fragmentEntryLink.setEditableValues(newEditableValues);
 
+		fragmentEntryLink.setType(fragmentEntry.getType());
 		fragmentEntryLink.setLastPropagationDate(new Date());
 
 		fragmentEntryLink = fragmentEntryLinkPersistence.update(
@@ -732,8 +736,7 @@ public class FragmentEntryLinkLocalServiceImpl
 	}
 
 	private static final String[] _FRAGMENT_ENTRY_PROCESSOR_KEYS = {
-		"com.liferay.fragment.entry.processor.editable." +
-			"EditableFragmentEntryProcessor"
+		FragmentEntryProcessorConstants.KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR
 	};
 
 	private static final Log _log = LogFactoryUtil.getLog(

@@ -901,7 +901,7 @@ definition {
 				echo("The auto image resolution is right.");
 			}
 			else {
-				fail("The auto image resolution is wrong.");
+				TestUtils.fail(message = "The auto image resolution is wrong.");
 			}
 		}
 		else {
@@ -911,7 +911,7 @@ definition {
 				echo("The auto image resolution is right.");
 			}
 			else {
-				fail("The auto image resolution is wrong.");
+				TestUtils.fail(message = "The auto image resolution is wrong.");
 			}
 		}
 	}
@@ -1135,6 +1135,34 @@ definition {
 			PageEditor.waitForAutoSave();
 		}
 
+		if (isSet(cssClasses)) {
+			if (!(isSet(key))) {
+				Type.sendKeys(
+					key_text = "CSS Classes",
+					locator1 = "TextInput#ANY",
+					value1 = "${cssClasses}");
+
+				Click(
+					key_sidebarButton = "Browser",
+					locator1 = "PageEditor#FRAGMENT_SIDEBAR_TITLE");
+			}
+			else {
+				for (var cssClass : list "${cssClasses}") {
+					Type.sendKeys(
+						key_text = "CSS Classes",
+						locator1 = "TextInput#ANY",
+						value1 = "${cssClass}");
+
+					KeyPress(
+						key_text = "CSS Classes",
+						locator1 = "TextInput#ANY",
+						value1 = "${key}");
+				}
+			}
+
+			PageEditor.waitForAutoSave();
+		}
+
 		if (isSet(headingLevel)) {
 			Select(
 				key_fieldLabel = "Heading Level",
@@ -1145,7 +1173,17 @@ definition {
 		}
 
 		if ("${hideFragment}" == "true") {
-			Check.checkNotVisible(
+			Click.clickAtNotVisible(
+				checkboxName = "Hide Fragment",
+				locator1 = "Checkbox#ANY_CHECKBOX");
+
+			if ((IsElementPresent(locator1 = "Modal#BODY")) && (IsTextEqual(locator1 = "Modal#BODY", value1 = "This fragment contains a required form field or a submit element. Are you sure you want to hide it?"))) {
+				Click(
+					key_text = "Hide",
+					locator1 = "Modal#MODAL_FOOTER_BUTTON");
+			}
+
+			AssertChecked.assertCheckedNotVisible(
 				checkboxName = "Hide Fragment",
 				locator1 = "Checkbox#ANY_CHECKBOX");
 

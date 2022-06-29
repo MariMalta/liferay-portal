@@ -29,12 +29,11 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.servlet.SessionErrors;
+import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.struts.StrutsAction;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.util.WebKeys;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -59,14 +58,16 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 			HttpServletResponse httpServletResponse)
 		throws Exception {
 
-		HttpServletRequest originalHttpServletRequest =
-			_portal.getOriginalServletRequest(httpServletRequest);
+		String formItemId = ParamUtil.getString(
+			httpServletRequest, "formItemId");
 
-		String className = _portal.getClassName(
-			ParamUtil.getLong(originalHttpServletRequest, "classNameId"));
+		String redirect = null;
 
 		try {
 			CaptchaUtil.check(httpServletRequest);
+
+			String className = _portal.getClassName(
+				ParamUtil.getLong(httpServletRequest, "classNameId"));
 
 			InfoItemCreator<Object> infoItemCreator =
 				_infoItemServiceTracker.getFirstInfoItemService(
@@ -76,12 +77,8 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 				throw new InfoFormException();
 			}
 
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
-
 			infoItemCreator.createFromInfoItemFieldValues(
-				themeDisplay.getScopeGroupId(),
+				ParamUtil.getLong(httpServletRequest, "groupId"),
 				InfoItemFieldValues.builder(
 				).infoFieldValues(
 					_infoRequestFieldValuesProviderHelper.getInfoFieldValues(
@@ -89,6 +86,12 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 				).infoItemReference(
 					new InfoItemReference(className, 0)
 				).build());
+
+			redirect = ParamUtil.getString(httpServletRequest, "redirect");
+
+			if (Validator.isNull(redirect)) {
+				SessionMessages.add(httpServletRequest, formItemId);
+			}
 		}
 		catch (CaptchaException captchaException) {
 			if (_log.isDebugEnabled()) {
@@ -96,8 +99,7 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 			}
 
 			SessionErrors.add(
-				originalHttpServletRequest,
-				ParamUtil.getString(httpServletRequest, "formItemId"),
+				httpServletRequest, formItemId,
 				new InfoFormValidationException.InvalidCaptcha());
 		}
 		catch (InfoFormValidationException infoFormValidationException) {
@@ -106,15 +108,13 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 			}
 
 			SessionErrors.add(
-				originalHttpServletRequest,
-				ParamUtil.getString(httpServletRequest, "formItemId"),
-				infoFormValidationException);
+				httpServletRequest, formItemId, infoFormValidationException);
 
 			if (Validator.isNotNull(
 					infoFormValidationException.getInfoFieldUniqueId())) {
 
 				SessionErrors.add(
-					originalHttpServletRequest,
+					httpServletRequest,
 					infoFormValidationException.getInfoFieldUniqueId(),
 					infoFormValidationException);
 			}
@@ -125,9 +125,7 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 			}
 
 			SessionErrors.add(
-				originalHttpServletRequest,
-				ParamUtil.getString(httpServletRequest, "formItemId"),
-				infoFormException);
+				httpServletRequest, formItemId, infoFormException);
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -141,13 +139,14 @@ public class AddInfoItemStrutsAction implements StrutsAction {
 			}
 
 			SessionErrors.add(
-				originalHttpServletRequest,
-				ParamUtil.getString(httpServletRequest, "formItemId"),
-				infoFormException);
+				httpServletRequest, formItemId, infoFormException);
 		}
 
-		httpServletResponse.sendRedirect(
-			httpServletRequest.getHeader(HttpHeaders.REFERER));
+		if (Validator.isNull(redirect)) {
+			redirect = httpServletRequest.getHeader(HttpHeaders.REFERER);
+		}
+
+		httpServletResponse.sendRedirect(redirect);
 
 		return null;
 	}

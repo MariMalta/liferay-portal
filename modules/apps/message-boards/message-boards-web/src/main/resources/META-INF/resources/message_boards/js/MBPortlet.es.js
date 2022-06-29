@@ -198,7 +198,7 @@ class MBPortlet {
 			'img[data-random-id]'
 		);
 
-		if (tempImages.length > 0) {
+		if (tempImages.length) {
 			if (confirm(this._strings.confirmDiscardImages)) {
 				tempImages.forEach((node) => {
 					node.parentElement.remove();
@@ -288,7 +288,7 @@ class MBPortlet {
 		fetch(this._getAttachmentsURL)
 			.then((res) => res.json())
 			.then((attachments) => {
-				if (attachments.active.length > 0) {
+				if (attachments.active.length) {
 					Liferay.componentReady(this.searchContainerId).then(
 						(searchContainer) => {
 							const searchContainerData = searchContainer.getData();
@@ -313,7 +313,7 @@ class MBPortlet {
 												attachment.id
 											}" data-url="${
 												attachment.deleteURL
-											}" href="javascript:;">${Liferay.Language.get(
+											}" href="javascript:void(0);">${Liferay.Language.get(
 												'delete'
 											)}</a>`,
 										],
@@ -331,7 +331,7 @@ class MBPortlet {
 					'view-removed-attachments-link'
 				);
 
-				if (attachments.deleted.length > 0) {
+				if (attachments.deleted.length) {
 					deletedAttachmentsElement.style.display = 'initial';
 					deletedAttachmentsElement.innerHTML =
 						sub(

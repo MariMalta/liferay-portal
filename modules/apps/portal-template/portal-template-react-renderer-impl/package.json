@@ -1,6 +1,7 @@
 {
 	"dependencies": {
 	},
+	"main": "index.js",
 	"name": "portal-template-react-renderer-impl",
 	"scripts": {
 		"build": "liferay-npm-scripts build",

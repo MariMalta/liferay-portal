@@ -26,10 +26,6 @@ ObjectAction objectAction = objectDefinitionsActionsDisplayContext.getObjectActi
 	module="js/components/ObjectAction/EditObjectAction"
 	props='<%=
 		HashMapBuilder.<String, Object>put(
-			"ffNotificationTemplates", GetterUtil.getBoolean(PropsUtil.get("feature.flag.LPS-149050"))
-		).put(
-			"getObjectDefinitionsRelationshipsURL", objectDefinitionsActionsDisplayContext.getObjectDefinitionsRelationshipsURL()
-		).put(
 			"objectAction", objectDefinitionsActionsDisplayContext.getObjectActionJSONObject(objectAction)
 		).put(
 			"objectActionCodeEditorElements", objectDefinitionsActionsDisplayContext.getObjectActionCodeEditorElements()
@@ -37,6 +33,8 @@ ObjectAction objectAction = objectDefinitionsActionsDisplayContext.getObjectActi
 			"objectActionExecutors", objectDefinitionsActionsDisplayContext.getObjectActionExecutorsJSONArray()
 		).put(
 			"objectActionTriggers", objectDefinitionsActionsDisplayContext.getObjectActionTriggersJSONArray()
+		).put(
+			"objectDefinitionsRelationshipsURL", objectDefinitionsActionsDisplayContext.getObjectDefinitionsRelationshipsURL()
 		).put(
 			"readOnly", !objectDefinitionsActionsDisplayContext.hasUpdateObjectDefinitionPermission()
 		).put(

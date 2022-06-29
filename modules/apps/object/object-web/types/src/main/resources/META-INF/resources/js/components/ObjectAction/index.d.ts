@@ -15,22 +15,22 @@
 /// <reference types="react" />
 
 import 'codemirror/mode/groovy/groovy';
-import {CustomItem} from '@liferay/object-js-components-web';
+import {CustomItem, FormError} from '@liferay/object-js-components-web';
 export default function Action({
-	ffNotificationTemplates,
 	objectAction: initialValues,
 	objectActionExecutors,
 	objectActionTriggers,
+	objectDefinitionsRelationshipsURL,
 	readOnly,
 	requestParams: {method, url},
 	successMessage,
 	validateExpressionURL,
 }: IProps): JSX.Element;
 interface IProps {
-	ffNotificationTemplates: boolean;
 	objectAction: Partial<ObjectAction>;
 	objectActionExecutors: CustomItem[];
 	objectActionTriggers: CustomItem[];
+	objectDefinitionsRelationshipsURL: string;
 	readOnly?: boolean;
 	requestParams: {
 		method: 'GET' | 'POST' | 'DELETE' | 'PUT';
@@ -40,4 +40,11 @@ interface IProps {
 	title: string;
 	validateExpressionURL: string;
 }
+export declare type ActionError = FormError<
+	ObjectAction & ObjectActionParameters
+> & {
+	predefinedValues?: {
+		[key: string]: string;
+	};
+};
 export {};

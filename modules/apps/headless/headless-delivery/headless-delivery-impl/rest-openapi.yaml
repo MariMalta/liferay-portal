@@ -2987,6 +2987,18 @@ components:
             required:
                 - headline
             type: object
+        MessageFormSubmissionResult:
+            # @review
+            description:
+                Represents a definition of a submission result of type message.
+            properties:
+                message:
+                    allOf:
+                        - $ref: "#/components/schemas/FragmentInlineValue"
+                    # @review
+                    description:
+                        The localized submission of message type.
+            type: object
         NavigationMenu:
             # @review
             description:
@@ -3228,6 +3240,11 @@ components:
                     items:
                         type: string
                     type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
                 displayAllItems:
                     # @review
                     description:
@@ -3447,6 +3464,11 @@ components:
                     items:
                         type: string
                     type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
                 formConfig:
                     # @review
                     description:
@@ -3459,6 +3481,15 @@ components:
                             oneOf:
                                 - $ref: "#/components/schemas/ClassTypeReference"
                                 - $ref: "#/components/schemas/ContextReference"
+                        formSuccessSubmissionResult:
+                            # @review
+                            description:
+                                The definition for the success message of the form.
+                            oneOf:
+                                - $ref: "#/components/schemas/MessageFormSubmissionResult"
+                                - $ref: "#/components/schemas/SitePageFormSubmissionResult"
+                                - $ref: "#/components/schemas/URLFormSubmissionResult"
+                            type: object
                     type: object
                 fragmentStyle:
                     allOf:
@@ -3491,6 +3522,11 @@ components:
                     items:
                         type: string
                     type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
                 fragment:
                     allOf:
                         - $ref: "#/components/schemas/Fragment"
@@ -3554,6 +3590,11 @@ components:
                     items:
                         type: string
                     type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
                 fragmentStyle:
                     allOf:
                         - $ref: "#/components/schemas/FragmentStyle"
@@ -3675,6 +3716,11 @@ components:
                     items:
                         type: string
                     type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
                 fragmentLink:
                     allOf:
                         - $ref: "#/components/schemas/FragmentLink"
@@ -3957,6 +4003,11 @@ components:
                     items:
                         type: string
                     type: array
+                customCSS:
+                    # @review
+                    description:
+                        Custom CSS that is applied on the fragment.
+                    type: string
                 fragmentStyle:
                     allOf:
                         - $ref: "#/components/schemas/FragmentStyle"
@@ -4450,6 +4501,18 @@ components:
             required:
                 - title
             type: object
+        SitePageFormSubmissionResult:
+            # @review
+            description:
+                Represents a definition of a submission result of type page.
+            properties:
+                itemReference:
+                    allOf:
+                        - $ref: "#/components/schemas/ClassFieldsReference"
+                    # @review
+                    description:
+                        The localized submission of page type.
+            type: object
         StructuredContent:
             description:
                 Represents content that has fields and is rendered by a template backed by a `ContentStructure`. This is
@@ -4781,6 +4844,18 @@ components:
                     readOnly: true
                     type: object
             type: object
+        URLFormSubmissionResult:
+            # @review
+            description:
+                Represents a definition of a submission result of type URL.
+            properties:
+                url:
+                    allOf:
+                        - $ref: "#/components/schemas/FragmentInlineValue"
+                    # @review
+                    description:
+                        The localized submission of URL type.
+            type: object
         WidgetInstance:
             # @review
             description:
@@ -5089,7 +5164,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.delivery.client', and version '4.0.28'."
+        'com.liferay.headless.delivery.client', and version '4.0.30'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"
@@ -5113,6 +5188,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -5163,6 +5246,14 @@ paths:
                   schema:
                       type: string
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: page
                   schema:
                       type: integer
@@ -5197,6 +5288,14 @@ paths:
                 - in: path
                   name: uuid
                   required: true
+                  schema:
+                      type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
                   schema:
                       type: string
                 - in: query
@@ -5237,6 +5336,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -5282,6 +5389,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -5322,6 +5437,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -5373,9 +5496,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -5448,6 +5579,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -5489,9 +5628,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -5659,6 +5806,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -5696,6 +5851,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:
@@ -5727,9 +5890,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -5791,6 +5962,93 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/StructuredContentFolder"
             tags: ["StructuredContentFolder"]
+    "/asset-libraries/{assetLibraryId}/structured-content-folders/by-external-reference-code/{externalReferenceCode}":
+        delete:
+            # @review
+            description:
+                Deletes the asset library's structured content folder by external reference code.
+            operationId: deleteAssetLibraryStructuredContentFolderByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: assetLibraryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["StructuredContentFolder"]
+        get:
+            # @review
+            description:
+                Retrieves the asset library's structured content folder by external reference code.
+            operationId: getAssetLibraryStructuredContentFolderByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: assetLibraryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/StructuredContentFolder"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/StructuredContentFolder"
+            tags: ["StructuredContentFolder"]
+        put:
+            # @review
+            description:
+                Updates the asset library's structured content folder with the given external reference code, or creates
+                it if it not exists.
+            operationId: putAssetLibraryStructuredContentFolderByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: assetLibraryId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/StructuredContentFolder"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/StructuredContentFolder"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/StructuredContentFolder"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/StructuredContentFolder"
+            tags: ["StructuredContentFolder"]
     "/asset-libraries/{assetLibraryId}/structured-content-folders/permissions":
         get:
             operationId: getAssetLibraryStructuredContentFolderPermissionsPage
@@ -5801,6 +6059,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: roleNames
                   schema:
@@ -5843,9 +6109,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -6009,6 +6283,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: roleNames
                   schema:
@@ -6191,6 +6473,14 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: filter
                   schema:
                       type: string
@@ -6361,6 +6651,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -6497,6 +6795,14 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: filter
                   schema:
                       type: string
@@ -6578,6 +6884,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: page
                   schema:
                       type: integer
@@ -6632,6 +6946,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -6675,6 +6997,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -6830,9 +7160,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -6912,6 +7250,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -6987,9 +7333,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -7179,6 +7533,14 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: filter
                   schema:
                       type: string
@@ -7350,6 +7712,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -7508,6 +7878,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:
@@ -7665,6 +8043,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -7741,9 +8127,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -7965,9 +8359,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -8042,6 +8444,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -8078,6 +8488,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: page
                   schema:
@@ -8278,6 +8696,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:
@@ -8435,6 +8861,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -8511,9 +8945,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -8694,6 +9136,14 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: filter
                   schema:
                       type: string
@@ -8766,6 +9216,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: roleNames
                   schema:
@@ -8842,6 +9300,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -8920,10 +9386,18 @@ paths:
                       format: date-time
                       type: string
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: messageBoardSectionId
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: page
                   schema:
@@ -9060,6 +9534,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:
@@ -9126,6 +9608,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -9298,6 +9788,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -9434,6 +9932,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -9476,6 +9982,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -9561,6 +10075,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -9823,6 +10345,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -9998,6 +10528,14 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: filter
                   schema:
                       type: string
@@ -10049,6 +10587,14 @@ paths:
                   schema:
                       type: string
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: page
                   schema:
                       type: integer
@@ -10085,6 +10631,14 @@ paths:
                 - in: path
                   name: uuid
                   required: true
+                  schema:
+                      type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
                   schema:
                       type: string
                 - in: query
@@ -10127,6 +10681,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -10172,6 +10734,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -10212,6 +10782,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -10291,9 +10869,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -10368,6 +10954,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -10412,9 +11006,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -10687,6 +11289,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -10731,9 +11341,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -10895,6 +11513,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -10963,6 +11589,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: page
                   schema:
@@ -11112,6 +11746,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -11149,6 +11791,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:
@@ -11183,9 +11833,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -11347,6 +12005,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -11391,9 +12057,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -11468,6 +12142,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -11512,9 +12194,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -11618,6 +12308,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -11652,6 +12350,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: page
                   schema:
@@ -11715,6 +12421,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -11758,6 +12472,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -11810,6 +12532,14 @@ paths:
                   required: true
                   schema:
                       type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: header
                   name: Accept-Language
                   schema:
@@ -11840,6 +12570,14 @@ paths:
                 - in: path
                   name: friendlyUrlPath
                   required: true
+                  schema:
+                      type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
                   schema:
                       type: string
                 - in: header
@@ -11883,6 +12621,14 @@ paths:
                   required: true
                   schema:
                       type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: header
                   name: Accept-Language
                   schema:
@@ -11919,6 +12665,14 @@ paths:
                   required: true
                   schema:
                       type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:
@@ -11941,6 +12695,14 @@ paths:
                 - in: path
                   name: friendlyUrlPath
                   required: true
+                  schema:
+                      type: string
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
                   schema:
                       type: string
             responses:
@@ -11970,9 +12732,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -12124,6 +12894,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -12168,9 +12946,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -12505,6 +13291,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -12548,6 +13342,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -12706,6 +13508,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -12827,6 +13637,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -12870,6 +13688,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -13050,9 +13876,17 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
                   name: flatten
                   schema:
                       type: boolean
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -13285,6 +14119,14 @@ paths:
                           type: string
                       type: array
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: filter
                   schema:
                       type: string
@@ -13455,6 +14297,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: roleNames
                   schema:
@@ -13642,6 +14492,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -13717,6 +14575,14 @@ paths:
                       items:
                           type: string
                       type: array
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
                 - in: query
                   name: filter
                   schema:
@@ -13831,6 +14697,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: strin
             responses:
                 200:
                     content:
@@ -13953,6 +14827,14 @@ paths:
                       format: int64
                       type: integer
                 - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
+                - in: query
                   name: roleNames
                   schema:
                       type: string
@@ -14022,6 +14904,14 @@ paths:
                   schema:
                       format: int64
                       type: integer
+                - in: query
+                  name: fields
+                  schema:
+                      type: string
+                - in: query
+                  name: restrictFields
+                  schema:
+                      type: string
             responses:
                 200:
                     content:

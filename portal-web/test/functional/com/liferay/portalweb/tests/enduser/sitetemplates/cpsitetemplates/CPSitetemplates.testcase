@@ -25,6 +25,7 @@ definition {
 		}
 	}
 
+	@description = "User can add site templates to the portal."
 	@priority = "4"
 	test AddSiteTemplate {
 		property portal.acceptance = "true";
@@ -45,6 +46,7 @@ definition {
 			siteTemplateName = "Site Template Name");
 	}
 
+	@description = "User can create site based on templates and changes made on the parent template will apply to the child site by default."
 	@priority = "4"
 	test AddSiteTemplateApplySiteTemplateChangesToSite {
 		property portal.acceptance = "true";
@@ -84,6 +86,7 @@ definition {
 		Alert.viewInfoMessageSpecific(infoMessage = "There are no results.");
 	}
 
+	@description = "User can withdraw site administrator's right to modificaton of pages on a site template."
 	@priority = "4"
 	test AddSiteTemplateDisablePageModification {
 		property portal.acceptance = "true";
@@ -109,7 +112,7 @@ definition {
 		AssertElementNotPresent(locator1 = "ControlMenu#ADD");
 	}
 
-	@description = "This is a use case for LPS-121137."
+	@description = "This is a use case for LPS-121137. Admin can enable and disable the porpagation of site template changes on site templates admin page."
 	@priority = "4"
 	test AdminCanControlWhenPropagateSiteTemplateChanges {
 		property portal.acceptance = "true";
@@ -179,7 +182,7 @@ definition {
 			locator1 = "Portlet#SPECIFIC_FRAGMENTS_AND_WIDGETS");
 	}
 
-	@description = "This is a use case for LPS-118486."
+	@description = "This is a use case for 118486. User should not be able to create child pages for pages derived from site templates."
 	@priority = "3"
 	test AssertNoChildPageOptionForPageDerivedFromSiteTemplate {
 		SiteTemplates.addCP(siteTemplateName = "Site Template Name");
@@ -230,7 +233,7 @@ definition {
 			locator1 = "MenuItem#ANY_MENU_ITEM");
 	}
 
-	@description = "This is a use case for LPS-121139."
+	@description = "This is a use case for LPS-121139. User is able to propagate pages only on site templates and in this situation only the corresponding page's SQL value will be updated. "
 	@priority = "4"
 	test AssertPartialSiteTemplatePropagation {
 		property database.types = "mysql";
@@ -340,7 +343,7 @@ definition {
 		}
 	}
 
-	@description = "This is a use case for LPS-131903 and LPS-132256 - Verified that users can not attempt to edit pages when disable changes."
+	@description = "This is a use case for LPS-131903 and LPS-132256 - Verify that users can not attempt to edit pages when disable changes."
 	@priority = "3"
 	test CannotEditSiteLinkedToDisabledPageModificationSiteTemplate {
 		property portal.acceptance = "true";
@@ -374,7 +377,7 @@ definition {
 		MenuItem.viewNotPresent(menuItem = "Permissions");
 	}
 
-	@description = "This is a use case for LPS-84497."
+	@description = "This is a use case for LPS-84497. User can deactivate then activate later a site template."
 	@priority = "3"
 	test DeactivateActivateSiteTemplate {
 		SiteTemplates.addCP(
@@ -406,7 +409,7 @@ definition {
 			siteTemplateName = "Site Template Name");
 	}
 
-	@description = "This is a use case for LPS-87081."
+	@description = "This is a use case for LPS-87081. User can delete site template both from it's hamburger menu and from the list of the site template admin page."
 	@priority = "5"
 	test DeleteSiteTemplate {
 		property portal.acceptance = "true";
@@ -438,6 +441,7 @@ definition {
 		SiteTemplates.viewNoTemplatesDisplay(siteTemplateName = "Site Template Name");
 	}
 
+	@description = "User is not able to delete sites templates which are associated to existing sites."
 	@priority = "4"
 	test DeleteSiteTemplateAssociatedWithASite {
 		property portal.acceptance = "true";
@@ -472,7 +476,7 @@ definition {
 		SiteTemplates.viewCP(siteTemplateName = "Site Template Name");
 	}
 
-	@description = "This is a use case for LPS-98548."
+	@description = "This is a use case for LPS-98548. User can import site templates to virtual instances and delete them."
 	@priority = "4"
 	test DeleteSiteTemplateImportedToVirtualInstance {
 		property test.name.skip.portal.instance = "CPSitetemplates#DeleteSiteTemplateImportedToVirtualInstance";
@@ -518,6 +522,7 @@ definition {
 		SiteTemplates.viewNoTemplatesDisplay(siteTemplateName = "Site Template Name");
 	}
 
+	@description = "User can edit an existing site template."	
 	@priority = "4"
 	test EditSiteTemplate {
 		property portal.acceptance = "true";
@@ -549,6 +554,7 @@ definition {
 			siteTemplateName = "Site Template Name Edit");
 	}
 
+	@description = "User can edit the status of an existing site template."
 	@priority = "5"
 	test EditSiteTemplateStatus {
 		property portal.acceptance = "true";
@@ -585,6 +591,7 @@ definition {
 			siteTemplateName = "Site Template Name");
 	}
 
+	@description = "Information on site template admin page should be localized corresponding to the chosen language."
 	@priority = "4"
 	test LocalizeSiteTemplatesAdmin {
 		property test.name.skip.portal.instance = "CPSitetemplates#LocalizeSiteTemplatesAdmin";
@@ -632,6 +639,7 @@ definition {
 		SiteTemplates.viewCP(siteTemplateName = "Site Template Name");
 	}
 
+	@description = "Sites created from templates should only be editable by connecting users with admin rights."
 	@priority = "4"
 	test OnlySiteAdminCanModifyPageAssociatedWithSiteTemplate {
 		property portal.acceptance = "true";
@@ -686,6 +694,7 @@ definition {
 		User.loginUserPG();
 	}
 
+	@description = "User can reset changes made on already existing portlets on sites which are based on site templates."
 	@priority = "5"
 	test ResetPageChanges {
 		property portal.acceptance = "true";
@@ -762,7 +771,7 @@ definition {
 			portletName = "Asset Publisher");
 	}
 
-	@description = "This is a use case for LPS-44550"
+	@description = "This is a use case for LPS-44550. XSS should not be possible through site template name field."
 	@priority = "4"
 	test SiteTemplateXSS {
 		SiteTemplates.addCP(
@@ -798,7 +807,7 @@ definition {
 		AssertHTMLSourceTextPresent(value1 = "${escapedScript}");
 	}
 
-	@description = "This is a use case for LPS-124594 and LPS-129081."
+	@description = "This is a use case for LPS-124594 and LPS-129081. User can switch propagation status on site template sites with the propagation button."
 	@priority = "4"
 	test SwitchPropagationWithOneClickControl {
 		var siteName = TestCase.getSiteName(siteName = "${siteName}");
@@ -846,7 +855,7 @@ definition {
 			locator1 = "Portlet#SPECIFIC_FRAGMENTS_AND_WIDGETS");
 	}
 
-	@description = "This is a use case for LPS-133675."
+	@description = "This is a use case for LPS-133675. Javascript fields should be propagated on site templates."
 	@priority = "3"
 	test ViewJavaScriptPropagateviaSiteTemplate {
 		var javascript = '''alert("alert!");''';

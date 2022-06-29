@@ -1771,10 +1771,6 @@ definition {
 
 		Panel.expandPanel(panel = "Default Template");
 
-		var templateName = StringUtil.replace("${templateName}", "&lt;", "<");
-
-		var templateName = StringUtil.replace("${templateName}", "&gt;", ">");
-
 		AssertTextEquals(
 			inputFieldId = "ddmTemplateName",
 			locator1 = "TextInput#INPUT_ID",
@@ -2658,6 +2654,10 @@ definition {
 			if (!(isSet(webContentLinkToPageFieldLabel))) {
 				var webContentLinkToPageFieldLabel = "Link to Page";
 			}
+
+			WaitForEditable(
+				key_fieldFieldLabel = "${webContentLinkToPageFieldLabel}",
+				locator1 = "TextInput#SELECTOR_INPUT");
 
 			var selectedPage = selenium.getElementValue("//label[normalize-space(text())='${webContentLinkToPageFieldLabel}']/following-sibling::div//div[contains(@class,'input-group')]//input[contains(@type,'text')]");
 

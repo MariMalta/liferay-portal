@@ -105,7 +105,7 @@ definition {
 
 		MenuItem.click(menuItem = "Settings");
 
-		Uncheck.uncheckToggleSwitch(locator1 = "Publications#PUBLICATIONS_TOGGLE_SWITCH");
+		Uncheck.uncheckToggleSwitch(locator1 = "Publications#ENABLE_PUBLICATIONS_TOGGLE_SWITCH");
 
 		Click(locator1 = "Button#SAVE");
 	}
@@ -116,9 +116,33 @@ definition {
 			panel = "Applications",
 			portlet = "Publications");
 
-		Check.checkToggleSwitch(locator1 = "Publications#PUBLICATIONS_TOGGLE_SWITCH");
+		Check.checkToggleSwitch(locator1 = "Publications#ENABLE_PUBLICATIONS_TOGGLE_SWITCH");
+
+		if ("${enableSandboxOnly}" == "true") {
+			Check.checkToggleSwitch(locator1 = "Publications#ENABLE_SANDBOX_ONLY_TOGGLE_SWITCH");
+		}
 
 		Click(locator1 = "Button#SAVE");
+	}
+
+	macro enableSandboxOnly {
+		ApplicationsMenu.gotoPortlet(
+			category = "Publications",
+			panel = "Applications",
+			portlet = "Publications");
+
+		Check.checkToggleSwitch(locator1 = "Publications#ENABLE_SANDBOX_ONLY_TOGGLE_SWITCH");
+
+		Click(locator1 = "Button#SAVE");
+	}
+
+	macro getSandboxedPublicationName {
+		var sandboxTime = DateUtil.getFormattedCurrentDate("h:mm", "UTC");
+		var sandboxDate = DateUtil.getFormattedCurrentDate("M/d/yy", "UTC");
+
+		var sandboxedPublicationName = "${userScreenName} - ${sandboxDate} ${sandboxTime}";
+
+		return "${sandboxedPublicationName}";
 	}
 
 	macro inviteUsers {
@@ -393,6 +417,24 @@ definition {
 		AssertTextEquals(
 			locator1 = "Publications#LIST_PUBLISHED_STATUS",
 			value1 = "Published");
+	}
+
+	macro viewSandboxedPublication {
+		var key_publicationName = "${sandboxedPublicationName}";
+
+		if ("${sandboxedUser}" == "true") {
+			AssertTextEquals.assertPartialText(
+				locator1 = "Publications#PUBLICATIONS_INDICATOR_TITLE",
+				value1 = "${sandboxedPublicationName}");
+		}
+
+		PublicationsNavigator.openPublicationsAdmin();
+
+		LexiconEntry.changeDisplayStyle(displayStyle = "list");
+
+		AssertTextEquals.assertPartialText(
+			locator1 = "Publications#PUBLICATION_NAME_IN_ONGOING",
+			value1 = "${sandboxedPublicationName}");
 	}
 
 	macro workOnProduction {
