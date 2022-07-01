@@ -10,8 +10,8 @@
  */
 
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
-import {ClayDropDownWithItems} from '@clayui/drop-down';
 import ClayForm, {ClayInput, ClaySelect} from '@clayui/form';
+import {FormCustomSelect} from '@liferay/object-js-components-web';
 import PropTypes from 'prop-types';
 import React, {useContext, useEffect, useState} from 'react';
 
@@ -103,22 +103,6 @@ const NotificationsInfo = ({
 		selectedItem.data.notifications?.name?.[notificationIndex] || ''
 	);
 
-	const [notificationTypeEmail, setNotificationTypeEmail] = useState(
-		selectedItem.data.notifications?.notificationTypes?.[
-			notificationIndex
-		]?.some((value) => value.notificationType === 'email') || false
-	);
-
-	const [
-		notificationTypeUserNotification,
-		setNotificationTypeUserNotification,
-	] = useState(
-		selectedItem.data.notifications?.notificationTypes?.[
-			notificationIndex
-		]?.some((value) => value.notificationType === 'user-notification') ||
-			false
-	);
-
 	const [recipientType, setRecipientType] = useState(
 		getRecipientType(
 			selectedItem.data.notifications?.recipients?.[notificationIndex]
@@ -133,18 +117,33 @@ const NotificationsInfo = ({
 		] || 'freemarker'
 	);
 
+	// const notificationTypesOptions = [
+	// 	{
+	// 		checked: false,
+	// 		label: Liferay.Language.get('email'),
+	// 		type: 'checkbox',
+	// 		value: 'email',
+	// 	},
+	// 	{
+	// 		checked: false,
+	// 		label: Liferay.Language.get('user-notification'),
+	// 		type: 'checkbox',
+	// 		value: 'userNotification',
+	// 	},
+	// ];
+
 	const notificationTypesOptions = [
 		{
-			checked: notificationTypeEmail,
+			checked: false,
 			label: Liferay.Language.get('email'),
 
 			onBlur: () => {
 				const notificationTypes = [];
 
-				if (notificationTypeEmail) {
+				if (checkedTrue.includes('Email')) {
 					notificationTypes.push({notificationType: 'email'});
 				}
-				if (notificationTypeUserNotification) {
+				if (checkedTrue.includes('User Notification')) {
 					notificationTypes.push({
 						notificationType: 'user-notification',
 					});
@@ -157,27 +156,23 @@ const NotificationsInfo = ({
 					template,
 					templateLanguage,
 				});
-			},
-
-			onChange: (value) => {
-				setNotificationTypeEmail(value);
 			},
 
 			type: 'checkbox',
 			value: 'email',
 		},
 		{
-			checked: notificationTypeUserNotification,
+			checked: false,
 			label: Liferay.Language.get('user-notification'),
 
 			onBlur: () => {
 				const notificationTypes = [];
 
-				if (notificationTypeEmail) {
+				if (checkedTrue.includes('Email')) {
 					notificationTypes.push({notificationType: 'email'});
 				}
 
-				if (notificationTypeUserNotification) {
+				if (checkedTrue.includes('User Notification')) {
 					notificationTypes.push({
 						notificationType: 'user-notification',
 					});
@@ -193,14 +188,18 @@ const NotificationsInfo = ({
 				});
 			},
 
-			onChange: (value) => {
-				setNotificationTypeUserNotification(value);
-			},
-
 			type: 'checkbox',
 			value: 'userNotification',
 		},
 	];
+
+	const [items, setItems] = useState(notificationTypesOptions);
+
+	const checkedTrue = items
+		.filter((item) => {
+			return item.checked === true;
+		})
+		.map((item) => item.label);
 
 	const updateSelectedItem = (values) => {
 		setSelectedItem((previousItem) => ({
@@ -398,11 +397,11 @@ const NotificationsInfo = ({
 					onBlur={() => {
 						const notificationTypes = [];
 
-						if (notificationTypeEmail) {
+						if (checkedTrue.includes('Email')) {
 							notificationTypes.push({notificationType: 'email'});
 						}
 
-						if (notificationTypeUserNotification) {
+						if (checkedTrue.includes('User Notification')) {
 							notificationTypes.push({
 								notificationType: 'user-notification',
 							});
@@ -435,11 +434,11 @@ const NotificationsInfo = ({
 					onBlur={() => {
 						const notificationTypes = [];
 
-						if (notificationTypeEmail) {
+						if (checkedTrue.includes('Email')) {
 							notificationTypes.push({notificationType: 'email'});
 						}
 
-						if (notificationTypeUserNotification) {
+						if (checkedTrue.includes('User Notification')) {
 							notificationTypes.push({
 								notificationType: 'user-notification',
 							});
@@ -473,11 +472,11 @@ const NotificationsInfo = ({
 					onBlur={() => {
 						const notificationTypes = [];
 
-						if (notificationTypeEmail) {
+						if (checkedTrue.includes('Email')) {
 							notificationTypes.push({notificationType: 'email'});
 						}
 
-						if (notificationTypeUserNotification) {
+						if (checkedTrue.includes('User Notification')) {
 							notificationTypes.push({
 								notificationType: 'user-notification',
 							});
@@ -518,11 +517,11 @@ const NotificationsInfo = ({
 					onBlur={() => {
 						const notificationTypes = [];
 
-						if (notificationTypeEmail) {
+						if (checkedTrue.includes('Email')) {
 							notificationTypes.push({notificationType: 'email'});
 						}
 
-						if (notificationTypeUserNotification) {
+						if (checkedTrue.includes('User Notification')) {
 							notificationTypes.push({
 								notificationType: 'user-notification',
 							});
@@ -551,14 +550,10 @@ const NotificationsInfo = ({
 					<span className="ml-1 mr-1 text-warning">*</span>
 				</label>
 
-				<ClayDropDownWithItems
-					items={notificationTypesOptions}
-					trigger={
-						<ClayInput
-							id="notification-types"
-							value={Liferay.Language.get('select')}
-						/>
-					}
+				<FormCustomSelect
+					multipleChoice
+					options={items}
+					setOptions={setItems}
 				/>
 			</ClayForm.Group>
 
@@ -572,10 +567,12 @@ const NotificationsInfo = ({
 					id="execution-type"
 					onBlur={() => {
 						const notificationTypes = [];
-						if (notificationTypeEmail) {
+
+						if (checkedTrue.includes('Email')) {
 							notificationTypes.push({notificationType: 'email'});
 						}
-						if (notificationTypeUserNotification) {
+
+						if (checkedTrue.includes('User Notification')) {
 							notificationTypes.push({
 								notificationType: 'user-notification',
 							});
@@ -612,8 +609,7 @@ const NotificationsInfo = ({
 					disabled={
 						notificationName.trim() === '' ||
 						template.trim() === '' ||
-						(!notificationTypeEmail &&
-							!notificationTypeUserNotification)
+						!checkedTrue.length
 					}
 					id="recipient-type"
 					onChange={({target}) => {
@@ -621,11 +617,11 @@ const NotificationsInfo = ({
 
 						const notificationTypes = [];
 
-						if (notificationTypeEmail) {
+						if (checkedTrue.includes('Email')) {
 							notificationTypes.push({notificationType: 'email'});
 						}
 
-						if (notificationTypeUserNotification) {
+						if (checkedTrue.includes('User Notification')) {
 							notificationTypes.push({
 								notificationType: 'user-notification',
 							});
@@ -690,8 +686,7 @@ const NotificationsInfo = ({
 					disabled={
 						notificationName.trim() === '' ||
 						template.trim() === '' ||
-						(!notificationTypeEmail &&
-							!notificationTypeUserNotification)
+						!checkedTrue.length
 					}
 					displayType="secondary"
 					onClick={() =>
